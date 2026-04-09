@@ -3,6 +3,9 @@ description: |
   标准功能开发工作流。
   适用于新功能的完整开发周期：从需求定义、技术设计、代码实现、测试验证到代码评审。
 
+context:
+  - docs/projects/<repo-name>/overview.md  # 项目简介（由 Analyst 生成，各阶段均可引用）
+
 stages:
   - id: requirements
     name: 需求定义
