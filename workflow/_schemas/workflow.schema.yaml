@@ -1,0 +1,76 @@
+# Clockwork 工作流定义 Schema
+# 所有 workflow/_definitions/ 下的 YAML 文件必须遵循此结构
+
+schema_version: "1.0"
+
+# --- 工作流定义结构 ---
+#
+# name: string (必填)
+#   工作流名称，唯一标识
+#
+# description: string (必填)
+#   工作流描述，说明适用场景
+#
+# stages: list (必填)
+#   工作流阶段列表，按执行顺序排列
+#
+#   每个 stage 包含：
+#     - id: string (必填)
+#         阶段唯一标识，使用 snake_case
+#     - name: string (必填)
+#         阶段显示名称
+#     - agent: string (必填)
+#         负责该阶段的 Agent 角色标识，对应 agents/<agent>/ 目录
+#     - skills: list[string] (可选)
+#         该阶段可调用的技能列表，对应 skills/<skill>/ 目录
+#     - inputs: list[object] (可选)
+#         上游输入声明
+#         每个 input:
+#           - from: string (必填)
+#               格式: "<stage_id>.<output_id>"，引用上游阶段的产物
+#     - outputs: list[object] (必填)
+#         该阶段的产物声明
+#         每个 output:
+#           - id: string (必填)
+#               产物唯一标识，同时作为文件名（加 .md 后缀）
+#           - template: string (必填)
+#               产物模板路径，相对于 workflow/ 目录
+#           - validation: object (可选)
+#               质量闸门规则
+#               可用校验字段:
+#                 - required_sections: list[string]
+#                     产物必须包含的章节标识
+#                 - min_sections: int
+#                     产物至少包含的章节数
+#                 - custom_rules: list[string]
+#                     自定义校验规则描述
+
+# --- 需求实例 manifest 结构 ---
+#
+# feature_id: string (必填)
+#   需求编号，格式: FEAT-<number>
+#
+# name: string (必填)
+#   需求名称
+#
+# workflow: string (必填)
+#   引用的工作流定义名称（对应 _definitions/ 中的 name 字段）
+#
+# created_at: date (必填)
+#   创建日期
+#
+# current_stage: string (必填)
+#   当前所处阶段的 id
+#
+# stages: map (必填)
+#   各阶段状态追踪，key 为 stage id
+#   每个阶段状态:
+#     - status: enum[pending, in_progress, completed, blocked] (必填)
+#     - started_at: date (可选)
+#     - completed_at: date (可选)
+#     - artifacts: list[string] (可选)
+#         已产出的文件列表
+#     - validation_passed: boolean (可选)
+#         质量闸门是否通过
+#     - notes: string (可选)
+#         阶段备注

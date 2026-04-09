@@ -19,7 +19,7 @@ Inspired by the precision of ancient mechanical arts, **Clockwork** brings order
 
 *   **Quality Governors (质量调速器)**  
     *EN:* Built-in validation gates to ensure every output meets your "Gold Standard."  
-    *CN:* 内置校验闸门，确保每一项产出都符合你的“黄金标准”。
+    *CN:* 内置校验闸门，确保每一项产出都符合你的"黄金标准"。
 
 *   **Persistent Pulse (持久脉冲)**  
     *EN:* Designed for continuous, long-running agentic tasks without quality decay.  
@@ -28,3 +28,42 @@ Inspired by the precision of ancient mechanical arts, **Clockwork** brings order
 ---
 
 ## 🚀 Getting Started | 快速开始
+
+### 环境要求
+
+- [Cursor IDE](https://cursor.com) — 本框架专为 Cursor 设计
+
+### 使用方式
+
+1. **克隆本仓库** 作为项目治理工作空间：
+   ```bash
+   git clone <your-clockwork-repo-url> my-project
+   cd my-project
+   ```
+
+2. **用 Cursor 打开** 工作空间，治理规则会自动加载（通过 `.cursor/rules/clockwork.mdc`）
+
+3. **告诉 Agent 你的角色**（PM / Developer / Tester / Reviewer），Agent 会自动读取对应的角色定义
+
+4. **创建或进入需求实例**，在 `workflow/features/FEAT-xxx/` 下按工作流推进
+
+### 目录结构
+
+```
+clockwork/
+├── agents/          # 角色 Agent 定义
+├── skills/          # 可复用技能
+├── workflow/        # 工作流定义与需求产物
+├── docs/            # 项目文档与质量标准
+├── repos/           # 代码仓库（git submodule）
+├── AGENTS.md        # 全局 Agent 治理规则
+└── README.md        # 本文件
+```
+
+详细的架构说明请参阅 [`docs/architecture.md`](docs/architecture.md)，快速上手指南请参阅 [`docs/guides/quick-start.md`](docs/guides/quick-start.md)。
+
+---
+
+## 📜 License
+
+[MIT](LICENSE) © 2026 forthends

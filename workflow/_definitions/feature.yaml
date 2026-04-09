@@ -1,0 +1,86 @@
+name: feature-development
+description: |
+  标准功能开发工作流。
+  适用于新功能的完整开发周期：从需求定义、技术设计、代码实现、测试验证到代码评审。
+
+stages:
+  - id: requirements
+    name: 需求定义
+    agent: pm
+    skills:
+      - create-prd
+      - validate-artifact
+    inputs: []
+    outputs:
+      - id: prd
+        template: _templates/prd.md
+        validation:
+          required_sections:
+            - overview
+            - user_stories
+            - acceptance_criteria
+
+  - id: tech_design
+    name: 技术设计
+    agent: developer
+    skills:
+      - create-tech-design
+      - validate-artifact
+    inputs:
+      - from: requirements.prd
+    outputs:
+      - id: tech-design
+        template: _templates/tech-design.md
+        validation:
+          required_sections:
+            - architecture
+            - api_design
+            - data_model
+
+  - id: implementation
+    name: 代码实现
+    agent: developer
+    skills: []
+    inputs:
+      - from: tech_design.tech-design
+    outputs:
+      - id: code
+        template: null
+        validation:
+          custom_rules:
+            - 代码必须在 repos/ 中对应的代码仓库内提交
+            - 提交信息必须关联需求编号
+
+  - id: testing
+    name: 测试计划
+    agent: tester
+    skills:
+      - create-test-plan
+      - validate-artifact
+    inputs:
+      - from: requirements.prd
+      - from: tech_design.tech-design
+    outputs:
+      - id: test-plan
+        template: _templates/test-plan.md
+        validation:
+          required_sections:
+            - test_scope
+            - test_cases
+            - test_environment
+
+  - id: review
+    name: 代码评审
+    agent: reviewer
+    skills:
+      - validate-artifact
+    inputs:
+      - from: tech_design.tech-design
+      - from: implementation.code
+    outputs:
+      - id: review-report
+        template: null
+        validation:
+          custom_rules:
+            - 评审意见必须分级标注
+            - 阻塞级问题必须全部解决后方可通过
