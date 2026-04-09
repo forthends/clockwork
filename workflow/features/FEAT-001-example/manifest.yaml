@@ -1,0 +1,22 @@
+feature_id: FEAT-001
+name: 示例需求 — 用户注册功能
+workflow: feature-development
+created_at: 2026-04-09
+current_stage: requirements
+
+stages:
+  requirements:
+    status: pending
+    artifacts: []
+  tech_design:
+    status: pending
+    artifacts: []
+  implementation:
+    status: pending
+    artifacts: []
+  testing:
+    status: pending
+    artifacts: []
+  review:
+    status: pending
+    artifacts: []

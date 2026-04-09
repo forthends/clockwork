@@ -1,0 +1,70 @@
+name: bugfix
+description: |
+  缺陷修复工作流。
+  适用于已上线功能的缺陷修复，流程简化：定位问题、修复实现、验证测试。
+
+stages:
+  - id: bug_analysis
+    name: 缺陷分析
+    agent: developer
+    skills:
+      - validate-artifact
+    inputs: []
+    outputs:
+      - id: bug-analysis
+        template: null
+        validation:
+          custom_rules:
+            - 必须包含缺陷复现步骤
+            - 必须包含根因分析
+            - 必须包含修复方案
+
+  - id: fix_implementation
+    name: 修复实现
+    agent: developer
+    skills: []
+    inputs:
+      - from: bug_analysis.bug-analysis
+    outputs:
+      - id: code
+        template: null
+        validation:
+          custom_rules:
+            - 代码变更必须在 repos/ 中对应的代码仓库内提交
+            - 提交信息必须关联缺陷编号
+
+  - id: fix_testing
+    name: 修复验证
+    agent: tester
+    skills:
+      - create-test-plan
+      - validate-artifact
+    inputs:
+      - from: bug_analysis.bug-analysis
+      - from: fix_implementation.code
+    outputs:
+      - id: test-plan
+        template: _templates/test-plan.md
+        validation:
+          required_sections:
+            - test_scope
+            - test_cases
+          custom_rules:
+            - 必须包含缺陷复现验证用例
+            - 必须包含回归测试用例
+
+  - id: fix_review
+    name: 修复评审
+    agent: reviewer
+    skills:
+      - validate-artifact
+    inputs:
+      - from: fix_implementation.code
+      - from: bug_analysis.bug-analysis
+    outputs:
+      - id: review-report
+        template: null
+        validation:
+          custom_rules:
+            - 确认修复方案与根因分析一致
+            - 确认无引入新问题的风险
