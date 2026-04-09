@@ -40,15 +40,17 @@ Clockwork 通过三大核心机制来解决这些问题：**逻辑齿轮**（Log
 │  │agents/ │ │skills/   │ │workflow/             │          │
 │  │角色定义│ │技能定义  │ │                      │          │
 │  │        │ │          │ │ _definitions/ (法律) │          │
-│  │ pm     │ │create-prd│ │ _templates/  (标准) │          │
-│  │ dev    │ │create-td │ │ _schemas/    (约束) │          │
-│  │ tester │ │create-tp │ │ features/    (案件) │          │
+│  │analyst │ │create-prd│ │ _templates/  (标准) │          │
+│  │ pm     │ │create-td │ │ _schemas/    (约束) │          │
+│  │ dev    │ │create-tp │ │ features/    (案件) │          │
+│  │ tester │ │analyze   │ │                      │          │
 │  │ review │ │validate  │ │                      │          │
 │  └────────┘ └──────────┘ └──────────────────────┘          │
 │                                                             │
 │  ┌──────────┐  ┌──────────┐                                 │
 │  │  docs/   │  │  repos/  │                                 │
-│  │ 文档中心 │  │ 代码仓库 │                                 │
+│  │ 文档中心 │  │ 代码仓库 │←── Analyst 扫描生成项目简介     │
+│  │projects/ │  │          │                                 │
 │  └──────────┘  └──────────┘                                 │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -108,6 +110,15 @@ Clockwork 通过三大核心机制来解决这些问题：**逻辑齿轮**（Log
 ### Feature 开发流程的数据流
 
 ```
+                                        ┌────────────────┐
+┌──────────────────┐   扫描代码仓库     │  repos/        │
+│ Analyst Agent    │◄──────────────────│  <repo-name>   │
+│                  │                   └────────────────┘
+│ 产出: overview.md│──► docs/projects/<repo-name>/overview.md
+└──────────────────┘    (供所有下游阶段引用)
+         │
+         │ 项目简介作为上下文
+         ▼
 用户需求描述
     │
     ▼
@@ -179,4 +190,5 @@ Clockwork 通过三大核心机制来解决这些问题：**逻辑齿轮**（Log
    ```bash
    git submodule add <repo-url> repos/<repo-name>
    ```
-2. 工作流中的 implementation 阶段产物在 `repos/<repo-name>` 中产出
+2. 请 Analyst 角色分析仓库，生成 `docs/projects/<repo-name>/overview.md`
+3. 工作流中的 implementation 阶段产物在 `repos/<repo-name>` 中产出

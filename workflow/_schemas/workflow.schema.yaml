@@ -11,6 +11,11 @@ schema_version: "1.0"
 # description: string (必填)
 #   工作流描述，说明适用场景
 #
+# context: list[string] (可选)
+#   全局上下文引用，列出所有阶段均可引用的参考文档路径
+#   典型用途：项目简介 docs/projects/<repo-name>/overview.md
+#   路径中的 <repo-name> 由使用时根据实际仓库名替换
+#
 # stages: list (必填)
 #   工作流阶段列表，按执行顺序排列
 #

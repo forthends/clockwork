@@ -3,6 +3,9 @@ description: |
   缺陷修复工作流。
   适用于已上线功能的缺陷修复，流程简化：定位问题、修复实现、验证测试。
 
+context:
+  - docs/projects/<repo-name>/overview.md  # 项目简介（由 Analyst 生成，各阶段均可引用）
+
 stages:
   - id: bug_analysis
     name: 缺陷分析

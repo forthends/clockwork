@@ -12,7 +12,7 @@
 
 ```
 clockwork/
-├── agents/          # 角色 Agent 定义（PM / Developer / Tester / Reviewer）
+├── agents/          # 角色 Agent 定义（Analyst / PM / Developer / Tester / Reviewer）
 ├── skills/          # 可复用技能定义
 ├── workflow/        # 工作流定义与需求产物
 │   ├── _schemas/    # 工作流 YAML Schema
@@ -20,6 +20,7 @@ clockwork/
 │   ├── _templates/  # 产物模板（黄金标准）
 │   └── features/    # 需求实例及其产物
 ├── docs/            # 项目文档与质量标准
+│   └── projects/    # 各代码仓库的项目简介（由 Analyst 生成）
 ├── repos/           # 代码仓库（git submodule）
 ├── AGENTS.md        # 本文件 — 全局治理规则
 └── README.md        # 项目介绍
@@ -29,7 +30,7 @@ clockwork/
 
 在开始任何任务之前，你必须：
 
-1. 确认当前用户的角色（PM / Developer / Tester / Reviewer）
+1. 确认当前用户的角色（Analyst / PM / Developer / Tester / Reviewer）
 2. 读取 `agents/<role>/AGENT.md` 了解角色职责、约束和可用技能
 3. 仅在自己角色职责范围内操作，不得越权
 
@@ -116,7 +117,21 @@ clockwork/
 
 ---
 
-## 6. 协作边界
+## 6. 项目上下文
+
+### 项目简介
+
+`docs/projects/<repo-name>/overview.md` 包含由 Analyst 角色生成的项目简介，是所有角色了解代码仓库的核心参考资料。
+
+### 引用规范
+
+- 在需求定义、技术设计、测试计划等阶段，应优先读取项目简介了解现有系统
+- 如果项目简介不存在，应先请求 Analyst 角色生成
+- 引用项目简介中的信息时，确保与最新版本一致
+
+---
+
+## 7. 协作边界
 
 ### 角色隔离
 
