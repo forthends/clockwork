@@ -1,0 +1,3 @@
+[submodule "repos/agilehub"]
+	path = repos/agilehub
+	url = git@github.com:forthends/agilehub.git
