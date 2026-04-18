@@ -15,3 +15,6 @@ Thumbs.db
 
 # Cursor 计划文件（本地使用，不提交）
 .cursor/plans/
+
+# Claude Code 本地配置（用户个性化设置）
+.claude/settings.local.json
