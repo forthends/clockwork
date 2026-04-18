@@ -15,26 +15,48 @@ stages:
     inputs: []
     outputs:
       - id: bug-analysis
-        template: null
+        template: _templates/bug-analysis.md
         validation:
+          required_sections:
+            - bug_overview
+            - reproduction_steps
+            - root_cause
+            - fix_plan
           custom_rules:
-            - 必须包含缺陷复现步骤
-            - 必须包含根因分析
-            - 必须包含修复方案
+            - rule: 必须包含缺陷复现步骤
+              check_type: manual
+            - rule: 必须包含根因分析
+              check_type: manual
+            - rule: 必须包含修复方案
+              check_type: manual
 
   - id: fix_implementation
     name: 修复实现
     agent: developer
-    skills: []
+    skills:
+      - validate-artifact
     inputs:
       - from: bug_analysis.bug-analysis
     outputs:
-      - id: code
-        template: null
+      - id: implementation-checklist
+        template: _templates/implementation-checklist.md
         validation:
+          required_sections:
+            - commit_record
+            - implementation_summary
           custom_rules:
-            - 代码变更必须在 repos/ 中对应的代码仓库内提交
-            - 提交信息必须关联缺陷编号
+            - rule: 代码变更必须在 repos/ 中对应的代码仓库内提交
+              check_type: git_commit
+              pattern: "FEAT-\\d+|BUG-\\d+"
+              error_message: 提交信息必须包含缺陷编号 (BUG-xxx)
+            - rule: 分支命名必须符合规范
+              check_type: branch_naming
+              pattern: "(bugfix|hotfix)/BUG-\\d+-.+"
+              error_message: 分支名必须为 <type>/BUG-<id>-<description> 格式
+            - rule: 所有实现任务必须标记为完成
+              check_type: manual
+            - rule: 必须生成 Pull Request/Merge Request
+              check_type: manual
 
   - id: fix_testing
     name: 修复验证
@@ -44,7 +66,7 @@ stages:
       - validate-artifact
     inputs:
       - from: bug_analysis.bug-analysis
-      - from: fix_implementation.code
+      - from: fix_implementation.implementation-checklist
     outputs:
       - id: test-plan
         template: _templates/test-plan.md
@@ -53,8 +75,10 @@ stages:
             - test_scope
             - test_cases
           custom_rules:
-            - 必须包含缺陷复现验证用例
-            - 必须包含回归测试用例
+            - rule: 必须包含缺陷复现验证用例
+              check_type: manual
+            - rule: 必须包含回归测试用例
+              check_type: manual
 
   - id: fix_review
     name: 修复评审
@@ -62,12 +86,14 @@ stages:
     skills:
       - validate-artifact
     inputs:
-      - from: fix_implementation.code
+      - from: fix_implementation.implementation-checklist
       - from: bug_analysis.bug-analysis
     outputs:
       - id: review-report
         template: null
         validation:
           custom_rules:
-            - 确认修复方案与根因分析一致
-            - 确认无引入新问题的风险
+            - rule: 确认修复方案与根因分析一致
+              check_type: manual
+            - rule: 确认无引入新问题的风险
+              check_type: manual
