@@ -1,5 +1,4 @@
 # Git submodule 配置（repos/ 下的子仓库由使用者自行挂载，不纳入版本管理）
-.gitmodules
 repos/*
 !repos/.gitkeep
 
