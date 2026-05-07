@@ -1,0 +1,29 @@
+feature_id: FEAT-002
+name: Content Hub 基础内容列表与 CRUD（V1）
+workflow: feature-development
+created_at: 2026-05-07
+current_stage: tech_design
+
+stages:
+  requirements:
+    status: completed
+    started_at: 2026-05-07
+    completed_at: 2026-05-07
+    artifacts:
+      - prd.md
+    validation_passed: true
+    notes: |
+      PRD v1.1（2026-05-07）：增加列表翻页、关键词模糊搜索、创建人/创建时间筛选、软删除；已按 validate-artifact 规则自检通过。
+      PRD v1.2（2026-05-07）：增加 interaction_prototype 线框与主路径流程图，供开发对齐页面结构。
+  tech_design:
+    status: pending
+    artifacts: []
+  implementation:
+    status: pending
+    artifacts: []
+  testing:
+    status: pending
+    artifacts: []
+  review:
+    status: pending
+    artifacts: []
