@@ -1,0 +1,3 @@
+[submodule "repos/content-hub"]
+	path = repos/content-hub
+	url = git@github.com:forthends/content-hub.git
