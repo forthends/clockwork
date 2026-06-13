@@ -6,7 +6,7 @@
     "clockwork": "./dist/index.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cp -r templates dist/templates",
     "test": "vitest run",
     "dev": "tsx src/index.ts"
   },

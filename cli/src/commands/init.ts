@@ -1,8 +1,11 @@
 import { Command } from 'commander';
-import { mkdirSync, writeFileSync } from 'fs';
-import { join } from 'path';
+import { mkdirSync, writeFileSync, existsSync, cpSync, readdirSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import { stringify as stringifyYaml } from 'yaml';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const DEFAULT_CONFIG = {
   project: { name: 'clockwork-project' },
@@ -14,6 +17,18 @@ const DEFAULT_CONFIG = {
   workspace: { dir: 'workspace/' },
   web: { port: 4200, host: 'localhost' },
 };
+
+function findTemplatesDir(): string | null {
+  // When compiled: dist/commands/init.js → dist/templates/
+  const distTemplates = join(__dirname, '..', 'templates');
+  if (existsSync(distTemplates)) return distTemplates;
+
+  // When running via tsx: src/commands/init.ts → ../../templates/
+  const srcTemplates = join(__dirname, '..', '..', 'templates');
+  if (existsSync(srcTemplates)) return srcTemplates;
+
+  return null;
+}
 
 export function initCommand(): Command {
   return new Command('init')
@@ -39,6 +54,25 @@ export function initCommand(): Command {
 
       const configPath = join(targetPath, '.clockwork', 'config.yaml');
       writeFileSync(configPath, stringifyYaml(DEFAULT_CONFIG));
+
+      // Copy built-in templates
+      const templatesDir = findTemplatesDir();
+      if (templatesDir) {
+        const copyDir = (name: string) => {
+          const src = join(templatesDir, name);
+          const dest = join(targetPath, name);
+          if (existsSync(src)) {
+            cpSync(src, dest, { recursive: true });
+          }
+        };
+        copyDir('workflows');
+        copyDir('agents');
+        copyDir('skills');
+        copyDir('knowledge');
+        console.log(chalk.dim('  Copied built-in workflows, agents, skills, and knowledge'));
+      } else {
+        console.log(chalk.yellow('  Warning: Built-in templates not found. Add workflows/agents/skills manually.'));
+      }
 
       console.log(chalk.green('✓ Clockwork project initialized at'), targetPath);
       console.log(chalk.dim('  Created .clockwork/config.yaml'));
