@@ -28,6 +28,7 @@ export interface AgentFrontmatter {
 export interface WorkflowStage {
   id: string;
   agent: string;
+  role?: 'pm' | 'developer' | 'tester';
   description: string;
   skills?: string[];
   input: { required: string[] };
@@ -87,4 +88,10 @@ export interface AgentContext {
   skills: string[];
   inputs: Record<string, string>;
   knowledgeEntries: KnowledgeEntry[];
+}
+
+export interface UserConfig {
+  name: string;
+  role: 'pm' | 'developer' | 'tester';
+  email: string;
 }

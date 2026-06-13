@@ -1,7 +1,7 @@
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { join } from 'path';
-import { parse as parseYaml } from 'yaml';
-import { ClockworkConfig } from './types.js';
+import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
+import { ClockworkConfig, UserConfig } from './types.js';
 
 const DEFAULT_CONFIG: ClockworkConfig = {
   project: { name: 'clockwork-project' },
@@ -42,4 +42,21 @@ function deepMerge<T>(base: T, override: Partial<T>): T {
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+export function loadUserConfig(projectRoot: string): UserConfig | null {
+  const userPath = join(projectRoot, '.clockwork', 'user.yaml');
+  if (!existsSync(userPath)) return null;
+  try {
+    const raw = readFileSync(userPath, 'utf8');
+    const parsed = parseYaml(raw) as { user?: UserConfig };
+    return parsed?.user || null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveUserConfig(projectRoot: string, user: UserConfig): void {
+  const userPath = join(projectRoot, '.clockwork', 'user.yaml');
+  writeFileSync(userPath, stringifyYaml({ user }));
 }
