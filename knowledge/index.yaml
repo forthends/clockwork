@@ -2,21 +2,21 @@ entries:
   - path: architecture/api-conventions.md
     title: API Conventions
     category: architecture
-    tags: [REST, endpoints, authentication, error-handling, JSON]
+    tags: [REST, endpoints, JSON, response-format, status-codes]
     status: active
     updated: "2026-06-13"
     scope: global
   - path: business/domain-model.md
     title: Domain Model
     category: business
-    tags: [User, Order, Product, entity, relationship, business-rules]
+    tags: [Todo, entity, status, priority, business-rules]
     status: active
     updated: "2026-06-13"
     scope: global
   - path: design-system/components.md
-    title: Design System Components
+    title: Engineering Standards
     category: design-system
-    tags: [colors, typography, components, tokens, UI]
+    tags: [project-structure, naming, error-handling, testing, conventions]
     status: active
     updated: "2026-06-13"
     scope: global

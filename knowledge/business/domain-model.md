@@ -1,36 +1,19 @@
 # Domain Model
 
-## Core Entities
+## Todo Entity
 
-### User
-- id: UUID (primary key)
-- email: string (unique)
-- name: string
-- role: enum [admin, member, viewer]
-- createdAt: datetime
-- updatedAt: datetime
-
-### Order
-- id: UUID (primary key)
-- userId: UUID (foreign key → User)
-- status: enum [pending, confirmed, shipped, delivered, cancelled]
-- totalAmount: decimal
-- createdAt: datetime
-- updatedAt: datetime
-
-### Product
-- id: UUID (primary key)
-- name: string
-- price: decimal
-- inventory: integer
-- categoryId: UUID (foreign key → Category)
-
-## Relationships
-- User 1:N Order
-- Order N:M Product (through OrderItem)
-- Product N:1 Category
+| Field | Type | Required | Description |
+|-------|------|---------|-------------|
+| id | string (UUID) | auto | Unique identifier |
+| title | string | yes | Short summary |
+| description | string | no | Detailed notes, defaults to "" |
+| status | TodoStatus | yes | One of: `todo`, `in_progress`, `done`. Default: `todo` |
+| priority | number | no | Higher = more urgent. Default: 0 |
+| createdAt | string (ISO 8601) | auto | Creation timestamp |
+| updatedAt | string (ISO 8601) | auto | Last modification timestamp |
 
 ## Business Rules
-- Soft delete: all entities use `deletedAt` column, queries MUST include `WHERE deleted_at IS NULL`
-- Order cancellation only allowed when status is 'pending'
-- Inventory count must never go below 0
+- A new todo starts with status `todo` and priority 0 unless specified
+- Status transitions: `todo` → `in_progress` → `done` (forward only; can skip stages)
+- Deleting a todo is permanent (no soft delete)
+- Priority is used for sorting; higher values appear first in list responses

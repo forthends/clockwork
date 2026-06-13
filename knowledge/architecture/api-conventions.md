@@ -1,23 +1,21 @@
 # API Conventions
 
 ## REST Endpoint Design
-- URLs: kebab-case, plural nouns (`/api/users`, `/api/order-items`)
-- Version prefix: `/api/v1/`
-- HTTP methods: GET (read), POST (create), PUT (replace), PATCH (partial update), DELETE (remove)
+- Base path: `/api/v1/`
+- Resource URLs: plural nouns, kebab-case (`/api/v1/todos`, `/api/v1/todo-items`)
+- HTTP methods:
+  - `GET /api/v1/{resource}` — list, supports `?sort=field` and `?order=asc|desc`
+  - `GET /api/v1/{resource}/:id` — single item
+  - `POST /api/v1/{resource}` — create
+  - `PATCH /api/v1/{resource}/:id` — partial update
+  - `DELETE /api/v1/{resource}/:id` — remove
 
-## Request/Response Format
-- Content-Type: application/json
-- Envelope: `{ data: ..., error: ..., meta: { page, pageSize, total } }`
-- Timestamps: ISO 8601 in UTC
-- Pagination: query params `page` (1-based) and `pageSize` (default 20, max 100)
+## Response Format
+- Envelope: `{ data: ... }` for single item, `{ data: [...], meta: { total } }` for lists
+- On error: `{ error: string, fields?: [{ field, message }] }`
+- Status codes: 200 (ok), 201 (created), 204 (deleted), 400 (validation), 404 (not found)
 
-## Error Handling
-- 400: Validation errors — return field-level error details
-- 401: Missing or invalid authentication
-- 403: Authenticated but not authorized
-- 404: Resource not found
-- 500: Unexpected server error — never expose stack traces
-
-## Authentication
-- JWT tokens in Authorization header: `Bearer <token>`
-- Token refresh endpoint: POST /api/v1/auth/refresh
+## Conventions
+- All request/response bodies are JSON (`Content-Type: application/json`)
+- IDs are UUID v4 strings
+- Timestamps in ISO 8601 format
