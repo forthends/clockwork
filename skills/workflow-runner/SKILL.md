@@ -31,6 +31,35 @@ Read `workspace/<task-id>/status.yaml` to understand:
 If `humanReviewPending` is true, STOP and tell the user:
 "This task requires human review before continuing. Use `clockwork review <task-id>`."
 
+### Step 2.5: Check for interrupted state
+
+If the task status is `interrupted`:
+1. Read `workspace/<task-id>/recovery/snapshot.yaml` for the recovery point
+2. Restore to the stage indicated in `snapshot.lastStage`
+3. Rebuild agent context for that stage if needed
+4. Continue execution from the recovery point
+
+### Step 2.6: Error handling during execution
+
+**Timeout handling:**
+- Each stage has a timeout defined in `stageMeta.<stage>.timeoutMs` (default: 600000ms = 10 min)
+- If a sub-agent takes longer than timeout, mark the stage as failed
+- Write a timeout notice to `workspace/<task-id>/logs/<stage>-timeout.log`
+
+**Retry with backoff:**
+- When a stage fails, check `stageMeta.<stage>.retryCount` against `maxRetries`
+- If retries remain: wait 2^n minutes (where n = retryCount), then re-dispatch
+- If retries exhausted: mark task failed, advise user to re-evaluate
+
+**Interrupt handling (SIGINT / user cancel):**
+- Before any stage transition, save recovery snapshot to `workspace/<task-id>/recovery/snapshot.yaml`
+- Snapshot format: `{ lastStage: "<stage-id>", completedStages: [...], currentArtifacts: [...] }`
+- If interrupted mid-stage, mark stage and task as `interrupted`
+
+**Output writing safety:**
+- Write artifacts to a temp file first (`.tmp/<filename>`), then atomically rename to final path
+- This prevents partial reads if interrupted during write
+
 ### Step 3: Load agent context
 Read `workspace/<task-id>/agent-context/<agent-name>.json` for the current stage's agent.
 This file contains: role, capabilities, boundaries, instructions, skills, inputs, knowledge entries.

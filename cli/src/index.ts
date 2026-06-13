@@ -27,4 +27,9 @@ program.addCommand(knowledgeCommand());
 program.addCommand(skillCommand());
 program.addCommand(webCommand());
 
+process.on('SIGINT', () => {
+  console.log('\nInterrupted. Use `clockwork resume <task-id>` to recover.');
+  process.exit(1);
+});
+
 program.parse();
