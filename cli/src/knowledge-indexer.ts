@@ -1,6 +1,7 @@
 import { writeFileSync, readFileSync, existsSync, readdirSync } from 'fs';
 import { join, relative, dirname } from 'path';
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
+import { parseFrontmatter } from './frontmatter.js';
 import { KnowledgeIndex, KnowledgeEntry } from './types.js';
 
 export function buildIndex(knowledgeDir: string): KnowledgeIndex {
@@ -18,11 +19,18 @@ export function buildIndex(knowledgeDir: string): KnowledgeIndex {
         const relPath = relative(knowledgeDir, fullPath);
         const parentDir = relative(knowledgeDir, dirname(fullPath)) || 'root';
         const category = mapCategory(parentDir);
+        let tags: string[] = [];
+        try {
+          const { frontmatter: fm } = parseFrontmatter<{ tags?: string[] }>(fullPath);
+          tags = fm.tags || [];
+        } catch {
+          // file has no frontmatter or invalid — use empty tags
+        }
         entries.push({
           path: relPath,
           title: entry.name.replace('.md', '').replace(/-/g, ' '),
           category,
-          tags: [],
+          tags,
           status: 'active',
           updated: now,
           scope: 'global',

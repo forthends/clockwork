@@ -11,10 +11,12 @@ export default function KnowledgeDetail() {
 
   useEffect(() => {
     if (!entryPath) return;
+    let cancelled = false;
     fetchKnowledgeEntry(entryPath)
-      .then(setContent)
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
+      .then(data => { if (!cancelled) setContent(data); })
+      .catch(e => { if (!cancelled) setError(e.message); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
   }, [entryPath]);
 
   if (loading) return <div className="loading">Loading entry...</div>;

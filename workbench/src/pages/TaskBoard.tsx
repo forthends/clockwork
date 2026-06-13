@@ -8,10 +8,12 @@ export default function TaskBoard() {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    let cancelled = false;
     fetchTasks()
-      .then(setTasks)
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
+      .then(data => { if (!cancelled) setTasks(data); })
+      .catch(e => { if (!cancelled) setError(e.message); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
   }, []);
 
   if (loading) return <div className="loading">Loading tasks...</div>;

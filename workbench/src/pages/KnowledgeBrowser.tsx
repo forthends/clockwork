@@ -9,10 +9,12 @@ export default function KnowledgeBrowser() {
   const [filter, setFilter] = useState('all');
 
   useEffect(() => {
+    let cancelled = false;
     fetchKnowledge()
-      .then(setData)
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
+      .then(data => { if (!cancelled) setData(data); })
+      .catch(e => { if (!cancelled) setError(e.message); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
   }, []);
 
   if (loading) return <div className="loading">Loading knowledge base...</div>;

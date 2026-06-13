@@ -15,8 +15,8 @@ export default function App() {
         <Route path="/tasks" element={<TaskBoard />} />
         <Route path="/tasks/:taskId" element={<TaskDetail />} />
         <Route path="/tasks/:taskId/review" element={<TaskReview />} />
-        <Route path="/knowledge/*" element={<KnowledgeDetail />} />
         <Route path="/knowledge" element={<KnowledgeBrowser />} />
+        <Route path="/knowledge/*" element={<KnowledgeDetail />} />
       </Routes>
     </Layout>
   );

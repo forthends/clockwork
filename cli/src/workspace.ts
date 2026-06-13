@@ -3,11 +3,16 @@ import { join } from 'path';
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 import { TaskStatus, StageMeta } from './types.js';
 
-let taskCounter = 0;
-
 export function createTask(workspaceDir: string, workflow: string, slug: string, repos: string[]): TaskStatus {
-  taskCounter++;
-  const padded = String(taskCounter).padStart(3, '0');
+  const existing = listTasks(workspaceDir);
+  let maxNum = 0;
+  for (const t of existing) {
+    const match = t.taskId.match(/task-(\d+)/);
+    if (match) {
+      maxNum = Math.max(maxNum, parseInt(match[1], 10));
+    }
+  }
+  const padded = String(maxNum + 1).padStart(3, '0');
   const taskId = `task-${padded}-${slug}`;
   const taskDir = join(workspaceDir, taskId);
   mkdirSync(taskDir, { recursive: true });

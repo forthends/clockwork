@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+import { join } from 'path';
 import { loadConfig } from '../config.js';
 import { loadTask, listTasks } from '../workspace.js';
 import chalk from 'chalk';
@@ -10,7 +11,7 @@ export function statusCommand(): Command {
     .option('-p, --project <path>', 'Project path', process.cwd())
     .action((taskId: string | undefined, options: { project: string }) => {
       const config = loadConfig(options.project);
-      const wsDir = `${options.project}/${config.workspace.dir}`.replace('//', '/');
+      const wsDir = join(options.project, config.workspace.dir);
 
       if (taskId) {
         const task = loadTask(wsDir, taskId);

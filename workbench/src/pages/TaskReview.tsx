@@ -13,19 +13,23 @@ export default function TaskReview() {
 
   useEffect(() => {
     if (!taskId) return;
+    let cancelled = false;
     Promise.all([fetchTask(taskId), fetchArtifacts(taskId)])
       .then(([_, arts]) => {
-        setArtifacts(arts);
+        if (!cancelled) setArtifacts(arts);
         return Promise.all(
           arts.map(a => fetchArtifact(taskId, a.name).then(c => ({ name: a.name, content: c })))
         );
       })
       .then(results => {
-        const map: Record<string, string> = {};
-        results.forEach(r => { map[r.name] = r.content; });
-        setContents(map);
+        if (!cancelled) {
+          const map: Record<string, string> = {};
+          results.forEach(r => { map[r.name] = r.content; });
+          setContents(map);
+        }
       })
-      .finally(() => setLoading(false));
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
   }, [taskId]);
 
   if (loading) return <div className="loading">Loading review...</div>;

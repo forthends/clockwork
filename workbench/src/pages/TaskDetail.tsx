@@ -15,21 +15,27 @@ export default function TaskDetail() {
 
   useEffect(() => {
     if (!taskId) return;
+    let cancelled = false;
     Promise.all([fetchTask(taskId), fetchArtifacts(taskId)])
       .then(([t, a]) => {
-        setTask(t);
-        setArtifacts(a);
-        if (a.length > 0) setSelectedArtifact(a[0].name);
+        if (!cancelled) {
+          setTask(t);
+          setArtifacts(a);
+          if (a.length > 0) setSelectedArtifact(a[0].name);
+        }
       })
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
+      .catch(e => { if (!cancelled) setError(e.message); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
   }, [taskId]);
 
   useEffect(() => {
     if (!taskId || !selectedArtifact) return;
+    let cancelled = false;
     fetchArtifact(taskId, selectedArtifact)
-      .then(setContent)
-      .catch(() => setContent('*Unable to load artifact*'));
+      .then(data => { if (!cancelled) setContent(data); })
+      .catch(() => { if (!cancelled) setContent('*Unable to load artifact*'); });
+    return () => { cancelled = true; };
   }, [taskId, selectedArtifact]);
 
   if (loading) return <div className="loading">Loading...</div>;
