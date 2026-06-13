@@ -14,6 +14,6 @@
 
 ## Business Rules
 - A new todo starts with status `todo` and priority 0 unless specified
-- Status transitions: `todo` → `in_progress` → `done` (forward only; can skip stages)
+- Status can be set to any valid value (`todo`, `in_progress`, `done`) at any time via PATCH
 - Deleting a todo is permanent (no soft delete)
 - Priority is used for sorting; higher values appear first in list responses

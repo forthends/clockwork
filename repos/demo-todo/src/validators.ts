@@ -18,7 +18,7 @@ export function validateCreate(body: Record<string, unknown>): ValidationError[]
   if (body.priority !== undefined && typeof body.priority !== 'number') {
     errors.push({ field: 'priority', message: 'Priority must be a number' });
   }
-  if (body.status && !VALID_STATUSES.includes(body.status as TodoStatus)) {
+  if (body.status !== undefined && !VALID_STATUSES.includes(body.status as TodoStatus)) {
     errors.push({ field: 'status', message: `Status must be one of: ${VALID_STATUSES.join(', ')}` });
   }
   return errors;

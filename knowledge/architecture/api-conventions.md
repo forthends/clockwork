@@ -4,7 +4,7 @@
 - Base path: `/api/v1/`
 - Resource URLs: plural nouns, kebab-case (`/api/v1/todos`, `/api/v1/todo-items`)
 - HTTP methods:
-  - `GET /api/v1/{resource}` — list, supports `?sort=field` and `?order=asc|desc`
+  - `GET /api/v1/{resource}` — list all items
   - `GET /api/v1/{resource}/:id` — single item
   - `POST /api/v1/{resource}` — create
   - `PATCH /api/v1/{resource}/:id` — partial update

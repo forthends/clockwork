@@ -1,5 +1,9 @@
-import { describe, it, expect } from 'vitest';
-import { findAll, findById, create, update, remove } from '../src/models.js';
+import { describe, it, expect, beforeEach } from 'vitest';
+import { findAll, findById, create, update, remove, resetStore } from '../src/models.js';
+
+beforeEach(() => {
+  resetStore();
+});
 
 describe('Todo models', () => {
   it('creates a todo', () => {

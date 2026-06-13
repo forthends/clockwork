@@ -12,6 +12,10 @@ export interface Todo {
 
 const store: Map<string, Todo> = new Map();
 
+export function resetStore(): void {
+  store.clear();
+}
+
 export function findAll(): Todo[] {
   return Array.from(store.values()).sort((a, b) => b.priority - a.priority);
 }
