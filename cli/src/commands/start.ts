@@ -54,9 +54,14 @@ export function startCommand(): Command {
           saveContextPackage(wsDir, task.taskId, ctx);
         }
 
+        const stageNames = wf.stages.map((s) => s.id).join(' → ');
+
         console.log(chalk.green(`✓ Task created: ${task.taskId}`));
         console.log(chalk.dim(`  Workflow: ${workflow}`));
-        console.log(chalk.dim(`  Stage: ${firstStage.id} (${firstStage.agent})`));
+        console.log(chalk.dim(`  Stages:   ${stageNames}`));
+        if (firstStage.agent !== 'none') {
+          console.log(chalk.dim(`  Next:     ${firstStage.id} (${firstStage.agent}) — ${firstStage.description}`));
+        }
         console.log(chalk.dim(`  Workspace: ${wsDir}/${task.taskId}`));
 
         if (firstStage.humanReview === 'required') {

@@ -20,17 +20,24 @@ export function skillCommand(): Command {
       }
 
       const entries = readdirSync(skillsDir, { withFileTypes: true });
+      let count = 0;
+      console.log(chalk.bold('Available skills:'));
       for (const entry of entries) {
         if (!entry.isDirectory()) continue;
         const skillPath = join(skillsDir, entry.name, 'SKILL.md');
         if (!existsSync(skillPath)) continue;
         try {
           const { frontmatter } = parseFrontmatter<{ name: string; description: string }>(skillPath);
-          console.log(`${chalk.bold(frontmatter.name)}  ${chalk.dim(frontmatter.description.slice(0, 80))}`);
+          const name = frontmatter.name.padEnd(22);
+          console.log(`  ${chalk.bold(name)} ${chalk.dim(frontmatter.description.slice(0, 80))}`);
+          count++;
         } catch {
-          console.log(`${chalk.dim(entry.name)}  (no valid SKILL.md)`);
+          const name = entry.name.padEnd(22);
+          console.log(`  ${chalk.dim(name)} (no valid SKILL.md)`);
         }
       }
+      console.log('');
+      console.log(chalk.dim(`${count} skills loaded from skills/`));
     });
 
   return cmd;

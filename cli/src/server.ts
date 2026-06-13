@@ -4,6 +4,7 @@ import { existsSync, readdirSync, statSync } from 'fs';
 import { loadConfig } from './config.js';
 import { listTasks, loadTask, setHumanReviewPending } from './workspace.js';
 import { loadIndex } from './knowledge-indexer.js';
+import chalk from 'chalk';
 
 export function startServer(projectRoot: string): void {
   const config = loadConfig(projectRoot);
@@ -104,6 +105,12 @@ export function startServer(projectRoot: string): void {
   const port = config.web.port;
   const host = config.web.host;
   app.listen(port, host, () => {
-    console.log(`Clockwork workbench: http://${host}:${port}`);
+    console.log(chalk.bold(`Clockwork workbench: http://${host}:${port}`));
+    console.log('');
+    console.log(chalk.dim('  Pages:'));
+    console.log(chalk.dim('    /tasks               Task Board'));
+    console.log(chalk.dim('    /tasks/:id           Task Detail'));
+    console.log(chalk.dim('    /tasks/:id/review    Task Review'));
+    console.log(chalk.dim('    /knowledge           Knowledge Base'));
   });
 }
