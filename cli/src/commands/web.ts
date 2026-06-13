@@ -12,7 +12,12 @@ export function webCommand(): Command {
       const workbenchDist = join(options.project, 'workbench', 'dist');
       if (!existsSync(workbenchDist)) {
         console.log('Workbench not built. Building now...');
-        execSync('npm run build -w workbench', { cwd: options.project, stdio: 'inherit' });
+        try {
+          execSync('npm run build -w workbench', { cwd: options.project, stdio: 'inherit' });
+        } catch {
+          console.error('Workbench build failed. Check that dependencies are installed: npm install --workspaces');
+          process.exit(1);
+        }
       }
       startServer(options.project);
     });
