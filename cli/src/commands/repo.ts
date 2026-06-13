@@ -18,7 +18,7 @@ export function repoCommand(): Command {
       const reposDir = join(options.project, config.repos.dir);
 
       try {
-        execSync(`git submodule add ${url} ${join(reposDir, name)}`, {
+        execSync(`git -c protocol.file.allow=always submodule add ${url} ${join(reposDir, name)}`, {
           cwd: options.project,
           stdio: 'inherit',
         });
