@@ -27,7 +27,7 @@ function setupProject(): { dir: string; taskId: string } {
   execSync(`cp ${join(PROJECT_ROOT, 'agents', '*.md')} ${join(dir, 'agents/')}`, { stdio: 'pipe' });
   const out = cw(
     `start feature-dev --slug e2e-feature --repo demo-todo --project ${dir} --requirements "Add GET /health endpoint"`,
-    dir
+    dir,
   );
   const match = out.match(/task-\d{3}-e2e-feature/);
   if (!match) throw new Error('Task not created: ' + out);
@@ -38,7 +38,7 @@ describe('feature-dev workflow E2E', () => {
   const projects: { dir: string; taskId: string }[] = [];
 
   afterAll(() => {
-    projects.forEach(p => {
+    projects.forEach((p) => {
       try {
         rmSync(p.dir, { recursive: true, force: true });
       } catch {}

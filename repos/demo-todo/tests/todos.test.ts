@@ -21,8 +21,8 @@ describe('Todo models', () => {
     for (let i = 1; i < all.length; i++) {
       expect(all[i - 1].priority).toBeGreaterThanOrEqual(all[i].priority);
     }
-    expect(all.find(t => t.title === 'High')).toBeDefined();
-    expect(all.find(t => t.title === 'Low')).toBeDefined();
+    expect(all.find((t) => t.title === 'High')).toBeDefined();
+    expect(all.find((t) => t.title === 'Low')).toBeDefined();
   });
 
   it('finds by id', () => {

@@ -7,7 +7,8 @@ import chalk from 'chalk';
 export function skillCommand(): Command {
   const cmd = new Command('skill').description('Manage skills');
 
-  cmd.command('list')
+  cmd
+    .command('list')
     .description('List all available skills')
     .option('-p, --project <path>', 'Project path', process.cwd())
     .action((options: { project: string }) => {

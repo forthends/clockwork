@@ -47,8 +47,10 @@ export function loadTask(workspaceDir: string, taskId: string): TaskStatus {
 }
 
 export function updateTaskStatus(
-  workspaceDir: string, taskId: string,
-  status: TaskStatus['status'], currentStage: string
+  workspaceDir: string,
+  taskId: string,
+  status: TaskStatus['status'],
+  currentStage: string,
 ): TaskStatus {
   const task = loadTask(workspaceDir, taskId);
   task.status = status;
@@ -80,7 +82,11 @@ export function listTasks(workspaceDir: string): TaskStatus[] {
   return readdirSync(workspaceDir, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
     .map((entry) => {
-      try { return loadTask(workspaceDir, entry.name); } catch { return null; }
+      try {
+        return loadTask(workspaceDir, entry.name);
+      } catch {
+        return null;
+      }
     })
     .filter((t): t is TaskStatus => t !== null);
 }
@@ -90,7 +96,8 @@ export function markStageFailed(workspaceDir: string, taskId: string, stageId: s
   task.stages[stageId] = 'failed';
   task.status = 'failed';
   if (!task.stageMeta) task.stageMeta = {};
-  if (!task.stageMeta[stageId]) task.stageMeta[stageId] = { retryCount: 0, maxRetries: 3, startedAt: '', timeoutMs: 600000 };
+  if (!task.stageMeta[stageId])
+    task.stageMeta[stageId] = { retryCount: 0, maxRetries: 3, startedAt: '', timeoutMs: 600000 };
   task.stageMeta[stageId].retryCount = (task.stageMeta[stageId].retryCount || 0) + 1;
   task.updated = new Date().toISOString();
   writeFileSync(join(workspaceDir, taskId, 'status.yaml'), stringifyYaml(task));
@@ -100,7 +107,8 @@ export function markStageFailed(workspaceDir: string, taskId: string, stageId: s
 export function incrementRetry(workspaceDir: string, taskId: string, stageId: string): TaskStatus {
   const task = loadTask(workspaceDir, taskId);
   if (!task.stageMeta) task.stageMeta = {};
-  if (!task.stageMeta[stageId]) task.stageMeta[stageId] = { retryCount: 0, maxRetries: 3, startedAt: '', timeoutMs: 600000 };
+  if (!task.stageMeta[stageId])
+    task.stageMeta[stageId] = { retryCount: 0, maxRetries: 3, startedAt: '', timeoutMs: 600000 };
   task.stageMeta[stageId].retryCount += 1;
   task.updated = new Date().toISOString();
   writeFileSync(join(workspaceDir, taskId, 'status.yaml'), stringifyYaml(task));

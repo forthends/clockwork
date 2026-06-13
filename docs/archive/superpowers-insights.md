@@ -6,7 +6,7 @@ Superpowers（v5.1.0）是一套完整的、构建在 Agent Skills 开放标准�
 
 **核心理念声明：**
 
-> "It starts from the moment you fire up your coding agent. As soon as it sees that you're building something, it *doesn't* just jump into trying to write code."
+> "It starts from the moment you fire up your coding agent. As soon as it sees that you're building something, it _doesn't_ just jump into trying to write code."
 
 ---
 
@@ -26,11 +26,11 @@ Superpowers 最关键的架构决策是**会话启动时强制注入 `using-supe
 
 这个引导机制通过 `hooks/session-start`（一个 bash 脚本）实现，针对不同平台输出不同的 JSON 格式：
 
-| 平台 | 检测方式 | 输出格式 |
-|------|---------|---------|
-| Cursor | `CURSOR_PLUGIN_ROOT` 环境变量 | `additional_context` |
-| Claude Code | `CLAUDE_PLUGIN_ROOT` 且无 `COPILOT_CLI` | `hookSpecificOutput.additionalContext` |
-| Copilot CLI 及其他 | `COPILOT_CLI=1` 或无上述变量 | `additionalContext`（SDK 标准格式） |
+| 平台               | 检测方式                                | 输出格式                               |
+| ------------------ | --------------------------------------- | -------------------------------------- |
+| Cursor             | `CURSOR_PLUGIN_ROOT` 环境变量           | `additional_context`                   |
+| Claude Code        | `CLAUDE_PLUGIN_ROOT` 且无 `COPILOT_CLI` | `hookSpecificOutput.additionalContext` |
+| Copilot CLI 及其他 | `COPILOT_CLI=1` 或无上述变量            | `additionalContext`（SDK 标准格式）    |
 
 **关键设计意义：** 这确保 Agent 在任何平台启动时都先获得同样的元认知框架。不同平台的平台适配表（`references/copilot-tools.md`、`references/codex-tools.md`、`references/gemini-tools.md`）将技能中引用的 Claude Code 工具名映射到各平台等效工具。
 
@@ -62,7 +62,7 @@ Superpowers 将技能分为两大类：
 ```dot
 digraph full_workflow {
     rankdir=TB;
-    
+
     "用户提出需求" [shape=doublecircle];
     "brainstorming\n(探索意图、设计)" [shape=box];
     "using-git-worktrees\n(创建隔离工作区)" [shape=box];
@@ -72,7 +72,7 @@ digraph full_workflow {
     "requesting-code-review\n(任务间代码审查)" [shape=box];
     "verification-before-completion\n(验证后才能声称完成)" [shape=box];
     "finishing-a-development-branch\n(合并/PR/丢弃)" [shape=box];
-    
+
     "用户提出需求" -> "brainstorming";
     "brainstorming" -> "using-git-worktrees";
     "using-git-worktrees" -> "writing-plans";
@@ -94,6 +94,7 @@ digraph full_workflow {
 **硬性门禁：** 在展示设计并获得用户批准之前，**不得调用任何实现技能、编写任何代码、搭建任何项目**。
 
 9 步检查清单：
+
 1. 探索项目上下文（文件、文档、近期提交）
 2. 提供可视化伴侣（如涉及视觉问题）
 3. 逐个提问澄清意图（一次一个问题，选择题优先）
@@ -105,6 +106,7 @@ digraph full_workflow {
 9. 过渡到 `writing-plans`
 
 **关键设计原则：**
+
 - 反模式防御："This is too simple to need a design"。每个项目都走这个流程，简单项目可以简短但必须展示和批准。
 - 对于多子系统项目，先分解为独立子项目，每个子项目走独立的 spec → plan → implementation 循环。
 - 如果用户说"构建一个包含聊天、文件存储、计费和分析的平台"，先标记这个范围问题，帮助分解。
@@ -114,6 +116,7 @@ digraph full_workflow {
 **核心原则：** 检测现有隔离 → 优先原生工具 → fallback 到 git worktree。
 
 三个关键步骤：
+
 1. **Step 0: 检测现有隔离** — 通过 `GIT_DIR != GIT_COMMON` 判断是否已在 worktree 中（含子模块守卫检测）
 2. **Step 1a: 原生工具优先** — 如果平台提供 `EnterWorktree` 等原生工具，优先使用
 3. **Step 1b: Git Worktree Fallback** — 仅在无原生工具时手动创建
@@ -127,6 +130,7 @@ digraph full_workflow {
 **核心理念：** "假设工程师对我们的代码库零上下文，品味存疑。记录他们需要知道的一切。"
 
 **任务粒度：每个步骤 2-5 分钟：**
+
 - "编写失败测试" — 一步
 - "运行测试确认失败" — 一步
 - "实现最小代码使测试通过" — 一步
@@ -134,6 +138,7 @@ digraph full_workflow {
 - "提交" — 一步
 
 **计划文档必须包含：**
+
 - 每个任务的确切文件路径
 - 完整代码（不是描述，是实际代码）
 - 确切的运行命令和期望输出
@@ -148,6 +153,7 @@ digraph full_workflow {
 这是 Superpowers 最复杂的技能，也是核心创新。
 
 **核心流程：**
+
 ```
 对每个任务：
   1. 派发实现子Agent（完整任务文本 + 上下文，不令其读取计划文件）
@@ -164,14 +170,15 @@ digraph full_workflow {
 
 **子Agent状态处理：**
 
-| 状态 | 含义 | 处理方式 |
-|------|------|---------|
-| DONE | 完成 | 进入规范审查 |
-| DONE_WITH_CONCERNS | 完成但有疑虑 | 先处理疑虑再审查 |
-| NEEDS_CONTEXT | 需要更多信息 | 提供上下文重新派发 |
-| BLOCKED | 无法完成 | 评估后提供更多上下文/更强大的模型/拆解任务/上报用户 |
+| 状态               | 含义         | 处理方式                                            |
+| ------------------ | ------------ | --------------------------------------------------- |
+| DONE               | 完成         | 进入规范审查                                        |
+| DONE_WITH_CONCERNS | 完成但有疑虑 | 先处理疑虑再审查                                    |
+| NEEDS_CONTEXT      | 需要更多信息 | 提供上下文重新派发                                  |
+| BLOCKED            | 无法完成     | 评估后提供更多上下文/更强大的模型/拆解任务/上报用户 |
 
 **模型选择策略：**
+
 - 机械实现任务（1-2 文件，明确规范）→ 快速廉价模型
 - 集成和判断任务（多文件协调）→ 标准模型
 - 架构、设计和审查任务 → 最强大的模型
@@ -185,6 +192,7 @@ digraph full_workflow {
 TDD 技能是 Superpowers 方法论的基石。其设计体现了 Superpowers 技能哲学的核心：
 
 **反理性化防御系统：**
+
 1. **铁律声明** — 绝对规则，不可协商
 2. **"精神即字面"原则** — "Violating the letter of the rules is violating the spirit of the rules"，切断"我遵循的是精神而非字面"类理性化
 3. **理性化表格** — 11 种常见借口及其反驳
@@ -192,6 +200,7 @@ TDD 技能是 Superpowers 方法论的基石。其设计体现了 Superpowers �
 5. **顺序论证** — 详细解释为什么"写完代码再测试"行不通
 
 **RED-GREEN-REFACTOR 循环：**
+
 ```
 RED:   编写失败测试 → 验证失败正确（测试因特性缺失而失败，非拼写错误）
 GREEN: 最小代码通过测试 → 验证通过且无回归
@@ -213,6 +222,7 @@ REFACTOR: 清理代码 → 保持绿色
 **严谨的环境检测：** 通过 `GIT_DIR` vs `GIT_COMMON` 判断是普通仓库、命名分支 worktree 还是 detached HEAD，展示对应选项。
 
 **4 个结构化选项（普通仓库）：**
+
 1. 本地合并回基础分支
 2. 推送并创建 PR
 3. 保持原样
@@ -229,11 +239,13 @@ REFACTOR: 清理代码 → 保持绿色
 **铁律：** `NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE`
 
 这是对 Agent "幻觉性完成声明"问题的直接回应。该技能来自 24 个失败记忆：
+
 - 用户说"I don't believe you" — 信任破裂
 - 未定义的函数被交付 — 会导致崩溃
 - 缺失需求被交付 — 功能不完整
 
 **五步验证门：**
+
 1. IDENTIFY：什么命令能证明这个声明？
 2. RUN：执行完整命令（全新、完整）
 3. READ：读取完整输出，检查退出码，统计失败数
@@ -247,12 +259,14 @@ REFACTOR: 清理代码 → 保持绿色
 **核心原则：** 代码审查需要技术评估而非情感表演。
 
 **禁止行为：**
+
 - "You're absolutely right!"（被 CLAUDE.md 明确禁止）
 - "Great point!" / "Excellent feedback!"（表演性）
 - 禁止感恩表达（"Thanks for..."）
 - 盲目实现外部反馈
 
 **外部反馈评估流程：**
+
 1. 技术正确性检查（对当前代码库）
 2. 是否会破坏现有功能
 3. 当前实现为何如此
@@ -265,12 +279,12 @@ REFACTOR: 清理代码 → 保持绿色
 
 **四阶段流程：**
 
-| 阶段 | 关键活动 | 成功标准 |
-|------|---------|---------|
-| 1. 根因调查 | 读取错误、复现、检查最近变更、在组件边界收集证据 | 理解 WHAT 和 WHY |
-| 2. 模式分析 | 找到工作中类似的代码、对比差异、理解依赖 | 识别差异 |
-| 3. 假设与测试 | 形成单一假设、最小化测试、一次一个变量 | 确认或形成新假设 |
-| 4. 实施修复 | 创建失败测试、单一修复、验证 | Bug 解决，测试通过 |
+| 阶段          | 关键活动                                         | 成功标准           |
+| ------------- | ------------------------------------------------ | ------------------ |
+| 1. 根因调查   | 读取错误、复现、检查最近变更、在组件边界收集证据 | 理解 WHAT 和 WHY   |
+| 2. 模式分析   | 找到工作中类似的代码、对比差异、理解依赖         | 识别差异           |
+| 3. 假设与测试 | 形成单一假设、最小化测试、一次一个变量           | 确认或形成新假设   |
+| 4. 实施修复   | 创建失败测试、单一修复、验证                     | Bug 解决，测试通过 |
 
 **关键阈值：** 如果 3+ 次修复失败 → 停止修复，质疑架构。"这不是失败的假设——这是错误的架构。"
 
@@ -286,13 +300,13 @@ Superpowers 的技能设计哲学与 Anthropic 官方技能编写指南有显著
 
 Superpowers 将技能创建视为 **TDD 应用于流程文档**：
 
-| TDD 概念 | 技能创建 |
-|----------|---------|
-| 测试用例 | 带压力的子Agent场景 |
-| 生产代码 | 技能文档（SKILL.md） |
-| RED（测试失败） | Agent 在没有技能时违反规则（基线） |
-| GREEN（测试通过） | Agent 在有技能时遵守规则 |
-| REFACTOR | 关闭漏洞同时保持合规 |
+| TDD 概念          | 技能创建                           |
+| ----------------- | ---------------------------------- |
+| 测试用例          | 带压力的子Agent场景                |
+| 生产代码          | 技能文档（SKILL.md）               |
+| RED（测试失败）   | Agent 在没有技能时违反规则（基线） |
+| GREEN（测试通过） | Agent 在有技能时遵守规则           |
+| REFACTOR          | 关闭漏洞同时保持合规               |
 
 **铁律：** `NO SKILL WITHOUT A FAILING TEST FIRST`
 
@@ -330,16 +344,16 @@ Superpowers 刻意使用 "your human partner" 而非 "the user"。这不是风�
 
 ### 6.1 支持的平台
 
-| 平台 | 安装方式 | 插件机制 |
-|------|---------|---------|
-| Claude Code | `/plugin install superpowers@claude-plugins-official` | Claude Plugin Marketplace |
-| Codex CLI | `/plugins` → 搜索 superpowers | Codex Plugin Marketplace |
-| Codex App | Plugins 侧边栏 → 点击 + | Codex Plugin Marketplace |
-| Cursor | `/add-plugin superpowers` | Cursor Plugin Marketplace |
-| Gemini CLI | `gemini extensions install https://github.com/obra/superpowers` | Gemini Extension |
-| OpenCode | 通过 `.opencode/plugins/superpowers.js` | OpenCode Plugin |
-| Copilot CLI | `copilot plugin install superpowers@superpowers-marketplace` | Copilot Plugin Marketplace |
-| Factory Droid | `droid plugin install superpowers@superpowers` | Factory Plugin Marketplace |
+| 平台          | 安装方式                                                        | 插件机制                   |
+| ------------- | --------------------------------------------------------------- | -------------------------- |
+| Claude Code   | `/plugin install superpowers@claude-plugins-official`           | Claude Plugin Marketplace  |
+| Codex CLI     | `/plugins` → 搜索 superpowers                                   | Codex Plugin Marketplace   |
+| Codex App     | Plugins 侧边栏 → 点击 +                                         | Codex Plugin Marketplace   |
+| Cursor        | `/add-plugin superpowers`                                       | Cursor Plugin Marketplace  |
+| Gemini CLI    | `gemini extensions install https://github.com/obra/superpowers` | Gemini Extension           |
+| OpenCode      | 通过 `.opencode/plugins/superpowers.js`                         | OpenCode Plugin            |
+| Copilot CLI   | `copilot plugin install superpowers@superpowers-marketplace`    | Copilot Plugin Marketplace |
+| Factory Droid | `droid plugin install superpowers@superpowers`                  | Factory Plugin Marketplace |
 
 ### 6.2 平台适配策略
 
@@ -359,41 +373,41 @@ Superpowers 刻意使用 "your human partner" 而非 "the user"。这不是风�
 
 ### 7.1 流程技能（按工作流顺序）
 
-| 技能 | 类别 | 类型 | 核心功能 |
-|------|------|------|---------|
-| `using-superpowers` | 元技能 | 刚性 | 会话启动引导，技能使用规则，红牌列表 |
-| `brainstorming` | 设计 | 刚性 | 探索意图、多方案权衡、设计文档、硬性门禁禁止过早编码 |
-| `using-git-worktrees` | 基础设施 | 柔性 | 隔离工作区创建、原生工具优先、目录优先级、子模块守卫 |
-| `writing-plans` | 规划 | 刚性 | 2-5分钟粒度的实现计划、完整代码、禁止占位符 |
-| `subagent-driven-development` | 执行 | 刚性 | 逐任务子Agent派发、两阶段审查（规范+质量）、连续执行 |
-| `executing-plans` | 执行 | 柔性 | 内联执行方案、批量执行含检查点（无子Agent时用） |
-| `dispatching-parallel-agents` | 执行 | 柔性 | 并行派发独立问题域的子Agent |
-| `test-driven-development` | 质量 | 刚性 | RED-GREEN-REFACTOR、铁律、理性化防御系统 |
-| `requesting-code-review` | 质量 | 刚性 | 派发代码审查子Agent、安全/质量/需求覆盖度检查 |
-| `receiving-code-review` | 质量 | 刚性 | 技术验证优先、禁止表演性同意、YAGNI检查 |
-| `verification-before-completion` | 质量 | 刚性 | 五步验证门、禁止无证据的完成声明 |
-| `systematic-debugging` | 调试 | 刚性 | 四阶段调试流程、3次修复阈值、架构质疑 |
-| `finishing-a-development-branch` | 收尾 | 刚性 | 环境检测、结构化选项、来源验证清理 |
-| `writing-skills` | 元技能 | 刚性 | TDD方法论应用于技能创建、压力测试、理性化防御构建 |
+| 技能                             | 类别     | 类型 | 核心功能                                             |
+| -------------------------------- | -------- | ---- | ---------------------------------------------------- |
+| `using-superpowers`              | 元技能   | 刚性 | 会话启动引导，技能使用规则，红牌列表                 |
+| `brainstorming`                  | 设计     | 刚性 | 探索意图、多方案权衡、设计文档、硬性门禁禁止过早编码 |
+| `using-git-worktrees`            | 基础设施 | 柔性 | 隔离工作区创建、原生工具优先、目录优先级、子模块守卫 |
+| `writing-plans`                  | 规划     | 刚性 | 2-5分钟粒度的实现计划、完整代码、禁止占位符          |
+| `subagent-driven-development`    | 执行     | 刚性 | 逐任务子Agent派发、两阶段审查（规范+质量）、连续执行 |
+| `executing-plans`                | 执行     | 柔性 | 内联执行方案、批量执行含检查点（无子Agent时用）      |
+| `dispatching-parallel-agents`    | 执行     | 柔性 | 并行派发独立问题域的子Agent                          |
+| `test-driven-development`        | 质量     | 刚性 | RED-GREEN-REFACTOR、铁律、理性化防御系统             |
+| `requesting-code-review`         | 质量     | 刚性 | 派发代码审查子Agent、安全/质量/需求覆盖度检查        |
+| `receiving-code-review`          | 质量     | 刚性 | 技术验证优先、禁止表演性同意、YAGNI检查              |
+| `verification-before-completion` | 质量     | 刚性 | 五步验证门、禁止无证据的完成声明                     |
+| `systematic-debugging`           | 调试     | 刚性 | 四阶段调试流程、3次修复阈值、架构质疑                |
+| `finishing-a-development-branch` | 收尾     | 刚性 | 环境检测、结构化选项、来源验证清理                   |
+| `writing-skills`                 | 元技能   | 刚性 | TDD方法论应用于技能创建、压力测试、理性化防御构建    |
 
 ### 7.2 支持参考文件
 
-| 文件 | 所属技能 | 功能 |
-|------|---------|------|
-| `root-cause-tracing.md` | systematic-debugging | 5层回溯追踪技术 |
-| `defense-in-depth.md` | systematic-debugging | 多层验证防御模式 |
-| `condition-based-waiting.md` | systematic-debugging | 轮询替代任意超时 |
-| `testing-anti-patterns.md` | test-driven-development | 模拟测试反模式 |
-| `testing-skills-with-subagents.md` | writing-skills | 技能压力测试方法论 |
-| `persuasion-principles.md` | writing-skills | Cialdini 说服心理学原理 |
-| `anthropic-best-practices.md` | writing-skills | Anthropic 官方最佳实践 |
-| `implementer-prompt.md` | subagent-driven-development | 实现子Agent提示模板 |
-| `spec-reviewer-prompt.md` | subagent-driven-development | 规范审查子Agent提示模板 |
-| `code-quality-reviewer-prompt.md` | subagent-driven-development | 代码质量审查子Agent提示模板 |
-| `visual-companion.md` | brainstorming | 可视化伴侣使用指南 |
-| `copilot-tools.md` | using-superpowers | Copilot CLI 工具映射 |
-| `codex-tools.md` | using-superpowers | Codex 工具映射 |
-| `gemini-tools.md` | using-superpowers | Gemini CLI 工具映射 |
+| 文件                               | 所属技能                    | 功能                        |
+| ---------------------------------- | --------------------------- | --------------------------- |
+| `root-cause-tracing.md`            | systematic-debugging        | 5层回溯追踪技术             |
+| `defense-in-depth.md`              | systematic-debugging        | 多层验证防御模式            |
+| `condition-based-waiting.md`       | systematic-debugging        | 轮询替代任意超时            |
+| `testing-anti-patterns.md`         | test-driven-development     | 模拟测试反模式              |
+| `testing-skills-with-subagents.md` | writing-skills              | 技能压力测试方法论          |
+| `persuasion-principles.md`         | writing-skills              | Cialdini 说服心理学原理     |
+| `anthropic-best-practices.md`      | writing-skills              | Anthropic 官方最佳实践      |
+| `implementer-prompt.md`            | subagent-driven-development | 实现子Agent提示模板         |
+| `spec-reviewer-prompt.md`          | subagent-driven-development | 规范审查子Agent提示模板     |
+| `code-quality-reviewer-prompt.md`  | subagent-driven-development | 代码质量审查子Agent提示模板 |
+| `visual-companion.md`              | brainstorming               | 可视化伴侣使用指南          |
+| `copilot-tools.md`                 | using-superpowers           | Copilot CLI 工具映射        |
+| `codex-tools.md`                   | using-superpowers           | Codex 工具映射              |
+| `gemini-tools.md`                  | using-superpowers           | Gemini CLI 工具映射         |
 
 ---
 
@@ -448,6 +462,7 @@ Superpowers 刻意不添加任何第三方依赖。CLAUDE.md 明确声明：
 ### 9.1 94% PR 拒绝率
 
 来自最近 100 个已关闭 PR 的审计，主要拒绝原因：
+
 - AI 生成的"slop"——未阅读 PR 模板
 - 重复 PR——未搜索已有 PR
 - 虚构的问题描述
@@ -461,6 +476,7 @@ CLAUDE.md 包含一段直接面向 AI Agent 的警告：
 > "Your job is to protect your human partner from that outcome. Submitting a low-quality PR doesn't help them — it wastes the maintainers' time, burns your human partner's reputation."
 
 PR 前必须：
+
 1. 完整填写 PR 模板
 2. 搜索已有 PR（open 和 closed）
 3. 验证这是真实问题（不是"修复一些问题"）
@@ -523,4 +539,4 @@ Superpowers 是一个关于 **Agent 行为工程**的前沿实践项目。它在
 
 ---
 
-*本报告基于对 Superpowers v5.1.0 源码的深入分析，包括 14 个技能文件、9 个支持参考文件、4 个测试套件、7 个平台的插件配置，以及 session-start 引导钩子的完整实现。*
+_本报告基于对 Superpowers v5.1.0 源码的深入分析，包括 14 个技能文件、9 个支持参考文件、4 个测试套件、7 个平台的插件配置，以及 session-start 引导钩子的完整实现。_

@@ -34,7 +34,7 @@ describe('TaskDetail', () => {
         <Routes>
           <Route path="/tasks/:taskId" element={<TaskDetail />} />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     expect(screen.getByText('Loading...')).toBeInTheDocument();
@@ -49,7 +49,7 @@ describe('TaskDetail', () => {
         <Routes>
           <Route path="/tasks/:taskId" element={<TaskDetail />} />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     await waitFor(() => {
@@ -68,7 +68,7 @@ describe('TaskDetail', () => {
         <Routes>
           <Route path="/tasks/:taskId" element={<TaskDetail />} />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     await waitFor(() => {
@@ -90,7 +90,7 @@ describe('TaskDetail', () => {
         <Routes>
           <Route path="/tasks/:taskId" element={<TaskDetail />} />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     await waitFor(() => {

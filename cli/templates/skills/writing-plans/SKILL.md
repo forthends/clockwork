@@ -19,6 +19,7 @@ license: MIT
 ## Task Granularity
 
 Each step is ONE action:
+
 - "Write the failing test" — step
 - "Run it to make sure it fails" — step
 - "Implement the minimal code" — step
@@ -28,6 +29,7 @@ Each step is ONE action:
 ## No Placeholders
 
 These are plan failures — never write them:
+
 - TBD, TODO, "implement later", "fill in details"
 - "Add appropriate error handling" / "add validation"
 - "Write tests for the above" (without actual test code)

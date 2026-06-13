@@ -17,19 +17,23 @@ export function TaskReview() {
     Promise.all([fetchTask(taskId), fetchArtifacts(taskId)])
       .then(([_, arts]) => {
         if (!cancelled) setArtifacts(arts);
-        return Promise.all(
-          arts.map(a => fetchArtifact(taskId, a.name).then(c => ({ name: a.name, content: c })))
-        );
+        return Promise.all(arts.map((a) => fetchArtifact(taskId, a.name).then((c) => ({ name: a.name, content: c }))));
       })
-      .then(results => {
+      .then((results) => {
         if (!cancelled) {
           const map: Record<string, string> = {};
-          results.forEach(r => { map[r.name] = r.content; });
+          results.forEach((r) => {
+            map[r.name] = r.content;
+          });
           setContents(map);
         }
       })
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [taskId]);
 
   if (loading) return <div className="loading">Loading review...</div>;
@@ -37,11 +41,15 @@ export function TaskReview() {
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-        <Link to={`/tasks/${taskId}`} style={{ color: '#94a3b8', textDecoration: 'none' }}>← Back</Link>
-        <h1 className="page-title" style={{ margin: 0 }}>Review: {taskId}</h1>
+        <Link to={`/tasks/${taskId}`} style={{ color: '#94a3b8', textDecoration: 'none' }}>
+          ← Back
+        </Link>
+        <h1 className="page-title" style={{ margin: 0 }}>
+          Review: {taskId}
+        </h1>
       </div>
 
-      {artifacts.map(a => (
+      {artifacts.map((a) => (
         <div key={a.name} style={{ marginBottom: 20 }}>
           <h3 style={{ fontSize: 14, marginBottom: 8, color: '#94a3b8' }}>{a.name}</h3>
           <div className="card" style={{ padding: 20 }}>

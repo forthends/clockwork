@@ -9,7 +9,9 @@ const CLI = 'npx tsx src/index.ts';
 describe('clockwork init', () => {
   const testDir = join(tmpdir(), 'clockwork-init-test-' + Date.now());
 
-  afterAll(() => { rmSync(testDir, { recursive: true, force: true }); });
+  afterAll(() => {
+    rmSync(testDir, { recursive: true, force: true });
+  });
 
   it('creates project skeleton', () => {
     const output = execSync(`cd ${__dirname}/../.. && ${CLI} init ${testDir}`, { encoding: 'utf8' });

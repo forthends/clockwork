@@ -18,7 +18,9 @@ describe('clockwork repo', () => {
   });
 
   afterEach(() => {
-    try { rmSync(dir, { recursive: true, force: true }); } catch {}
+    try {
+      rmSync(dir, { recursive: true, force: true });
+    } catch {}
   });
 
   it('repo status shows empty repos', () => {
@@ -38,7 +40,8 @@ describe('clockwork repo', () => {
   it('repo add creates entry for valid repo path', () => {
     // The project must be a git repository for git submodule add to work.
     execSync('git init && git config user.email "test@test.com" && git config user.name "Test"', {
-      cwd: dir, stdio: 'pipe',
+      cwd: dir,
+      stdio: 'pipe',
     });
 
     // Create a fake remote repository with at least one commit.
@@ -50,10 +53,9 @@ describe('clockwork repo', () => {
       { cwd: resolvedFakeRepo, stdio: 'pipe' },
     );
 
-    const output = execSync(
-      `cd ${CLI_DIR} && ${CLI} repo add ${resolvedFakeRepo} --name test-repo --project ${dir}`,
-      { encoding: 'utf8' },
-    );
+    const output = execSync(`cd ${CLI_DIR} && ${CLI} repo add ${resolvedFakeRepo} --name test-repo --project ${dir}`, {
+      encoding: 'utf8',
+    });
     expect(output).toContain('test-repo');
 
     rmSync(fakeRepo, { recursive: true, force: true });

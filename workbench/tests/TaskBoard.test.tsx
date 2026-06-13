@@ -52,7 +52,7 @@ describe('TaskBoard', () => {
     render(
       <MemoryRouter>
         <TaskBoard />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     expect(screen.getByText('Loading tasks...')).toBeInTheDocument();
   });
@@ -62,7 +62,7 @@ describe('TaskBoard', () => {
     render(
       <MemoryRouter>
         <TaskBoard />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     await waitFor(() => {
       expect(screen.getByText('task-001-add-login')).toBeInTheDocument();
@@ -76,7 +76,7 @@ describe('TaskBoard', () => {
     render(
       <MemoryRouter>
         <TaskBoard />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     await waitFor(() => {
       expect(screen.getByText(/Failed to load tasks/)).toBeInTheDocument();
@@ -89,7 +89,7 @@ describe('TaskBoard', () => {
     render(
       <MemoryRouter>
         <TaskBoard />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     await waitFor(() => {
       expect(screen.getByText('Task Board')).toBeInTheDocument();

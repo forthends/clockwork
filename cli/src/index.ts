@@ -12,10 +12,7 @@ import { webCommand } from './commands/web.js';
 
 const program = new Command();
 
-program
-  .name('clockwork')
-  .description('AI collaboration governance framework for agile teams')
-  .version('0.1.0');
+program.name('clockwork').description('AI collaboration governance framework for agile teams').version('0.1.0');
 
 program.addCommand(initCommand());
 program.addCommand(startCommand());

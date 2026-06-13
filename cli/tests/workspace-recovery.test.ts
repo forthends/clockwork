@@ -1,5 +1,12 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { createTask, loadTask, markStageFailed, incrementRetry, saveRecoverySnapshot, loadRecoverySnapshot, setTaskInterrupted } from '../src/workspace.js';
+import {
+  createTask,
+  markStageFailed,
+  incrementRetry,
+  saveRecoverySnapshot,
+  loadRecoverySnapshot,
+  setTaskInterrupted,
+} from '../src/workspace.js';
 import { mkdirSync, rmSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
@@ -13,7 +20,9 @@ describe('workspace recovery', () => {
   });
 
   afterEach(() => {
-    try { rmSync(wsDir, { recursive: true, force: true }); } catch {}
+    try {
+      rmSync(wsDir, { recursive: true, force: true });
+    } catch {}
   });
 
   it('marks a stage as failed and records retry count', () => {

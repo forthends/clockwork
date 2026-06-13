@@ -16,9 +16,11 @@ export function ReviewActions({ taskId, onComplete }: Props) {
     setSubmitting(true);
     try {
       await submitReview(taskId, action, reason);
-      setResult(action === 'approve'
-        ? 'Approved! The task can now continue.'
-        : `Rejected: ${reason}. The task requires changes.`);
+      setResult(
+        action === 'approve'
+          ? 'Approved! The task can now continue.'
+          : `Rejected: ${reason}. The task requires changes.`,
+      );
       onComplete();
     } catch (e) {
       setResult('Error: ' + String(e));
@@ -29,7 +31,15 @@ export function ReviewActions({ taskId, onComplete }: Props) {
 
   if (result) {
     return (
-      <div className="card" style={{ textAlign: 'center', padding: 32, color: result.includes('Approved') ? '#10b981' : '#ef4444', fontWeight: 600 }}>
+      <div
+        className="card"
+        style={{
+          textAlign: 'center',
+          padding: 32,
+          color: result.includes('Approved') ? '#10b981' : '#ef4444',
+          fontWeight: 600,
+        }}
+      >
         {result}
       </div>
     );
@@ -45,7 +55,7 @@ export function ReviewActions({ taskId, onComplete }: Props) {
         <input
           type="text"
           value={reason}
-          onChange={e => setReason(e.target.value)}
+          onChange={(e) => setReason(e.target.value)}
           placeholder="Enter rejection reason..."
           style={{
             width: '100%',

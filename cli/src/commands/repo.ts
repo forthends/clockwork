@@ -7,7 +7,8 @@ import chalk from 'chalk';
 export function repoCommand(): Command {
   const cmd = new Command('repo').description('Manage code repositories');
 
-  cmd.command('add')
+  cmd
+    .command('add')
     .description('Add a git repository as a submodule')
     .argument('<url>', 'Repository URL')
     .option('-n, --name <name>', 'Directory name for the submodule')
@@ -29,7 +30,8 @@ export function repoCommand(): Command {
       }
     });
 
-  cmd.command('status')
+  cmd
+    .command('status')
     .description('Show repository status')
     .option('-p, --project <path>', 'Project path', process.cwd())
     .action((options: { project: string }) => {

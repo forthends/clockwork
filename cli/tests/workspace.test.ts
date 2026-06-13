@@ -8,8 +8,12 @@ describe('workspace', () => {
   const testDir = join(tmpdir(), 'clockwork-ws-test-' + Date.now());
   const workspaceDir = join(testDir, 'workspace');
 
-  beforeAll(async () => { await mkdir(workspaceDir, { recursive: true }); });
-  afterAll(async () => { await rm(testDir, { recursive: true, force: true }); });
+  beforeAll(async () => {
+    await mkdir(workspaceDir, { recursive: true });
+  });
+  afterAll(async () => {
+    await rm(testDir, { recursive: true, force: true });
+  });
 
   it('creates a task workspace with status.yaml', () => {
     const task = createTask(workspaceDir, 'feature-dev', 'user-login', ['backend']);

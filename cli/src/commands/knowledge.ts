@@ -7,7 +7,8 @@ import chalk from 'chalk';
 export function knowledgeCommand(): Command {
   const cmd = new Command('knowledge').description('Manage knowledge base');
 
-  cmd.command('update')
+  cmd
+    .command('update')
     .description('Rebuild knowledge index from knowledge/ directory')
     .option('-p, --project <path>', 'Project path', process.cwd())
     .action((options: { project: string }) => {

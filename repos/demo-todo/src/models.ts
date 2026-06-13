@@ -35,7 +35,13 @@ export function create(data: Omit<Todo, 'id' | 'createdAt' | 'updatedAt'>): Todo
 export function update(id: string, data: Partial<Omit<Todo, 'id' | 'createdAt'>>): Todo | undefined {
   const existing = store.get(id);
   if (!existing) return undefined;
-  const updated: Todo = { ...existing, ...data, id: existing.id, createdAt: existing.createdAt, updatedAt: new Date().toISOString() };
+  const updated: Todo = {
+    ...existing,
+    ...data,
+    id: existing.id,
+    createdAt: existing.createdAt,
+    updatedAt: new Date().toISOString(),
+  };
   store.set(id, updated);
   return updated;
 }

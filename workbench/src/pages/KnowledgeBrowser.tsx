@@ -11,28 +11,34 @@ export function KnowledgeBrowser() {
   useEffect(() => {
     let cancelled = false;
     fetchKnowledge()
-      .then(data => { if (!cancelled) setData(data); })
-      .catch(e => { if (!cancelled) setError(e.message); })
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
+      .then((data) => {
+        if (!cancelled) setData(data);
+      })
+      .catch((e) => {
+        if (!cancelled) setError(e.message);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (loading) return <div className="loading">Loading knowledge base...</div>;
   if (error) return <div className="error">{error}</div>;
   if (!data) return null;
 
-  const filtered = filter === 'all'
-    ? data.entries
-    : data.entries.filter(e => e.category === filter);
+  const filtered = filter === 'all' ? data.entries : data.entries.filter((e) => e.category === filter);
 
-  const categories = ['all', ...new Set(data.entries.map(e => e.category))];
+  const categories = ['all', ...new Set(data.entries.map((e) => e.category))];
 
   return (
     <div>
       <h1 className="page-title">Knowledge Base</h1>
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-        {categories.map(c => (
+        {categories.map((c) => (
           <button
             key={c}
             onClick={() => setFilter(c)}
@@ -54,12 +60,8 @@ export function KnowledgeBrowser() {
       </div>
 
       <div style={{ display: 'grid', gap: 12 }}>
-        {filtered.map(entry => (
-          <Link
-            key={entry.path}
-            to={`/knowledge/${entry.path}`}
-            style={{ textDecoration: 'none', color: 'inherit' }}
-          >
+        {filtered.map((entry) => (
+          <Link key={entry.path} to={`/knowledge/${entry.path}`} style={{ textDecoration: 'none', color: 'inherit' }}>
             <div className="card" style={{ cursor: 'pointer' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
@@ -69,8 +71,17 @@ export function KnowledgeBrowser() {
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 4 }}>
-                  {entry.tags.map(tag => (
-                    <span key={tag} style={{ background: '#0f172a', padding: '2px 8px', borderRadius: 4, fontSize: 11, color: '#94a3b8' }}>
+                  {entry.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      style={{
+                        background: '#0f172a',
+                        padding: '2px 8px',
+                        borderRadius: 4,
+                        fontSize: 11,
+                        color: '#94a3b8',
+                      }}
+                    >
                       {tag}
                     </span>
                   ))}

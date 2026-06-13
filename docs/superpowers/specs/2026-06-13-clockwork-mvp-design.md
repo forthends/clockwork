@@ -51,6 +51,7 @@ repos/demo-todo/
 ```
 
 API 端点：
+
 - `GET /api/v1/todos` — 获取列表
 - `POST /api/v1/todos` — 创建条目
 - `PATCH /api/v1/todos/:id` — 更新状态
@@ -60,11 +61,11 @@ API 端点：
 
 用 demo-todo 的真实约定替换 3 条虚构知识：
 
-| 文件 | 核心内容 |
-|------|---------|
-| `knowledge/architecture/api-conventions.md` | RESTful 设计、JSON 响应格式、状态码规范、分页约定 |
-| `knowledge/business/domain-model.md` | Todo 实体字段、状态枚举(todo/in_progress/done)、业务约束 |
-| `knowledge/design-system/components.md` | 工程规范：命名约定、文件结构、错误处理模式 |
+| 文件                                        | 核心内容                                                 |
+| ------------------------------------------- | -------------------------------------------------------- |
+| `knowledge/architecture/api-conventions.md` | RESTful 设计、JSON 响应格式、状态码规范、分页约定        |
+| `knowledge/business/domain-model.md`        | Todo 实体字段、状态枚举(todo/in_progress/done)、业务约束 |
+| `knowledge/design-system/components.md`     | 工程规范：命名约定、文件结构、错误处理模式               |
 
 ### 3.2 构建与分发
 
@@ -99,11 +100,11 @@ API 端点：
 
 #### 改动的文件
 
-| 文件 | 类型 | 说明 |
-|------|------|------|
-| `package.json` (根) | 新建 | workspaces + 统一脚本 |
-| `cli/package.json` | 修改 | 加 bin + build 脚本 |
-| `cli/tsconfig.json` | 修改 | 调整 outDir |
+| 文件                      | 类型 | 说明                        |
+| ------------------------- | ---- | --------------------------- |
+| `package.json` (根)       | 新建 | workspaces + 统一脚本       |
+| `cli/package.json`        | 修改 | 加 bin + build 脚本         |
+| `cli/tsconfig.json`       | 修改 | 调整 outDir                 |
 | `cli/src/commands/web.ts` | 修改 | 添加 workbench 自动构建检测 |
 
 ### 3.3 端到端验证
@@ -118,27 +119,27 @@ API 端点：
 
 **验证检查清单：**
 
-| 检查项 | 验证方式 |
-|--------|---------|
-| CLI 可全局调用 | `which clockwork` 返回路径 |
-| init 创建完整骨架 | 目录结构 + config.yaml 内容校验 |
-| start 生成正确上下文包 | workspace/ 中 agent-context JSON 完整性 |
-| status 反映真实状态 | 阶段进度 + 审查状态与实际一致 |
-| review --approve 解锁下一阶段 | humanReviewPending 状态切换 |
-| review --reject 回退 | 阶段标记 failed，resume 可用 |
-| web 服务正常启动 | Workbench 自动构建 + API 响应正常 |
-| Workflow Runner 子Agent调度 | CC 中实际调度，产物正确写入 workspace |
+| 检查项                        | 验证方式                                |
+| ----------------------------- | --------------------------------------- |
+| CLI 可全局调用                | `which clockwork` 返回路径              |
+| init 创建完整骨架             | 目录结构 + config.yaml 内容校验         |
+| start 生成正确上下文包        | workspace/ 中 agent-context JSON 完整性 |
+| status 反映真实状态           | 阶段进度 + 审查状态与实际一致           |
+| review --approve 解锁下一阶段 | humanReviewPending 状态切换             |
+| review --reject 回退          | 阶段标记 failed，resume 可用            |
+| web 服务正常启动              | Workbench 自动构建 + API 响应正常       |
+| Workflow Runner 子Agent调度   | CC 中实际调度，产物正确写入 workspace   |
 
 ### 3.4 基础错误恢复
 
 #### 错误分类与处理
 
-| 错误类型 | 触发条件 | 处理策略 | 实现位置 |
-|---------|---------|---------|---------|
-| Agent 超时 | 单阶段执行超过配置的超时 | 自动终止 → 标记 failed → 写入超时日志 → 提示 resume | `workspace.ts`、`workflow-runner/SKILL.md` |
-| 重试耗尽 | 阶段失败次数 >= maxRetries | 标记 failed → 任务暂停 → 退避策略 2^n 分钟（2→4→8） | `workspace.ts` |
-| 并发冲突 | 两个进程同时操作同一任务文件 | 文件锁：写入前创建 .lock → 写入后删除 → 获取不到锁等待+重试（最多3次，间隔500ms） | `cli/src/lock.ts` (新建) |
-| SIGINT 中断 | 用户 Ctrl+C 或被 kill | 捕获信号 → 阶段状态+产物写入 recovery/ → 标记 interrupted → resume 从恢复点继续 | `cli/src/index.ts`、`workspace.ts` |
+| 错误类型    | 触发条件                     | 处理策略                                                                          | 实现位置                                   |
+| ----------- | ---------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------ |
+| Agent 超时  | 单阶段执行超过配置的超时     | 自动终止 → 标记 failed → 写入超时日志 → 提示 resume                               | `workspace.ts`、`workflow-runner/SKILL.md` |
+| 重试耗尽    | 阶段失败次数 >= maxRetries   | 标记 failed → 任务暂停 → 退避策略 2^n 分钟（2→4→8）                               | `workspace.ts`                             |
+| 并发冲突    | 两个进程同时操作同一任务文件 | 文件锁：写入前创建 .lock → 写入后删除 → 获取不到锁等待+重试（最多3次，间隔500ms） | `cli/src/lock.ts` (新建)                   |
+| SIGINT 中断 | 用户 Ctrl+C 或被 kill        | 捕获信号 → 阶段状态+产物写入 recovery/ → 标记 interrupted → resume 从恢复点继续   | `cli/src/index.ts`、`workspace.ts`         |
 
 #### 状态机扩展
 
@@ -155,12 +156,12 @@ stageMeta: { plan: { retryCount: 0, maxRetries: 0, startedAt: '', timeoutMs: 600
 
 #### 改动的文件
 
-| 文件 | 类型 | 说明 |
-|------|------|------|
-| `cli/src/lock.ts` | 新建 | 文件锁工具：acquireLock/releaseLock/withLock |
-| `cli/src/workspace.ts` | 修改 | 增加重试计数、超时检测、recovery 存档、中断状态 |
-| `cli/src/commands/resume.ts` | 修改 | 支持从 interrupted 状态恢复，读取 recovery 存档 |
-| `skills/workflow-runner/SKILL.md` | 修改 | 增加超时检测、重试退避、中断处理流程 |
+| 文件                              | 类型 | 说明                                            |
+| --------------------------------- | ---- | ----------------------------------------------- |
+| `cli/src/lock.ts`                 | 新建 | 文件锁工具：acquireLock/releaseLock/withLock    |
+| `cli/src/workspace.ts`            | 修改 | 增加重试计数、超时检测、recovery 存档、中断状态 |
+| `cli/src/commands/resume.ts`      | 修改 | 支持从 interrupted 状态恢复，读取 recovery 存档 |
+| `skills/workflow-runner/SKILL.md` | 修改 | 增加超时检测、重试退避、中断处理流程            |
 
 ---
 
@@ -170,27 +171,27 @@ stageMeta: { plan: { retryCount: 0, maxRetries: 0, startedAt: '', timeoutMs: 600
 
 #### CLI 测试
 
-| 文件 | 状态 | 覆盖 |
-|------|------|------|
-| `cli/tests/commands/repo.test.ts` | 缺失 | repo add/status 命令 |
+| 文件                                     | 状态 | 覆盖                                  |
+| ---------------------------------------- | ---- | ------------------------------------- |
+| `cli/tests/commands/repo.test.ts`        | 缺失 | repo add/status 命令                  |
 | `cli/tests/integration/workflow.test.ts` | 缺失 | init → start → status → review 全链路 |
-| `cli/tests/integration/api.test.ts` | 缺失 | 7 个 REST 端点请求/响应验证 |
+| `cli/tests/integration/api.test.ts`      | 缺失 | 7 个 REST 端点请求/响应验证           |
 
 #### Workbench 测试（vitest + @testing-library/react + jsdom）
 
-| 文件 | 覆盖 |
-|------|------|
-| `workbench/tests/TaskBoard.test.tsx` | 任务看板渲染、列数据、空状态 |
-| `workbench/tests/TaskDetail.test.tsx` | 任务详情渲染、产物列表 |
-| `workbench/tests/ReviewActions.test.tsx` | 审批按钮交互、驳回原因输入 |
-| `workbench/tests/MarkdownViewer.test.tsx` | GFM 各语法渲染验证 |
+| 文件                                      | 覆盖                         |
+| ----------------------------------------- | ---------------------------- |
+| `workbench/tests/TaskBoard.test.tsx`      | 任务看板渲染、列数据、空状态 |
+| `workbench/tests/TaskDetail.test.tsx`     | 任务详情渲染、产物列表       |
+| `workbench/tests/ReviewActions.test.tsx`  | 审批按钮交互、驳回原因输入   |
+| `workbench/tests/MarkdownViewer.test.tsx` | GFM 各语法渲染验证           |
 
 #### 工作流 E2E 测试
 
-| 文件 | 覆盖 |
-|------|------|
-| `cli/tests/e2e/feature-dev.test.ts` | feature-dev 完整状态转换 |
-| `cli/tests/e2e/bug-fix.test.ts` | bug-fix 完整状态转换 |
+| 文件                                      | 覆盖                           |
+| ----------------------------------------- | ------------------------------ |
+| `cli/tests/e2e/feature-dev.test.ts`       | feature-dev 完整状态转换       |
+| `cli/tests/e2e/bug-fix.test.ts`           | bug-fix 完整状态转换           |
 | `cli/tests/e2e/incident-response.test.ts` | incident-response 完整状态转换 |
 
 ### 4.2 完整错误恢复
@@ -234,6 +235,7 @@ marked.setOptions({
 - 返回知识列表链接
 
 改动：
+
 - `KnowledgeBrowser.tsx` — 列表项改为链接
 - `KnowledgeDetail.tsx` — 新建详情页
 - `App.tsx` — 添加路由
@@ -244,13 +246,13 @@ marked.setOptions({
 
 ## 5. 技术栈
 
-| 层 | 技术 |
-|---|------|
-| CLI | Node.js/TypeScript, commander.js, Express |
-| Workbench | React 18, Vite, TypeScript, react-router-dom |
-| Markdown | marked + highlight.js |
-| 测试 | vitest, @testing-library/react, jsdom, supertest |
-| 文件锁 | 自建 cli/src/lock.ts（不引入外部依赖） |
+| 层        | 技术                                             |
+| --------- | ------------------------------------------------ |
+| CLI       | Node.js/TypeScript, commander.js, Express        |
+| Workbench | React 18, Vite, TypeScript, react-router-dom     |
+| Markdown  | marked + highlight.js                            |
+| 测试      | vitest, @testing-library/react, jsdom, supertest |
+| 文件锁    | 自建 cli/src/lock.ts（不引入外部依赖）           |
 
 ## 6. 不改动的范围
 

@@ -23,14 +23,22 @@ export function acquireLock(baseDir: string, resource: string): void {
 
 export function releaseLock(baseDir: string, resource: string): void {
   const path = lockPath(baseDir, resource);
-  try { unlinkSync(path); } catch {}
+  try {
+    unlinkSync(path);
+  } catch {}
 }
 
 export function isLocked(baseDir: string, resource: string): boolean {
   return existsSync(lockPath(baseDir, resource));
 }
 
-export async function withLock<T>(baseDir: string, resource: string, fn: () => T | Promise<T>, maxRetries = 3, retryMs = 500): Promise<T> {
+export async function withLock<T>(
+  baseDir: string,
+  resource: string,
+  fn: () => T | Promise<T>,
+  maxRetries = 3,
+  retryMs = 500,
+): Promise<T> {
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       acquireLock(baseDir, resource);
@@ -43,7 +51,7 @@ export async function withLock<T>(baseDir: string, resource: string, fn: () => T
       if (attempt === maxRetries || !(err instanceof Error && err.message.includes('locked'))) {
         throw err;
       }
-      await new Promise(r => setTimeout(r, retryMs));
+      await new Promise((r) => setTimeout(r, retryMs));
     }
   }
   throw new Error(`Could not acquire lock after ${maxRetries} retries`);

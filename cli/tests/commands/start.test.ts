@@ -17,12 +17,14 @@ describe('clockwork start', () => {
     execSync(`cp -r ${join(__dirname, '..', '..', '..', 'knowledge')} ${testDir}/`);
   });
 
-  afterAll(() => { rmSync(testDir, { recursive: true, force: true }); });
+  afterAll(() => {
+    rmSync(testDir, { recursive: true, force: true });
+  });
 
   it('creates a new task workspace for feature-dev', () => {
     const output = execSync(
       `cd ${__dirname}/../.. && echo "Add user login" | ${CLI} start feature-dev --project ${testDir} --slug user-login --repo backend`,
-      { encoding: 'utf8' }
+      { encoding: 'utf8' },
     );
     expect(output).toContain('Task created:');
     expect(output).toContain('user-login');

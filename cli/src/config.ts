@@ -28,7 +28,10 @@ function deepMerge<T>(base: T, override: Partial<T>): T {
   const result = { ...base };
   for (const key of Object.keys(override as object) as (keyof T)[]) {
     if (isObject(base[key]) && isObject(override[key])) {
-      result[key] = deepMerge(base[key] as Record<string, unknown>, override[key] as Record<string, unknown>) as T[keyof T];
+      result[key] = deepMerge(
+        base[key] as Record<string, unknown>,
+        override[key] as Record<string, unknown>,
+      ) as T[keyof T];
     } else if (override[key] !== undefined) {
       result[key] = override[key];
     }

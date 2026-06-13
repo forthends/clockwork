@@ -24,18 +24,30 @@ export function TaskDetail() {
           if (a.length > 0) setSelectedArtifact(a[0].name);
         }
       })
-      .catch(e => { if (!cancelled) setError(e.message); })
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
+      .catch((e) => {
+        if (!cancelled) setError(e.message);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [taskId]);
 
   useEffect(() => {
     if (!taskId || !selectedArtifact) return;
     let cancelled = false;
     fetchArtifact(taskId, selectedArtifact)
-      .then(data => { if (!cancelled) setContent(data); })
-      .catch(() => { if (!cancelled) setContent('*Unable to load artifact*'); });
-    return () => { cancelled = true; };
+      .then((data) => {
+        if (!cancelled) setContent(data);
+      })
+      .catch(() => {
+        if (!cancelled) setContent('*Unable to load artifact*');
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [taskId, selectedArtifact]);
 
   if (loading) return <div className="loading">Loading...</div>;
@@ -45,8 +57,12 @@ export function TaskDetail() {
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-        <Link to="/tasks" style={{ color: '#94a3b8', textDecoration: 'none' }}>← Back</Link>
-        <h1 className="page-title" style={{ margin: 0 }}>{task.taskId}</h1>
+        <Link to="/tasks" style={{ color: '#94a3b8', textDecoration: 'none' }}>
+          ← Back
+        </Link>
+        <h1 className="page-title" style={{ margin: 0 }}>
+          {task.taskId}
+        </h1>
         <StatusBadge status={task.status} />
         {task.humanReviewPending && (
           <Link to={`/tasks/${taskId}/review`} className="badge badge-active" style={{ textDecoration: 'none' }}>
@@ -57,10 +73,18 @@ export function TaskDetail() {
 
       <div className="card" style={{ marginBottom: 20 }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 12, fontSize: 13 }}>
-          <div><span style={{ color: '#64748b' }}>Workflow:</span> {task.workflow}</div>
-          <div><span style={{ color: '#64748b' }}>Stage:</span> {task.currentStage || 'not started'}</div>
-          <div><span style={{ color: '#64748b' }}>Repos:</span> {task.repos.join(', ') || 'none'}</div>
-          <div><span style={{ color: '#64748b' }}>Updated:</span> {new Date(task.updated).toLocaleString()}</div>
+          <div>
+            <span style={{ color: '#64748b' }}>Workflow:</span> {task.workflow}
+          </div>
+          <div>
+            <span style={{ color: '#64748b' }}>Stage:</span> {task.currentStage || 'not started'}
+          </div>
+          <div>
+            <span style={{ color: '#64748b' }}>Repos:</span> {task.repos.join(', ') || 'none'}
+          </div>
+          <div>
+            <span style={{ color: '#64748b' }}>Updated:</span> {new Date(task.updated).toLocaleString()}
+          </div>
         </div>
         <div style={{ marginTop: 12 }}>
           {Object.entries(task.stages).map(([stage, status]) => (
@@ -76,7 +100,7 @@ export function TaskDetail() {
           <h3 style={{ fontSize: 13, color: '#64748b', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
             Artifacts
           </h3>
-          {artifacts.map(a => (
+          {artifacts.map((a) => (
             <div
               key={a.name}
               onClick={() => setSelectedArtifact(a.name)}

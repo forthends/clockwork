@@ -21,12 +21,13 @@
 
 ### 为什么需要 AGENTS.md？
 
-| 文件 | 读者 | 内容定位 |
-|------|------|----------|
-| README.md | 人类开发者 | 项目介绍、快速上手、贡献指南 |
+| 文件      | 读者        | 内容定位                               |
+| --------- | ----------- | -------------------------------------- |
+| README.md | 人类开发者  | 项目介绍、快速上手、贡献指南           |
 | AGENTS.md | AI 编码代理 | 构建命令、测试流程、编码约束、项目架构 |
 
 **设计原则**：
+
 - 为代理提供一个**可预测的、专门的**指令位置
 - 保持 README 简洁，面向人类
 - 补充而非替代现有文档
@@ -41,6 +42,7 @@ AGENTS.md 的规范极其简洁：
 > 一个纯 Markdown 文件，放置在仓库根目录的 `AGENTS.md`，无强制结构、无 YAML frontmatter、无 schema。
 
 ### 层级规则
+
 - 根目录 AGENTS.md 适用于整个项目
 - 支持子目录嵌套 AGENTS.md（monorepo 场景）
 - **就近原则**：离被编辑文件最近的 AGENTS.md 优先级最高
@@ -48,6 +50,7 @@ AGENTS.md 的规范极其简洁：
 - Codex 默认文件大小上限为 32 KiB
 
 ### 与用户指令的优先级
+
 1. 用户聊天中的显式指令（最高优先级）
 2. 最近的 AGENTS.md 文件
 3. 根目录 AGENTS.md 文件
@@ -57,59 +60,75 @@ AGENTS.md 的规范极其简洁：
 ## 四、建议内容结构（六大高价值模块）
 
 ### 1. 构建与测试命令
+
 ```markdown
 ## Build & Test
+
 - Build: `pnpm build`
 - Test all: `pnpm test --run --no-color`
 - Single test: `pnpm vitest run path/to/file.test.ts`
 - Lint: `pnpm eslint --fix path/to/file.ts`
 - Typecheck: `pnpm tsc --noEmit`
 ```
+
 **要点**：精确、可复制粘贴的命令，包含必要标志位。
 
 ### 2. 代码风格规则
+
 仅列出与语言/框架默认风格**不同的**规则（代理已默认了解 Prettier、PEP 8 等标准约定）：
+
 ```markdown
 ## Code Style
+
 - Named exports only, no default exports
 - Server Components by default
 - Tailwind for styling — no CSS modules
 ```
 
 ### 3. 项目结构
+
 描述目录的**职责**而非文件清单：
+
 ```markdown
 ## Architecture
-- /src/api/       Route handlers (thin, delegate to services)
-- /src/services/  Business logic
-- /src/models/    Database models
-- /src/lib/       Utilities, DB client
+
+- /src/api/ Route handlers (thin, delegate to services)
+- /src/services/ Business logic
+- /src/models/ Database models
+- /src/lib/ Utilities, DB client
 ```
 
 ### 4. 测试说明
+
 ```markdown
 ## Testing
+
 - Factory Boy for test data, never fixtures
 - No mocking the database — use test database
 - Add or update tests for code you change
 ```
 
 ### 5. Git 工作流
+
 ```markdown
 ## Git
+
 - Branch: `feature/<slug>` or `bugfix/<slug>`
 - Commits: Conventional commits (`feat:`, `fix:`, `chore:`)
 - PR title: `[<project_name>] <Title>`
 ```
 
 ### 6. 禁区/边界
+
 代理**绝不能触碰**的内容：
+
 ```markdown
 ## Do Not Touch
+
 - Never modify files in /generated/
 - Never commit .env files
 - /legacy/ uses sync code intentionally — do not convert
-- src/lib/billing/* (PCI scope)
+- src/lib/billing/\* (PCI scope)
 ```
 
 ---
@@ -117,6 +136,7 @@ AGENTS.md 的规范极其简洁：
 ## 五、编写最佳实践
 
 ### DO（应该做）
+
 - 使用**要点和代码块**（不要写段落散文）
 - 使用**文件级命令**（`eslint path/to/file.ts` 而非全项目构建）
 - 标注好的/坏的示例文件：Prefer `Projects.tsx` over `Admin.tsx`
@@ -127,6 +147,7 @@ AGENTS.md 的规范极其简洁：
 - 添加"遇到困难时"的逃生口：Ask a clarifying question or propose a plan
 
 ### DON'T（不应该做）
+
 - 写引言、结论或客套话
 - 使用 "You should..." 或 "Remember to..."
 - 硬编码文件路径（快速过时）
@@ -136,6 +157,7 @@ AGENTS.md 的规范极其简洁：
 - 写代理已知道的明显指令（"write clean code"）
 
 ### 何时不添加内容
+
 - 代理已经自动做了（先测试验证）
 - 一次性的偶发事件（用 lint 规则或 CI 检查解决）
 - 上游文档可链接到的内容
@@ -147,13 +169,14 @@ AGENTS.md 的规范极其简洁：
 
 **普林斯顿大学对照实验**（10 个仓库，124 个 PR）：
 
-| 指标 | 改善幅度 |
-|------|----------|
-| 运行时间中位数 | **减少 28.6%** |
-| Token 使用中位数 | **减少 16.6%** |
-| 输出 Token 数 | 从 2,925 降至 2,440 |
+| 指标             | 改善幅度            |
+| ---------------- | ------------------- |
+| 运行时间中位数   | **减少 28.6%**      |
+| Token 使用中位数 | **减少 16.6%**      |
+| 输出 Token 数    | 从 2,925 降至 2,440 |
 
 **关键发现**：
+
 - **人工编写的** AGENTS.md 效果显著优于 LLM 自动生成的版本
 - LLM 自动生成的 AGENTS.md 反而可能**降低任务成功率并增加 23% 的成本**
 - 建议从小开始，逐步迭代完善
@@ -164,38 +187,38 @@ AGENTS.md 的规范极其简洁：
 
 ### 兼容的编码代理工具（20+）
 
-| 工具 | 开发者 | 支持方式 |
-|------|--------|----------|
-| Codex | OpenAI | 原生主格式 |
-| Claude Code | Anthropic | 同时读取 CLAUDE.md 和 AGENTS.md |
-| GitHub Copilot | Microsoft | 原生支持（回退） |
-| Cursor | Cursor | 原生支持 |
-| Gemini CLI | Google | 需配置 |
-| Jules | Google | 原生支持 |
-| Aider | — | 需配置 `.aider.conf.yml` |
-| Windsurf | Cognition | 原生支持 |
-| Devin | Cognition | 原生支持 |
-| Zed | — | 原生支持 |
-| Factory | — | 原生支持 |
-| Warp | — | 原生支持 |
-| VS Code | Microsoft | 原生支持 |
-| Amp | — | 原生支持 |
-| Junie | JetBrains | 原生支持 |
-| Goose | Block | 原生支持 |
-| Kilo Code | — | 支持 |
-| RooCode | — | 支持 |
-| Augment Code | — | 支持 |
-| Semgrep | — | 支持 |
+| 工具           | 开发者    | 支持方式                        |
+| -------------- | --------- | ------------------------------- |
+| Codex          | OpenAI    | 原生主格式                      |
+| Claude Code    | Anthropic | 同时读取 CLAUDE.md 和 AGENTS.md |
+| GitHub Copilot | Microsoft | 原生支持（回退）                |
+| Cursor         | Cursor    | 原生支持                        |
+| Gemini CLI     | Google    | 需配置                          |
+| Jules          | Google    | 原生支持                        |
+| Aider          | —         | 需配置 `.aider.conf.yml`        |
+| Windsurf       | Cognition | 原生支持                        |
+| Devin          | Cognition | 原生支持                        |
+| Zed            | —         | 原生支持                        |
+| Factory        | —         | 原生支持                        |
+| Warp           | —         | 原生支持                        |
+| VS Code        | Microsoft | 原生支持                        |
+| Amp            | —         | 原生支持                        |
+| Junie          | JetBrains | 原生支持                        |
+| Goose          | Block     | 原生支持                        |
+| Kilo Code      | —         | 支持                            |
+| RooCode        | —         | 支持                            |
+| Augment Code   | —         | 支持                            |
+| Semgrep        | —         | 支持                            |
 
 ### 同类格式对比
 
-| 格式 | 路径 | 所有者 | 范围 |
-|------|------|--------|------|
-| **AGENTS.md** | 仓库根目录（支持嵌套） | Linux Foundation / AAIF | 跨工具开放标准 |
-| **CLAUDE.md** | 仓库根目录 + `~/.claude/` + 嵌套 | Anthropic | Claude Code 专有 |
-| **.cursor/rules/\*.mdc** | `.cursor/rules/` 目录 | Cursor | Cursor 专有，支持 glob 作用域 |
-| **SKILL.md** | `~/.claude/skills/<name>/` | Anthropic | 任务范围技能格式 |
-| **.github/copilot-instructions.md** | `.github/` 目录 | GitHub/Microsoft | Copilot 专有 |
+| 格式                                | 路径                             | 所有者                  | 范围                          |
+| ----------------------------------- | -------------------------------- | ----------------------- | ----------------------------- |
+| **AGENTS.md**                       | 仓库根目录（支持嵌套）           | Linux Foundation / AAIF | 跨工具开放标准                |
+| **CLAUDE.md**                       | 仓库根目录 + `~/.claude/` + 嵌套 | Anthropic               | Claude Code 专有              |
+| **.cursor/rules/\*.mdc**            | `.cursor/rules/` 目录            | Cursor                  | Cursor 专有，支持 glob 作用域 |
+| **SKILL.md**                        | `~/.claude/skills/<name>/`       | Anthropic               | 任务范围技能格式              |
+| **.github/copilot-instructions.md** | `.github/` 目录                  | GitHub/Microsoft        | Copilot 专有                  |
 
 ### 迁移与兼容策略
 
@@ -220,19 +243,21 @@ mv AGENT.md AGENTS.md && ln -s AGENTS.md AGENT.md
 
 2025 年 12 月 9 日，Linux 基金会宣布成立 **Agentic AI Foundation**，同时托管三个创始项目：
 
-| 项目 | 贡献者 | 用途 |
-|------|--------|------|
-| AGENTS.md | OpenAI | AI 代理项目指令标准 |
+| 项目                         | 贡献者    | 用途                         |
+| ---------------------------- | --------- | ---------------------------- |
+| AGENTS.md                    | OpenAI    | AI 代理项目指令标准          |
 | MCP (Model Context Protocol) | Anthropic | AI 模型与工具/数据的连接协议 |
-| goose | Block | 开源本地优先 AI 代理框架 |
+| goose                        | Block     | 开源本地优先 AI 代理框架     |
 
 ### 治理结构
+
 - AAIF 作为 Linux 基金会的定向基金运作
 - **Governing Board** 负责战略投资、预算分配、成员资格和新项目审批
 - 各项目保持**完全的技术自主权**
 - 确保**供应商中立性**和**长期独立性**
 
 ### 主要成员
+
 - **Platinum**（理事会席位）：AWS、Anthropic、Block、Bloomberg、Cloudflare、Google、Microsoft、OpenAI
 - **Gold**：Cisco、Datadog、Docker、Ericsson、IBM、JetBrains、Okta、Oracle、Salesforce、SAP、Shopify、Snowflake 等
 - **Silver**：Hugging Face、SUSE、Uber、Zapier、Elastic 等
@@ -265,9 +290,11 @@ mv AGENT.md AGENTS.md && ln -s AGENTS.md AGENT.md
 [一句话描述项目]
 
 ## Package Manager
+
 Use **pnpm**: `pnpm install`, `pnpm dev`, `pnpm test`
 
 ## Build & Test
+
 - Build: `pnpm build`
 - Test all: `pnpm test`
 - Single file test: `pnpm vitest run path/to/file.test.ts`
@@ -275,23 +302,27 @@ Use **pnpm**: `pnpm install`, `pnpm dev`, `pnpm test`
 - Typecheck: `pnpm tsc --noEmit path/to/file.ts`
 
 ## Architecture
-- /src/app/          App Router pages
-- /src/components/   React components (named exports)
-- /src/lib/          Utilities, DB client
-- /src/actions/      Server actions (all mutations here)
+
+- /src/app/ App Router pages
+- /src/components/ React components (named exports)
+- /src/lib/ Utilities, DB client
+- /src/actions/ Server actions (all mutations here)
 
 ## Code Style
+
 - Server Components by default
 - Named exports only (except page.tsx, layout.tsx)
 - Tailwind for styling — no CSS modules
 
 ## Rules
+
 - Mutations through server actions, not API routes
 - All DB access through ORM in server components
 - Run typecheck before committing
 - Never commit .env files
 
 ## When Stuck
+
 - Ask a clarifying question, propose a plan, or open a draft PR
 ```
 

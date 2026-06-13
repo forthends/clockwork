@@ -1,4 +1,3 @@
-
 const statusClass: Record<string, string> = {
   in_progress: 'badge-active',
   completed: 'badge-completed',
@@ -14,9 +13,5 @@ const statusLabel: Record<string, string> = {
 };
 
 export function StatusBadge({ status }: { status: string }) {
-  return (
-    <span className={`badge ${statusClass[status] || 'badge-pending'}`}>
-      {statusLabel[status] || status}
-    </span>
-  );
+  return <span className={`badge ${statusClass[status] || 'badge-pending'}`}>{statusLabel[status] || status}</span>;
 }

@@ -42,13 +42,17 @@ stages:
 Speed is the priority — human_review gates are minimized.
 
 ## Stage 1: Triage
+
 Quick severity assessment. No human review delay.
 
 ## Stage 2: Diagnose
+
 Rapid root cause identification. 2 retries max.
 
 ## Stage 3: Mitigate
+
 Apply mitigation — stop the bleeding. Must pass tests. Human reviews the mitigation.
 
 ## Stage 4: Postmortem
+
 Framework generates postmortem document, updates Knowledge with incident learnings.

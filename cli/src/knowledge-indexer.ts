@@ -53,25 +53,29 @@ function mapCategory(dir: string): KnowledgeEntry['category'] {
 
 export function queryIndex(
   index: KnowledgeIndex,
-  filters: { tags?: string[]; category?: string; scope?: string; maxResults?: number }
+  filters: { tags?: string[]; category?: string; scope?: string; maxResults?: number },
 ): KnowledgeEntry[] {
   const maxResults = filters.maxResults ?? 5;
-  let results = index.entries.filter(e => e.status === 'active');
+  let results = index.entries.filter((e) => e.status === 'active');
 
   if (filters.category) {
-    results = results.filter(e => e.category === filters.category);
+    results = results.filter((e) => e.category === filters.category);
   }
   if (filters.tags && filters.tags.length > 0) {
-    results = results.filter(e => filters.tags!.some(t => e.tags.includes(t)));
+    results = results.filter((e) => filters.tags!.some((t) => e.tags.includes(t)));
   }
   if (filters.scope) {
-    results = results.filter(e => e.scope === 'global' || e.scope === filters.scope);
+    results = results.filter((e) => e.scope === 'global' || e.scope === filters.scope);
   }
   return results.slice(0, maxResults);
 }
 
-export function updateEntry(index: KnowledgeIndex, entryPath: string, updates: Partial<KnowledgeEntry>): KnowledgeIndex {
-  const entry = index.entries.find(e => e.path === entryPath);
+export function updateEntry(
+  index: KnowledgeIndex,
+  entryPath: string,
+  updates: Partial<KnowledgeEntry>,
+): KnowledgeIndex {
+  const entry = index.entries.find((e) => e.path === entryPath);
   if (!entry) throw new Error(`Entry not found: ${entryPath}`);
   Object.assign(entry, updates, { updated: new Date().toISOString().slice(0, 10) });
   return index;

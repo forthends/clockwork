@@ -17,16 +17,19 @@ NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST
 ## RED-GREEN-REFACTOR Cycle
 
 ### RED: Write the failing test
+
 - Write the test that defines the desired behavior
 - Run the test: `npx vitest run path/to/test.test.ts`
 - Verify it fails for the EXPECTED reason (feature missing, not syntax error)
 
 ### GREEN: Minimal implementation
+
 - Write ONLY the code needed to pass the test
 - Run the test: `npx vitest run path/to/test.test.ts`
 - Verify it passes
 
 ### REFACTOR: Clean up
+
 - Remove duplication, improve naming
 - Keep tests green — run after every change
 - Commit only when all tests pass

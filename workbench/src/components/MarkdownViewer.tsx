@@ -12,9 +12,7 @@ const renderer = new marked.Renderer();
 
 renderer.code = function ({ text, lang }: { text: string; lang?: string }) {
   const validLang = lang && hljs.getLanguage(lang) ? lang : undefined;
-  const highlighted = validLang
-    ? hljs.highlight(text, { language: validLang }).value
-    : hljs.highlightAuto(text).value;
+  const highlighted = validLang ? hljs.highlight(text, { language: validLang }).value : hljs.highlightAuto(text).value;
   const langAttr = validLang ? ` class="hljs language-${validLang}"` : ' class="hljs"';
   return `<pre><code${langAttr}>${highlighted}</code></pre>`;
 };
@@ -27,10 +25,5 @@ export function MarkdownViewer({ content }: { content: string }) {
     return typeof parsed === 'string' ? parsed : '';
   }, [content]);
 
-  return (
-    <div
-      className="markdown-body"
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
-  );
+  return <div className="markdown-body" dangerouslySetInnerHTML={{ __html: html }} />;
 }

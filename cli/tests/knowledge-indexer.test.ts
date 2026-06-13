@@ -15,7 +15,9 @@ describe('knowledge indexer', () => {
     await writeFile(join(knowledgeDir, 'business', 'domain.md'), '# Domain Model\nUser and Order entities.');
   });
 
-  afterAll(async () => { await rm(testDir, { recursive: true, force: true }); });
+  afterAll(async () => {
+    await rm(testDir, { recursive: true, force: true });
+  });
 
   it('builds index from knowledge directory', () => {
     const index = buildIndex(knowledgeDir);

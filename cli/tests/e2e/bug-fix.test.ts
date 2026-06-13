@@ -32,7 +32,7 @@ describe('bug-fix workflow E2E', () => {
   const projects: string[] = [];
 
   afterAll(() => {
-    projects.forEach(d => {
+    projects.forEach((d) => {
       try {
         rmSync(d, { recursive: true, force: true });
       } catch {}
@@ -45,7 +45,7 @@ describe('bug-fix workflow E2E', () => {
 
     const out = cw(
       `start bug-fix --slug e2e-bug --repo demo-todo --project ${dir} --requirements "Fix 500 error"`,
-      dir
+      dir,
     );
     const match = out.match(/task-\d{3}-e2e-bug/);
     expect(match).not.toBeNull();
@@ -62,10 +62,7 @@ describe('bug-fix workflow E2E', () => {
     const dir = initProject('cw-e2e-bf2-');
     projects.push(dir);
 
-    const out = cw(
-      `start bug-fix --slug debug-test --repo demo-todo --project ${dir} --requirements "Error"`,
-      dir
-    );
+    const out = cw(`start bug-fix --slug debug-test --repo demo-todo --project ${dir} --requirements "Error"`, dir);
     const match = out.match(/task-\d{3}-debug-test/);
     expect(match).not.toBeNull();
     const taskId = match![0];
@@ -86,16 +83,13 @@ describe('bug-fix workflow E2E', () => {
 
     const out = cw(
       `start bug-fix --slug reject-test --repo demo-todo --project ${dir} --requirements "Test rejection"`,
-      dir
+      dir,
     );
     const match = out.match(/task-\d{3}-reject-test/);
     expect(match).not.toBeNull();
     const taskId = match![0];
 
-    const rejectOut = cw(
-      `review ${taskId} --reject "Incomplete diagnosis" --project ${dir}`,
-      dir
-    );
+    const rejectOut = cw(`review ${taskId} --reject "Incomplete diagnosis" --project ${dir}`, dir);
     expect(rejectOut).toContain('rejected');
 
     const status = parseYaml(readFileSync(join(dir, 'workspace', taskId, 'status.yaml'), 'utf8'));
@@ -109,7 +103,7 @@ describe('bug-fix workflow E2E', () => {
 
     const out = cw(
       `start bug-fix --slug struct-test --repo demo-todo --project ${dir} --requirements "Structure test"`,
-      dir
+      dir,
     );
     const match = out.match(/task-\d{3}-struct-test/);
     const taskId = match![0];

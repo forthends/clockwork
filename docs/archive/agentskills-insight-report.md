@@ -33,13 +33,13 @@ Agent 越来越强大，但往往缺乏可靠完成实际工作所需的上下�
 
 ### 与 AGENTS.md 的关系
 
-| 维度 | AGENTS.md | Agent Skills |
-|------|-----------|-------------|
-| **作用域** | 项目级 | 任务级 |
-| **内容** | 项目构建、测试、规范、约束 | 特定任务的执行步骤、脚本、参考资源 |
-| **粒度** | 一个文件描述整个项目 | 一个目录封装一个能力 |
+| 维度         | AGENTS.md                        | Agent Skills                          |
+| ------------ | -------------------------------- | ------------------------------------- |
+| **作用域**   | 项目级                           | 任务级                                |
+| **内容**     | 项目构建、测试、规范、约束       | 特定任务的执行步骤、脚本、参考资源    |
+| **粒度**     | 一个文件描述整个项目             | 一个目录封装一个能力                  |
 | **加载方式** | Agent 启动时发现，编辑文件时生效 | 渐进式披露（名称/描述 → 全文 → 资源） |
-| **可移植性** | 绑定到仓库 | 跨仓库、跨项目复用 |
+| **可移植性** | 绑定到仓库                       | 跨仓库、跨项目复用                    |
 
 两者互补：AGENTS.md 告诉 agent"这个项目怎么工作"，Agent Skills 告诉 agent"如何完成某类特定任务"。
 
@@ -62,14 +62,14 @@ skill-name/
 
 SKILL.md 文件必须以 YAML frontmatter 开头，后跟 Markdown 正文。
 
-| 字段 | 必需 | 约束 |
-|------|------|------|
-| `name` | 是 | 最多 64 字符。仅小写字母、数字和连字符。不得以连字符开头或结尾，不得包含连续连字符。必须匹配父目录名。 |
-| `description` | 是 | 最多 1024 字符。非空。描述 skill 的功能和使用场景。 |
-| `license` | 否 | 许可证名称或对捆绑许可证文件的引用。 |
-| `compatibility` | 否 | 最多 500 字符。指示环境要求（预期产品、所需系统包、网络访问等）。 |
-| `metadata` | 否 | 任意键值映射，用于附加元数据。 |
-| `allowed-tools` | 否 | 空格分隔的预批准工具字符串。实验性功能。 |
+| 字段            | 必需 | 约束                                                                                                   |
+| --------------- | ---- | ------------------------------------------------------------------------------------------------------ |
+| `name`          | 是   | 最多 64 字符。仅小写字母、数字和连字符。不得以连字符开头或结尾，不得包含连续连字符。必须匹配父目录名。 |
+| `description`   | 是   | 最多 1024 字符。非空。描述 skill 的功能和使用场景。                                                    |
+| `license`       | 否   | 许可证名称或对捆绑许可证文件的引用。                                                                   |
+| `compatibility` | 否   | 最多 500 字符。指示环境要求（预期产品、所需系统包、网络访问等）。                                      |
+| `metadata`      | 否   | 任意键值映射，用于附加元数据。                                                                         |
+| `allowed-tools` | 否   | 空格分隔的预批准工具字符串。实验性功能。                                                               |
 
 #### 最小示例
 
@@ -90,13 +90,14 @@ license: Apache-2.0
 compatibility: Requires Python 3.14+ and uv
 metadata:
   author: example-org
-  version: "1.0"
+  version: '1.0'
 ---
 ```
 
 ### 正文内容
 
 Frontmatter 之后的 Markdown 正文包含 skill 指令，**无格式限制**。推荐包含：
+
 - 分步指令
 - 输入和输出示例
 - 常见边缘情况
@@ -137,12 +138,12 @@ Frontmatter 之后的 Markdown 正文包含 skill 指令，**无格式限制**�
 
 ## 五、Skill 的存储位置
 
-| 范围 | 路径 | 用途 |
-|------|------|------|
+| 范围                 | 路径                          | 用途           |
+| -------------------- | ----------------------------- | -------------- |
 | 项目级（客户端原生） | `<project>/.<client>/skills/` | 客户端专有位置 |
-| 项目级（跨客户端） | `<project>/.agents/skills/` | 跨客户端互操作 |
-| 用户级（客户端原生） | `~/.<client>/skills/` | 客户端专有位置 |
-| 用户级（跨客户端） | `~/.agents/skills/` | 跨客户端互操作 |
+| 项目级（跨客户端）   | `<project>/.agents/skills/`   | 跨客户端互操作 |
+| 用户级（客户端原生） | `~/.<client>/skills/`         | 客户端专有位置 |
+| 用户级（跨客户端）   | `~/.agents/skills/`           | 跨客户端互操作 |
 
 `.agents/skills/` 已成为跨客户端 skill 共享的广泛约定。虽然规范未强制要求 skill 目录的存放位置，但扫描 `.agents/skills/` 意味着其他兼容客户端安装的 skill 可自动互见。
 
@@ -157,6 +158,7 @@ Frontmatter 之后的 Markdown 正文包含 skill 指令，**无格式限制**�
 **常见陷阱**：用 LLM 生成 skill 而不提供领域特定上下文——结果产生模糊的通用程序，而非有价值的特定指导。
 
 **有效方式**：
+
 - **从实际操作中提取**：在对话中与 agent 完成真实任务，然后提取可复用的模式
 - **从现有项目资产合成**：内部文档、runbook、API 规范、代码审查评论、问题追踪器
 - **用实际执行来迭代**：将 skill 运行在真实任务上，观察结果，修正
@@ -175,6 +177,7 @@ Frontmatter 之后的 Markdown 正文包含 skill 指令，**无格式限制**�
 
 ```markdown
 ## Code review process
+
 1. Check all database queries for SQL injection
 2. Verify authentication checks on every endpoint
 3. Look for race conditions in concurrent code paths
@@ -184,6 +187,7 @@ Frontmatter 之后的 Markdown 正文包含 skill 指令，**无格式限制**�
 
 ```markdown
 ## Database migration
+
 Run exactly this sequence:
 python scripts/migrate.py --verify --backup
 Do not modify the command or add additional flags.
@@ -197,10 +201,12 @@ Skill 应教会 agent *如何处理*一类问题，而非为特定实例*生成�
 
 ```markdown
 # 差 — 仅对此确切任务有用
+
 Join the `orders` table to `customers` on `customer_id`, filter where
 `region = 'EMEA'`, and sum the `amount` column.
 
 # 好 — 对任何分析查询都适用的可复用方法
+
 1. Read the schema from `references/schema.yaml`
 2. Join tables using the `_id` foreign key convention
 3. Apply any filters from the user's request as WHERE clauses
@@ -209,14 +215,14 @@ Join the `orders` table to `customers` on `customer_id`, filter where
 
 ### 6.5 有效指令的模式
 
-| 模式 | 用法 | 示例 |
-|------|------|------|
-| **陷阱（Gotchas）** | 违反合理假设的环境特定事实 | "users 表使用软删除。查询必须包含 `WHERE deleted_at IS NULL`" |
-| **模板** | 指定 agent 的输出格式 | 报告结构模板、字段映射模板 |
-| **检查清单** | 多步骤工作流中跟踪进度 | `[ ] Step 1 → [ ] Step 2 → [ ] Step 3` |
-| **验证循环** | 指示 agent 在继续之前验证其工作 | "运行验证脚本 → 查看错误 → 修复 → 重新验证 → 继续" |
-| **计划-验证-执行** | 批处理或破坏性操作 | "创建计划 → 验证计划 → 执行" |
-| **捆绑脚本** | 将重复逻辑提取为经测试的脚本 | 避免 agent 在每次运行时重新发明相同的逻辑 |
+| 模式                | 用法                            | 示例                                                          |
+| ------------------- | ------------------------------- | ------------------------------------------------------------- |
+| **陷阱（Gotchas）** | 违反合理假设的环境特定事实      | "users 表使用软删除。查询必须包含 `WHERE deleted_at IS NULL`" |
+| **模板**            | 指定 agent 的输出格式           | 报告结构模板、字段映射模板                                    |
+| **检查清单**        | 多步骤工作流中跟踪进度          | `[ ] Step 1 → [ ] Step 2 → [ ] Step 3`                        |
+| **验证循环**        | 指示 agent 在继续之前验证其工作 | "运行验证脚本 → 查看错误 → 修复 → 重新验证 → 继续"            |
+| **计划-验证-执行**  | 批处理或破坏性操作              | "创建计划 → 验证计划 → 执行"                                  |
+| **捆绑脚本**        | 将重复逻辑提取为经测试的脚本    | 避免 agent 在每次运行时重新发明相同的逻辑                     |
 
 ---
 
@@ -251,10 +257,10 @@ Agent Skills 规范提供了一套完整的评估（eval）方法论，用于系
 
 ### 7.3 关键指标
 
-| 指标 | 含义 |
-|------|------|
-| **通过率（Pass rate）** | 有/无 skill 的断言通过率差异 |
-| **时间增量（Delta time）** | skill 增加（或减少）的执行时间 |
+| 指标                           | 含义                                |
+| ------------------------------ | ----------------------------------- |
+| **通过率（Pass rate）**        | 有/无 skill 的断言通过率差异        |
+| **时间增量（Delta time）**     | skill 增加（或减少）的执行时间      |
 | **Token 增量（Delta tokens）** | skill 增加（或减少）的 token 使用量 |
 
 一个使通过率提高 50 个百分点但只增加 13 秒和 1700 token 的 skill 可能值得。将 token 使用量翻倍仅换来 2 个百分点改进的 skill 可能不值得。
@@ -264,6 +270,7 @@ Agent Skills 规范提供了一套完整的评估（eval）方法论，用于系
 Skill 的 `description` 字段是激活的**唯一机制**。一个描述不佳的 skill 不会被激活。
 
 优化循环：
+
 1. 设计约 20 个触发/非触发查询
 2. 多次运行每个查询（建议 3 次），计算触发率
 3. 分成训练集（60%）和验证集（40%）以避免过拟合
@@ -282,6 +289,7 @@ Skill 的 `description` 字段是激活的**唯一机制**。一个描述不佳�
 扫描项目级和用户级 skill 目录，查找包含 `SKILL.md` 的子目录。
 
 关键规则：
+
 - 跳过 `.git/` 和 `node_modules/` 等目录
 - 设置合理边界（最大深度 4-6 层，最多 2000 个目录）
 - 项目级 skill 覆盖用户级（同名冲突时）
@@ -292,6 +300,7 @@ Skill 的 `description` 字段是激活的**唯一机制**。一个描述不佳�
 从 `SKILL.md` 提取 YAML frontmatter 和 Markdown 正文。
 
 解析建议：
+
 - 对格式错误的 YAML 宽容处理（如处理未引号的冒号）
 - 名称不匹配目录名 → 警告但加载
 - 名称超过 64 字符 → 警告但加载
@@ -305,6 +314,7 @@ Skill 的 `description` 字段是激活的**唯一机制**。一个描述不佳�
 ### 8.4 激活（Activation）
 
 两种模式：
+
 - **文件读取激活**：模型使用标准文件读取工具读取 `SKILL.md`。最简单的方法。
 - **专用工具激活**：注册专用工具（如 `activate_skill`），可控制返回内容、包裹结构化标签、列出资源、执行权限。
 
@@ -322,9 +332,9 @@ Skill 的 `description` 字段是激活的**唯一机制**。一个描述不佳�
 
 ### 9.1 一次性命令 vs 捆绑脚本
 
-| 场景 | 方法 | 示例 |
-|------|------|------|
-| 现有包已满足需求 | 在 SKILL.md 中直接引用 | `uvx ruff@0.8.0 check .` |
+| 场景             | 方法                     | 示例                         |
+| ---------------- | ------------------------ | ---------------------------- |
+| 现有包已满足需求 | 在 SKILL.md 中直接引用   | `uvx ruff@0.8.0 check .`     |
 | 复杂或可复用逻辑 | 在 `scripts/` 中捆绑脚本 | `python scripts/validate.py` |
 
 建议锁定版本（`ruff@0.8.0`）以确保可复现性。
@@ -333,25 +343,25 @@ Skill 的 `description` 字段是激活的**唯一机制**。一个描述不佳�
 
 多个语言支持内联依赖声明：
 
-| 语言 | 机制 | 示例工具 |
-|------|------|----------|
-| Python | PEP 723 内联脚本元数据 | `uv run` |
-| TypeScript/JavaScript | npm/jsr 导入说明符 | `deno run` |
-| Bun | 运行时自动安装包 | `bun run` |
-| Ruby | `bundler/inline` | `ruby` |
+| 语言                  | 机制                   | 示例工具   |
+| --------------------- | ---------------------- | ---------- |
+| Python                | PEP 723 内联脚本元数据 | `uv run`   |
+| TypeScript/JavaScript | npm/jsr 导入说明符     | `deno run` |
+| Bun                   | 运行时自动安装包       | `bun run`  |
+| Ruby                  | `bundler/inline`       | `ruby`     |
 
 ### 9.3 Agent 友好的脚本设计
 
-| 原则 | 说明 |
-|------|------|
-| **避免交互式提示** | Agent 在非交互 shell 中运行，无法响应 TTY 提示 |
-| **用 --help 记录用法** | 这是 agent 了解脚本接口的主要方式 |
-| **编写有帮助的错误消息** | 说明错在哪里、期望什么、尝试什么 |
-| **使用结构化输出** | JSON/CSV 可被 agent 和标准工具消费 |
-| **stdout 放数据，stderr 放诊断** | 保持关注点分离 |
-| **支持幂等性** | Agent 可能重试命令 |
-| **支持 --dry-run** | 对破坏性操作尤为重要 |
-| **有意义的退出码** | 不同失败类型使用不同退出码 |
+| 原则                             | 说明                                           |
+| -------------------------------- | ---------------------------------------------- |
+| **避免交互式提示**               | Agent 在非交互 shell 中运行，无法响应 TTY 提示 |
+| **用 --help 记录用法**           | 这是 agent 了解脚本接口的主要方式              |
+| **编写有帮助的错误消息**         | 说明错在哪里、期望什么、尝试什么               |
+| **使用结构化输出**               | JSON/CSV 可被 agent 和标准工具消费             |
+| **stdout 放数据，stderr 放诊断** | 保持关注点分离                                 |
+| **支持幂等性**                   | Agent 可能重试命令                             |
+| **支持 --dry-run**               | 对破坏性操作尤为重要                           |
+| **有意义的退出码**               | 不同失败类型使用不同退出码                     |
 
 ---
 
@@ -359,36 +369,36 @@ Skill 的 `description` 字段是激活的**唯一机制**。一个描述不佳�
 
 ### 10.1 兼容客户端（40+）
 
-| 客户端 | 开发者 | 类型 |
-|--------|--------|------|
-| Claude Code | Anthropic | 终端 coding agent |
-| Claude | Anthropic | AI 对话平台 |
-| OpenAI Codex | OpenAI | 终端 coding agent |
-| GitHub Copilot | Microsoft | IDE 编码助手 |
-| VS Code | Microsoft | 代码编辑器 |
-| Gemini CLI | Google | 终端 coding agent |
-| Cursor | Cursor | AI 编辑器 |
-| Junie | JetBrains | IntelliJ 平台 coding agent |
-| Goose | Block | 开源可扩展 agent |
-| Amp | — | 前沿 coding agent |
-| Windsurf | Cognition | AI 编辑器 |
-| Devin | Cognition | 自主 coding agent |
-| Factory | — | AI 软件开发平台 |
-| OpenCode | — | 开源 coding agent |
-| OpenHands | — | 云 coding agent 平台 |
-| Roo Code | — | IDE 中的 AI 开发团队 |
-| Aider | — | 终端 AI 编码助手 |
-| Zed | — | 高性能编辑器 |
-| Warp | — | AI 终端 |
-| Databricks Genie Code | Databricks | 数据工作 coding agent |
-| Spring AI | VMware | Java AI 框架 |
-| Mistral AI Vibe | Mistral | 终端编码助手 |
-| TRAE | ByteDance | AI IDE |
-| Qodo | — | 代码完整性平台 |
-| Letta | — | 有状态 agent 平台 |
-| Snowflake Cortex Code | Snowflake | 数据工程 agent |
-| Laravel Boost | Laravel | Laravel 开发 skill 集合 |
-| 等 | | |
+| 客户端                | 开发者     | 类型                       |
+| --------------------- | ---------- | -------------------------- |
+| Claude Code           | Anthropic  | 终端 coding agent          |
+| Claude                | Anthropic  | AI 对话平台                |
+| OpenAI Codex          | OpenAI     | 终端 coding agent          |
+| GitHub Copilot        | Microsoft  | IDE 编码助手               |
+| VS Code               | Microsoft  | 代码编辑器                 |
+| Gemini CLI            | Google     | 终端 coding agent          |
+| Cursor                | Cursor     | AI 编辑器                  |
+| Junie                 | JetBrains  | IntelliJ 平台 coding agent |
+| Goose                 | Block      | 开源可扩展 agent           |
+| Amp                   | —          | 前沿 coding agent          |
+| Windsurf              | Cognition  | AI 编辑器                  |
+| Devin                 | Cognition  | 自主 coding agent          |
+| Factory               | —          | AI 软件开发平台            |
+| OpenCode              | —          | 开源 coding agent          |
+| OpenHands             | —          | 云 coding agent 平台       |
+| Roo Code              | —          | IDE 中的 AI 开发团队       |
+| Aider                 | —          | 终端 AI 编码助手           |
+| Zed                   | —          | 高性能编辑器               |
+| Warp                  | —          | AI 终端                    |
+| Databricks Genie Code | Databricks | 数据工作 coding agent      |
+| Spring AI             | VMware     | Java AI 框架               |
+| Mistral AI Vibe       | Mistral    | 终端编码助手               |
+| TRAE                  | ByteDance  | AI IDE                     |
+| Qodo                  | —          | 代码完整性平台             |
+| Letta                 | —          | 有状态 agent 平台          |
+| Snowflake Cortex Code | Snowflake  | 数据工程 agent             |
+| Laravel Boost         | Laravel    | Laravel 开发 skill 集合    |
+| 等                    |            |                            |
 
 ### 10.2 与 MCP 的关系
 
@@ -403,6 +413,7 @@ Agent Skills 和 MCP（Model Context Protocol）都是 Agentic AI Foundation 孵
 ### 10.3 `skill-creator` Skill
 
 一个元层次的 skill，自动化 skill 的创建和评估：
+
 - 运行评估
 - 分级断言
 - 聚合基准

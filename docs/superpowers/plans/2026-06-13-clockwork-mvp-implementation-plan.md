@@ -79,6 +79,7 @@ clockwork/
 ### Task 1: Demo todo project + knowledge base rewrite
 
 **Files:**
+
 - Create: `repos/demo-todo/package.json`
 - Create: `repos/demo-todo/tsconfig.json`
 - Create: `repos/demo-todo/src/index.ts`
@@ -172,7 +173,13 @@ export function create(data: Omit<Todo, 'id' | 'createdAt' | 'updatedAt'>): Todo
 export function update(id: string, data: Partial<Omit<Todo, 'id' | 'createdAt'>>): Todo | undefined {
   const existing = store.get(id);
   if (!existing) return undefined;
-  const updated: Todo = { ...existing, ...data, id: existing.id, createdAt: existing.createdAt, updatedAt: new Date().toISOString() };
+  const updated: Todo = {
+    ...existing,
+    ...data,
+    id: existing.id,
+    createdAt: existing.createdAt,
+    updatedAt: new Date().toISOString(),
+  };
   store.set(id, updated);
   return updated;
 }
@@ -347,15 +354,18 @@ describe('Todo models', () => {
 ```bash
 cd repos/demo-todo && npm install && npx vitest run
 ```
+
 Expected: 8 tests PASS
 
 - [ ] **Step 7: Rewrite knowledge entries for demo-todo**
 
 ```markdown
 <!-- knowledge/architecture/api-conventions.md -->
+
 # API Conventions
 
 ## REST Endpoint Design
+
 - Base path: `/api/v1/`
 - Resource URLs: plural nouns, kebab-case (`/api/v1/todos`, `/api/v1/todo-items`)
 - HTTP methods:
@@ -366,11 +376,13 @@ Expected: 8 tests PASS
   - `DELETE /api/v1/{resource}/:id` — remove
 
 ## Response Format
+
 - Envelope: `{ data: ... }` for single item, `{ data: [...], meta: { total } }` for lists
 - On error: `{ error: string, fields?: [{ field, message }] }`
 - Status codes: 200 (ok), 201 (created), 204 (deleted), 400 (validation), 404 (not found)
 
 ## Conventions
+
 - All request/response bodies are JSON (`Content-Type: application/json`)
 - IDs are UUID v4 strings
 - Timestamps in ISO 8601 format
@@ -378,21 +390,23 @@ Expected: 8 tests PASS
 
 ```markdown
 <!-- knowledge/business/domain-model.md -->
+
 # Domain Model
 
 ## Todo Entity
 
-| Field | Type | Required | Description |
-|-------|------|---------|-------------|
-| id | string (UUID) | auto | Unique identifier |
-| title | string | yes | Short summary |
-| description | string | no | Detailed notes, defaults to "" |
-| status | TodoStatus | yes | One of: `todo`, `in_progress`, `done`. Default: `todo` |
-| priority | number | no | Higher = more urgent. Default: 0 |
-| createdAt | string (ISO 8601) | auto | Creation timestamp |
-| updatedAt | string (ISO 8601) | auto | Last modification timestamp |
+| Field       | Type              | Required | Description                                            |
+| ----------- | ----------------- | -------- | ------------------------------------------------------ |
+| id          | string (UUID)     | auto     | Unique identifier                                      |
+| title       | string            | yes      | Short summary                                          |
+| description | string            | no       | Detailed notes, defaults to ""                         |
+| status      | TodoStatus        | yes      | One of: `todo`, `in_progress`, `done`. Default: `todo` |
+| priority    | number            | no       | Higher = more urgent. Default: 0                       |
+| createdAt   | string (ISO 8601) | auto     | Creation timestamp                                     |
+| updatedAt   | string (ISO 8601) | auto     | Last modification timestamp                            |
 
 ## Business Rules
+
 - A new todo starts with status `todo` and priority 0 unless specified
 - Status transitions: `todo` → `in_progress` → `done` (forward only; can skip stages)
 - Deleting a todo is permanent (no soft delete)
@@ -401,16 +415,19 @@ Expected: 8 tests PASS
 
 ```markdown
 <!-- knowledge/design-system/components.md -->
+
 # Engineering Standards
 
 ## Project Structure
 ```
+
 src/
-├── index.ts          # Entry point — Express app setup + routes
-├── models.ts         # Domain types, storage, CRUD operations
-└── validators.ts     # Request validation functions
+├── index.ts # Entry point — Express app setup + routes
+├── models.ts # Domain types, storage, CRUD operations
+└── validators.ts # Request validation functions
 tests/
-└── *.test.ts         # One test file per source module
+└── \*.test.ts # One test file per source module
+
 ```
 
 ## Naming Conventions
@@ -441,21 +458,21 @@ entries:
     category: architecture
     tags: [REST, endpoints, JSON, response-format, status-codes]
     status: active
-    updated: "2026-06-13"
+    updated: '2026-06-13'
     scope: global
   - path: business/domain-model.md
     title: Domain Model
     category: business
     tags: [Todo, entity, status, priority, business-rules]
     status: active
-    updated: "2026-06-13"
+    updated: '2026-06-13'
     scope: global
   - path: design-system/components.md
     title: Engineering Standards
     category: design-system
     tags: [project-structure, naming, error-handling, testing, conventions]
     status: active
-    updated: "2026-06-13"
+    updated: '2026-06-13'
     scope: global
 ```
 
@@ -464,6 +481,7 @@ entries:
 ```bash
 cd cli && npx tsx src/index.ts knowledge update --project ..
 ```
+
 Expected: "Knowledge index updated"
 
 - [ ] **Step 10: Commit**
@@ -478,6 +496,7 @@ git commit -m "feat: add demo-todo project and rewrite knowledge base"
 ### Task 2: Build system — root package.json + CLI build verification
 
 **Files:**
+
 - Create: `package.json` (root)
 - Modify: `cli/src/commands/web.ts`
 
@@ -508,6 +527,7 @@ The CLI package.json already has `"bin": { "clockwork": "./dist/index.js" }` and
 ```bash
 cd cli && npm install && npm run build
 ```
+
 Expected: `dist/` directory created with compiled JS. If `npm install` was already run, verify the build succeeds.
 
 - [ ] **Step 3: Add workbench auto-build to web command**
@@ -545,6 +565,7 @@ npm run build
 which clockwork || npm link  # make clockwork globally available
 clockwork --help
 ```
+
 Expected: CLI shows help output with all 9 commands.
 
 - [ ] **Step 5: Commit**
@@ -559,6 +580,7 @@ git commit -m "feat: add root package.json with workspaces and workbench auto-bu
 ### Task 3: Error recovery — types, lock, workspace
 
 **Files:**
+
 - Modify: `cli/src/types.ts`
 - Create: `cli/src/lock.ts`
 - Modify: `cli/src/workspace.ts`
@@ -608,7 +630,9 @@ describe('lock', () => {
   });
 
   afterEach(() => {
-    try { rmSync(dir, { recursive: true, force: true }); } catch {}
+    try {
+      rmSync(dir, { recursive: true, force: true });
+    } catch {}
   });
 
   it('acquires a lock by creating a .lock file', () => {
@@ -642,6 +666,7 @@ describe('lock', () => {
 ```bash
 cd cli && npx vitest run tests/lock.test.ts
 ```
+
 Expected: FAIL — module not found
 
 - [ ] **Step 4: Implement lock.ts**
@@ -673,14 +698,22 @@ export function acquireLock(baseDir: string, resource: string): void {
 
 export function releaseLock(baseDir: string, resource: string): void {
   const path = lockPath(baseDir, resource);
-  try { unlinkSync(path); } catch {}
+  try {
+    unlinkSync(path);
+  } catch {}
 }
 
 export function isLocked(baseDir: string, resource: string): boolean {
   return existsSync(lockPath(baseDir, resource));
 }
 
-export async function withLock<T>(baseDir: string, resource: string, fn: () => T | Promise<T>, maxRetries = 3, retryMs = 500): Promise<T> {
+export async function withLock<T>(
+  baseDir: string,
+  resource: string,
+  fn: () => T | Promise<T>,
+  maxRetries = 3,
+  retryMs = 500,
+): Promise<T> {
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       acquireLock(baseDir, resource);
@@ -693,7 +726,7 @@ export async function withLock<T>(baseDir: string, resource: string, fn: () => T
       if (attempt === maxRetries || !(err instanceof Error && err.message.includes('locked'))) {
         throw err;
       }
-      await new Promise(r => setTimeout(r, retryMs));
+      await new Promise((r) => setTimeout(r, retryMs));
     }
   }
   throw new Error(`Could not acquire lock after ${maxRetries} retries`);
@@ -705,6 +738,7 @@ export async function withLock<T>(baseDir: string, resource: string, fn: () => T
 ```bash
 cd cli && npx vitest run tests/lock.test.ts
 ```
+
 Expected: 5 tests PASS
 
 - [ ] **Step 6: Write failing tests for workspace recovery functions**
@@ -712,7 +746,15 @@ Expected: 5 tests PASS
 ```typescript
 // cli/tests/workspace-recovery.test.ts
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { createTask, loadTask, markStageFailed, incrementRetry, saveRecoverySnapshot, loadRecoverySnapshot, setTaskInterrupted } from '../src/workspace.js';
+import {
+  createTask,
+  loadTask,
+  markStageFailed,
+  incrementRetry,
+  saveRecoverySnapshot,
+  loadRecoverySnapshot,
+  setTaskInterrupted,
+} from '../src/workspace.js';
 import { mkdirSync, rmSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
@@ -726,7 +768,9 @@ describe('workspace recovery', () => {
   });
 
   afterEach(() => {
-    try { rmSync(wsDir, { recursive: true, force: true }); } catch {}
+    try {
+      rmSync(wsDir, { recursive: true, force: true });
+    } catch {}
   });
 
   it('marks a stage as failed and records retry count', () => {
@@ -769,6 +813,7 @@ describe('workspace recovery', () => {
 ```bash
 cd cli && npx vitest run tests/workspace-recovery.test.ts
 ```
+
 Expected: FAIL — functions not exported
 
 - [ ] **Step 8: Add recovery functions to workspace.ts**
@@ -784,7 +829,8 @@ export function markStageFailed(workspaceDir: string, taskId: string, stageId: s
   task.stages[stageId] = 'failed';
   task.status = 'failed';
   if (!task.stageMeta) task.stageMeta = {};
-  if (!task.stageMeta[stageId]) task.stageMeta[stageId] = { retryCount: 0, maxRetries: 3, startedAt: '', timeoutMs: 600000 };
+  if (!task.stageMeta[stageId])
+    task.stageMeta[stageId] = { retryCount: 0, maxRetries: 3, startedAt: '', timeoutMs: 600000 };
   task.stageMeta[stageId].retryCount = (task.stageMeta[stageId].retryCount || 0) + 1;
   task.updated = new Date().toISOString();
   writeFileSync(join(workspaceDir, taskId, 'status.yaml'), stringifyYaml(task));
@@ -794,7 +840,8 @@ export function markStageFailed(workspaceDir: string, taskId: string, stageId: s
 export function incrementRetry(workspaceDir: string, taskId: string, stageId: string): TaskStatus {
   const task = loadTask(workspaceDir, taskId);
   if (!task.stageMeta) task.stageMeta = {};
-  if (!task.stageMeta[stageId]) task.stageMeta[stageId] = { retryCount: 0, maxRetries: 3, startedAt: '', timeoutMs: 600000 };
+  if (!task.stageMeta[stageId])
+    task.stageMeta[stageId] = { retryCount: 0, maxRetries: 3, startedAt: '', timeoutMs: 600000 };
   task.stageMeta[stageId].retryCount += 1;
   task.updated = new Date().toISOString();
   writeFileSync(join(workspaceDir, taskId, 'status.yaml'), stringifyYaml(task));
@@ -834,6 +881,7 @@ export function withTaskLock<T>(workspaceDir: string, taskId: string, fn: () => 
 ```bash
 cd cli && npx vitest run tests/workspace-recovery.test.ts
 ```
+
 Expected: 5 tests PASS
 
 - [ ] **Step 10: Run all existing CLI tests to verify no regressions**
@@ -841,6 +889,7 @@ Expected: 5 tests PASS
 ```bash
 cd cli && npx vitest run
 ```
+
 Expected: All previously passing tests still PASS
 
 - [ ] **Step 11: Commit**
@@ -855,6 +904,7 @@ git commit -m "feat: add file lock utility and error recovery to workspace modul
 ### Task 4: Resume command + workflow-runner SKILL.md update
 
 **Files:**
+
 - Modify: `cli/src/index.ts`
 - Modify: `cli/src/commands/resume.ts`
 - Modify: `skills/workflow-runner/SKILL.md`
@@ -950,6 +1000,7 @@ Read the current `skills/workflow-runner/SKILL.md` and add the following after "
 ### Step 2.5: Check for interrupted state
 
 If the task status is `interrupted`:
+
 1. Read `workspace/<task-id>/recovery/snapshot.yaml` for the recovery point
 2. Restore to the stage indicated in `snapshot.lastStage`
 3. Rebuild agent context for that stage if needed
@@ -958,21 +1009,25 @@ If the task status is `interrupted`:
 ### Step 2.6: Error handling during execution
 
 **Timeout handling:**
+
 - Each stage has a timeout defined in `stageMeta.<stage>.timeoutMs` (default: 600000ms = 10 min)
 - If a sub-agent takes longer than timeout, mark the stage as failed
 - Write a timeout notice to `workspace/<task-id>/logs/<stage>-timeout.log`
 
 **Retry with backoff:**
+
 - When a stage fails, check `stageMeta.<stage>.retryCount` against `maxRetries`
 - If retries remain: wait 2^n minutes (where n = retryCount), then re-dispatch
 - If retries exhausted: mark task failed, advise user to re-evaluate
 
 **Interrupt handling (SIGINT / user cancel):**
+
 - Before any stage transition, save recovery snapshot to `workspace/<task-id>/recovery/snapshot.yaml`
 - Snapshot format: `{ lastStage: "<stage-id>", completedStages: [...], currentArtifacts: [...] }`
 - If interrupted mid-stage, mark stage and task as `interrupted`
 
 **Output writing safety:**
+
 - Write artifacts to a temp file first (`.tmp/<filename>`), then atomically rename to final path
 - This prevents partial reads if interrupted during write
 ```
@@ -995,6 +1050,7 @@ git commit -m "feat: upgrade resume command for interrupted/failed states and ad
 ```bash
 which clockwork && clockwork --help
 ```
+
 Expected: Shows path and help with all commands
 
 - [ ] **Step 2: Verify init**
@@ -1003,6 +1059,7 @@ Expected: Shows path and help with all commands
 cd /tmp && rm -rf test-clockwork-project && clockwork init test-clockwork-project
 ls test-clockwork-project/
 ```
+
 Expected: `.clockwork/`, `agents/`, `skills/`, `knowledge/`, `workflows/`, `repos/`, `workspace/`
 
 - [ ] **Step 3: Verify knowledge index**
@@ -1010,6 +1067,7 @@ Expected: `.clockwork/`, `agents/`, `skills/`, `knowledge/`, `workflows/`, `repo
 ```bash
 clockwork knowledge update --project /tmp/test-clockwork-project
 ```
+
 Expected: "Knowledge index updated"
 
 - [ ] **Step 4: Verify start creates correct workspace**
@@ -1019,6 +1077,7 @@ clockwork start feature-dev --slug e2e-test --repo demo-todo --project /tmp/test
 ls /tmp/test-clockwork-project/workspace/
 cat /tmp/test-clockwork-project/workspace/task-*/status.yaml
 ```
+
 Expected: Task directory exists, status.yaml has workflow=feature-dev, currentStage=plan
 
 - [ ] **Step 5: Verify status command**
@@ -1026,6 +1085,7 @@ Expected: Task directory exists, status.yaml has workflow=feature-dev, currentSt
 ```bash
 clockwork status --project /tmp/test-clockwork-project
 ```
+
 Expected: Lists the created task with correct status
 
 - [ ] **Step 6: Verify review --approve unblocks**
@@ -1033,6 +1093,7 @@ Expected: Lists the created task with correct status
 ```bash
 clockwork review <task-id> --approve --project /tmp/test-clockwork-project
 ```
+
 Expected: "Stage 'plan' approved"
 
 - [ ] **Step 7: Verify review --reject**
@@ -1040,6 +1101,7 @@ Expected: "Stage 'plan' approved"
 ```bash
 clockwork review <task-id> --reject "Needs more detail" --project /tmp/test-clockwork-project
 ```
+
 Expected: "Stage 'plan' rejected: Needs more detail"
 
 - [ ] **Step 8: Verify web server starts with auto-build**
@@ -1048,6 +1110,7 @@ Expected: "Stage 'plan' rejected: Needs more detail"
 clockwork web --project /tmp/test-clockwork-project
 # Open http://localhost:4200
 ```
+
 Expected: Workbench builds automatically on first run, then server starts
 
 - [ ] **Step 9: Verify Workflow Runner in Claude Code**
@@ -1057,7 +1120,9 @@ cd /tmp/test-clockwork-project
 # Start CC and run:
 # /clockwork:workflow-runner <task-id>
 ```
+
 Expected:
+
 - Loads task state from workspace
 - Dispatches planner sub-agent
 - Planner generates SPEC.md and PLAN.md in workspace
@@ -1082,6 +1147,7 @@ git commit -m "test: complete end-to-end validation — feature-dev workflow ver
 ### Task 6: Missing CLI tests — repo.test.ts
 
 **Files:**
+
 - Create: `cli/tests/commands/repo.test.ts`
 
 - [ ] **Step 1: Write repo command tests**
@@ -1106,7 +1172,9 @@ describe('clockwork repo', () => {
   });
 
   afterEach(() => {
-    try { rmSync(dir, { recursive: true, force: true }); } catch {}
+    try {
+      rmSync(dir, { recursive: true, force: true });
+    } catch {}
   });
 
   it('repo status shows empty repos', () => {
@@ -1124,7 +1192,10 @@ describe('clockwork repo', () => {
     // Use a local path as "remote" — git submodule supports this
     const fakeRepo = join(tmpdir(), 'cw-fake-repo-' + Date.now());
     mkdirSync(fakeRepo, { recursive: true });
-    execSync('git init && git config user.email "test@test.com" && git config user.name "Test" && git commit --allow-empty -m "init"', { cwd: fakeRepo, stdio: 'pipe' });
+    execSync(
+      'git init && git config user.email "test@test.com" && git config user.name "Test" && git commit --allow-empty -m "init"',
+      { cwd: fakeRepo, stdio: 'pipe' },
+    );
 
     const output = execSync(`${CLI} repo add ${fakeRepo} --name test-repo --project ${dir}`, { encoding: 'utf8' });
     expect(output).toContain('test-repo');
@@ -1159,6 +1230,7 @@ git commit -m "test: add repo command unit tests"
 ### Task 7: CLI integration tests — workflow + API
 
 **Files:**
+
 - Create: `cli/tests/integration/workflow.test.ts`
 - Create: `cli/tests/integration/api.test.ts`
 
@@ -1190,7 +1262,9 @@ describe('workflow integration: init → start → status → review', () => {
   });
 
   afterEach(() => {
-    try { rmSync(dir, { recursive: true, force: true }); } catch {}
+    try {
+      rmSync(dir, { recursive: true, force: true });
+    } catch {}
   });
 
   it('runs feature-dev workflow state transitions', () => {
@@ -1204,7 +1278,7 @@ describe('workflow integration: init → start → status → review', () => {
     // 3. start
     const startOut = execSync(
       `${CLI} start feature-dev --slug test-feature --repo test-repo --project ${dir} --requirements "Add a health check endpoint"`,
-      { encoding: 'utf8' }
+      { encoding: 'utf8' },
     );
     expect(startOut).toContain('Task created');
 
@@ -1238,7 +1312,7 @@ describe('workflow integration: init → start → status → review', () => {
     execSync(`${CLI} init ${dir}`, { stdio: 'pipe' });
     const startOut = execSync(
       `${CLI} start feature-dev --slug rejected-feature --repo test-repo --project ${dir} --requirements "Test rejection flow"`,
-      { encoding: 'utf8' }
+      { encoding: 'utf8' },
     );
     const taskMatch = startOut.match(/task-\d{3}-rejected-feature/);
     expect(taskMatch).not.toBeNull();
@@ -1253,7 +1327,7 @@ describe('workflow integration: init → start → status → review', () => {
     execSync(`${CLI} init ${dir}`, { stdio: 'pipe' });
     const startOut = execSync(
       `echo "Stdin requirements test" | ${CLI} start bug-fix --slug stdin-test --repo test-repo --project ${dir}`,
-      { encoding: 'utf8' }
+      { encoding: 'utf8' },
     );
     expect(startOut).toContain('Task created');
     expect(startOut).toContain('task-');
@@ -1287,28 +1361,31 @@ describe('API endpoints', () => {
 
     // Create minimal project structure
     mkdirSync(join(dir, '.clockwork'), { recursive: true });
-    writeFileSync(join(dir, '.clockwork', 'config.yaml'), [
-      'project:',
-      '  name: test',
-      'ide:',
-      '  primary: claude-code',
-      'agents:',
-      '  dir: agents/',
-      '  defaultModel: sonnet',
-      'knowledge:',
-      '  dir: knowledge/',
-      '  index: knowledge/index.yaml',
-      '  maxEntriesPerQuery: 5',
-      'workflows:',
-      '  dir: workflows/',
-      'repos:',
-      '  dir: repos/',
-      'workspace:',
-      '  dir: workspace/',
-      'web:',
-      '  port: 4200',
-      '  host: localhost',
-    ].join('\n'));
+    writeFileSync(
+      join(dir, '.clockwork', 'config.yaml'),
+      [
+        'project:',
+        '  name: test',
+        'ide:',
+        '  primary: claude-code',
+        'agents:',
+        '  dir: agents/',
+        '  defaultModel: sonnet',
+        'knowledge:',
+        '  dir: knowledge/',
+        '  index: knowledge/index.yaml',
+        '  maxEntriesPerQuery: 5',
+        'workflows:',
+        '  dir: workflows/',
+        'repos:',
+        '  dir: repos/',
+        'workspace:',
+        '  dir: workspace/',
+        'web:',
+        '  port: 4200',
+        '  host: localhost',
+      ].join('\n'),
+    );
 
     mkdirSync(join(dir, 'workspace'), { recursive: true });
     mkdirSync(join(dir, 'knowledge'), { recursive: true });
@@ -1390,7 +1467,9 @@ describe('API endpoints', () => {
   });
 
   afterEach(() => {
-    try { rmSync(dir, { recursive: true, force: true }); } catch {}
+    try {
+      rmSync(dir, { recursive: true, force: true });
+    } catch {}
   });
 
   it('GET /api/tasks returns empty array', async () => {
@@ -1438,9 +1517,7 @@ describe('API endpoints', () => {
 
   it('POST /api/tasks/:taskId/review approve', async () => {
     const task = createTask(join(dir, 'workspace'), 'feature-dev', 'review-test', []);
-    const res = await request(app)
-      .post(`/api/tasks/${task.taskId}/review`)
-      .send({ action: 'approve' });
+    const res = await request(app).post(`/api/tasks/${task.taskId}/review`).send({ action: 'approve' });
     expect(res.status).toBe(200);
     expect(res.body.ok).toBe(true);
     expect(res.body.action).toBe('approve');
@@ -1463,6 +1540,7 @@ describe('API endpoints', () => {
 ```bash
 cd cli && npx vitest run tests/integration/
 ```
+
 Expected: All tests PASS
 
 - [ ] **Step 5: Commit**
@@ -1477,6 +1555,7 @@ git commit -m "test: add CLI integration tests for workflow and API endpoints"
 ### Task 8: Workflow E2E tests
 
 **Files:**
+
 - Create: `cli/tests/e2e/feature-dev.test.ts`
 - Create: `cli/tests/e2e/bug-fix.test.ts`
 - Create: `cli/tests/e2e/incident-response.test.ts`
@@ -1507,7 +1586,7 @@ describe('feature-dev workflow E2E', () => {
 
     const out = execSync(
       `${CLI} start feature-dev --slug e2e-feature --repo demo-todo --project ${dir} --requirements "Add GET /health endpoint returning { status: ok }"`,
-      { encoding: 'utf8' }
+      { encoding: 'utf8' },
     );
     const match = out.match(/task-\d{3}-e2e-feature/);
     expect(match).not.toBeNull();
@@ -1515,7 +1594,9 @@ describe('feature-dev workflow E2E', () => {
   });
 
   afterEach(() => {
-    try { rmSync(dir, { recursive: true, force: true }); } catch {}
+    try {
+      rmSync(dir, { recursive: true, force: true });
+    } catch {}
   });
 
   it('creates task with correct initial state', () => {
@@ -1585,7 +1666,7 @@ describe('bug-fix workflow E2E', () => {
 
     const out = execSync(
       `${CLI} start bug-fix --slug e2e-bug --repo demo-todo --project ${dir} --requirements "Fix 500 error when todo title is empty"`,
-      { encoding: 'utf8' }
+      { encoding: 'utf8' },
     );
     const match = out.match(/task-\d{3}-e2e-bug/);
     expect(match).not.toBeNull();
@@ -1593,7 +1674,9 @@ describe('bug-fix workflow E2E', () => {
   });
 
   afterEach(() => {
-    try { rmSync(dir, { recursive: true, force: true }); } catch {}
+    try {
+      rmSync(dir, { recursive: true, force: true });
+    } catch {}
   });
 
   it('creates task with bug-fix workflow and diagnose stage', () => {
@@ -1644,7 +1727,7 @@ describe('incident-response workflow E2E', () => {
 
     const out = execSync(
       `${CLI} start incident-response --slug e2e-incident --repo demo-todo --project ${dir} --requirements "API returning 503 for all requests since 14:30 UTC"`,
-      { encoding: 'utf8' }
+      { encoding: 'utf8' },
     );
     const match = out.match(/task-\d{3}-e2e-incident/);
     expect(match).not.toBeNull();
@@ -1652,7 +1735,9 @@ describe('incident-response workflow E2E', () => {
   });
 
   afterEach(() => {
-    try { rmSync(dir, { recursive: true, force: true }); } catch {}
+    try {
+      rmSync(dir, { recursive: true, force: true });
+    } catch {}
   });
 
   it('creates task with incident-response workflow and triage stage', () => {
@@ -1683,6 +1768,7 @@ describe('incident-response workflow E2E', () => {
 ```bash
 cd cli && npx vitest run tests/e2e/
 ```
+
 Expected: All E2E tests PASS
 
 - [ ] **Step 5: Commit**
@@ -1697,6 +1783,7 @@ git commit -m "test: add workflow E2E tests for feature-dev, bug-fix, and incide
 ### Task 9: Workbench test infrastructure + component tests
 
 **Files:**
+
 - Create: `workbench/tests/setup.ts`
 - Create: `workbench/tests/TaskBoard.test.tsx`
 - Create: `workbench/tests/TaskDetail.test.tsx`
@@ -1983,6 +2070,7 @@ describe('ReviewActions', () => {
 ```bash
 cd workbench && npx vitest run
 ```
+
 Expected: All tests PASS
 
 - [ ] **Step 6: Commit**
@@ -1997,6 +2085,7 @@ git commit -m "test: add workbench component tests for TaskBoard, TaskDetail, an
 ### Task 10: Markdown renderer upgrade
 
 **Files:**
+
 - Modify: `workbench/package.json`
 - Modify: `workbench/src/components/MarkdownViewer.tsx`
 - Create: `workbench/tests/MarkdownViewer.test.tsx`
@@ -2009,7 +2098,7 @@ cd workbench && npm install marked highlight.js
 
 - [ ] **Step 2: Write MarkdownViewer test**
 
-```typescript
+````typescript
 // workbench/tests/MarkdownViewer.test.tsx
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
@@ -2093,13 +2182,14 @@ describe('MarkdownViewer', () => {
     expect(items.length).toBe(4);
   });
 });
-```
+````
 
 - [ ] **Step 3: Run test to verify it fails**
 
 ```bash
 cd workbench && npx vitest run tests/MarkdownViewer.test.tsx
 ```
+
 Expected: FAIL — code blocks, tables, links, etc. not rendered
 
 - [ ] **Step 4: Replace MarkdownViewer with marked + highlight.js**
@@ -2156,16 +2246,49 @@ Append to `workbench/src/styles/global.css`:
   font-size: 14px;
 }
 
-.markdown-body h1 { font-size: 22px; font-weight: 700; margin: 24px 0 12px; color: #f8fafc; }
-.markdown-body h2 { font-size: 18px; font-weight: 700; margin: 20px 0 10px; color: #f8fafc; }
-.markdown-body h3 { font-size: 16px; font-weight: 600; margin: 16px 0 8px; color: #f8fafc; }
-.markdown-body h4 { font-size: 14px; font-weight: 600; margin: 12px 0 6px; color: #f1f5f9; }
-.markdown-body h5, .markdown-body h6 { font-size: 13px; font-weight: 600; margin: 10px 0 4px; color: #e2e8f0; }
+.markdown-body h1 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 24px 0 12px;
+  color: #f8fafc;
+}
+.markdown-body h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 20px 0 10px;
+  color: #f8fafc;
+}
+.markdown-body h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 16px 0 8px;
+  color: #f8fafc;
+}
+.markdown-body h4 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 12px 0 6px;
+  color: #f1f5f9;
+}
+.markdown-body h5,
+.markdown-body h6 {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 10px 0 4px;
+  color: #e2e8f0;
+}
 
-.markdown-body p { margin: 8px 0; }
+.markdown-body p {
+  margin: 8px 0;
+}
 
-.markdown-body a { color: #60a5fa; text-decoration: underline; }
-.markdown-body a:hover { color: #93bbfd; }
+.markdown-body a {
+  color: #60a5fa;
+  text-decoration: underline;
+}
+.markdown-body a:hover {
+  color: #93bbfd;
+}
 
 .markdown-body code {
   background: #0f172a;
@@ -2224,10 +2347,19 @@ Append to `workbench/src/styles/global.css`:
   color: #cbd5e1;
 }
 
-.markdown-body tr:hover td { background: rgba(30, 41, 59, 0.5); }
+.markdown-body tr:hover td {
+  background: rgba(30, 41, 59, 0.5);
+}
 
-.markdown-body ul, .markdown-body ol { padding-left: 24px; margin: 8px 0; }
-.markdown-body li { margin: 4px 0; color: #cbd5e1; }
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 24px;
+  margin: 8px 0;
+}
+.markdown-body li {
+  margin: 4px 0;
+  color: #cbd5e1;
+}
 
 .markdown-body hr {
   border: none;
@@ -2235,9 +2367,12 @@ Append to `workbench/src/styles/global.css`:
   margin: 20px 0;
 }
 
-.markdown-body img { max-width: 100%; border-radius: 6px; }
+.markdown-body img {
+  max-width: 100%;
+  border-radius: 6px;
+}
 
-.markdown-body input[type="checkbox"] {
+.markdown-body input[type='checkbox'] {
   margin-right: 8px;
   accent-color: #3b82f6;
 }
@@ -2248,6 +2383,7 @@ Append to `workbench/src/styles/global.css`:
 ```bash
 cd workbench && npx vitest run tests/MarkdownViewer.test.tsx
 ```
+
 Expected: 10 tests PASS
 
 - [ ] **Step 7: Run all workbench tests**
@@ -2255,6 +2391,7 @@ Expected: 10 tests PASS
 ```bash
 cd workbench && npx vitest run
 ```
+
 Expected: All tests PASS
 
 - [ ] **Step 8: Commit**
@@ -2269,6 +2406,7 @@ git commit -m "feat: upgrade MarkdownViewer with marked + highlight.js for full 
 ### Task 11: Knowledge detail page + server endpoint
 
 **Files:**
+
 - Create: `workbench/src/pages/KnowledgeDetail.tsx`
 - Modify: `workbench/src/pages/KnowledgeBrowser.tsx`
 - Modify: `workbench/src/App.tsx`

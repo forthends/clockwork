@@ -13,20 +13,25 @@ describe('clockwork status', () => {
   beforeAll(() => {
     execSync(`cd ${__dirname}/../.. && ${CLI} init ${testDir}`, { encoding: 'utf8' });
     mkdirSync(join(testDir, 'workspace', 'task-001-test'), { recursive: true });
-    writeFileSync(join(testDir, 'workspace', 'task-001-test', 'status.yaml'), stringifyYaml({
-      taskId: 'task-001-test',
-      workflow: 'feature-dev',
-      status: 'in_progress',
-      currentStage: 'implement',
-      stages: { plan: 'completed', implement: 'in_progress', review: 'pending', deliver: 'pending' },
-      created: '2026-06-13T10:00:00Z',
-      updated: '2026-06-13T11:30:00Z',
-      repos: ['backend'],
-      humanReviewPending: false,
-    }));
+    writeFileSync(
+      join(testDir, 'workspace', 'task-001-test', 'status.yaml'),
+      stringifyYaml({
+        taskId: 'task-001-test',
+        workflow: 'feature-dev',
+        status: 'in_progress',
+        currentStage: 'implement',
+        stages: { plan: 'completed', implement: 'in_progress', review: 'pending', deliver: 'pending' },
+        created: '2026-06-13T10:00:00Z',
+        updated: '2026-06-13T11:30:00Z',
+        repos: ['backend'],
+        humanReviewPending: false,
+      }),
+    );
   });
 
-  afterAll(() => { rmSync(testDir, { recursive: true, force: true }); });
+  afterAll(() => {
+    rmSync(testDir, { recursive: true, force: true });
+  });
 
   it('shows all tasks', () => {
     const output = execSync(`cd ${__dirname}/../.. && ${CLI} status --project ${testDir}`, { encoding: 'utf8' });
@@ -36,7 +41,9 @@ describe('clockwork status', () => {
   });
 
   it('shows single task detail', () => {
-    const output = execSync(`cd ${__dirname}/../.. && ${CLI} status task-001-test --project ${testDir}`, { encoding: 'utf8' });
+    const output = execSync(`cd ${__dirname}/../.. && ${CLI} status task-001-test --project ${testDir}`, {
+      encoding: 'utf8',
+    });
     expect(output).toContain('plan: completed');
     expect(output).toContain('implement: in_progress');
     expect(output).toContain('backend');

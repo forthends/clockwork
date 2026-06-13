@@ -10,6 +10,31 @@
     "build:workbench": "pnpm --filter @clockwork/workbench build",
     "test": "pnpm -r test",
     "dev:cli": "pnpm --filter @clockwork/cli dev",
-    "dev:workbench": "pnpm --filter @clockwork/workbench dev"
+    "dev:workbench": "pnpm --filter @clockwork/workbench dev",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "simple-git-hooks"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npx lint-staged"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.{json,md,yaml,yml}": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "eslint": "^10.5.0",
+    "eslint-config-prettier": "^10.1.8",
+    "lint-staged": "^17.0.7",
+    "prettier": "^3.8.4",
+    "simple-git-hooks": "^2.13.1",
+    "typescript-eslint": "^8.61.0"
   }
 }

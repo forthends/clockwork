@@ -11,22 +11,26 @@ license: MIT
 ## Four Phases
 
 ### Phase 1: Root Cause Investigation
+
 - Read the error message completely
 - Reproduce the bug reliably
 - Check recent changes (`git log`)
 - Collect evidence at component boundaries
 
 ### Phase 2: Pattern Analysis
+
 - Find similar working code in the project
 - Compare differences
 - Understand dependencies between components
 
 ### Phase 3: Hypothesis and Test
+
 - Form a SINGLE hypothesis: "If X is the root cause, changing Y fixes it"
 - Make the minimal change to test the hypothesis
 - Test and observe — one variable at a time
 
 ### Phase 4: Implement Fix
+
 - Write a regression test that reproduces the bug
 - Apply the minimal fix
 - Verify the fix passes and no regressions

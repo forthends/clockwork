@@ -42,17 +42,21 @@ stages:
 # Feature Development Workflow
 
 ## Stage 1: Plan
+
 Planner agent analyzes requirements. Asks questions one at a time for ambiguity.
 Generates SPEC.md and PLAN.md. Human must approve before implementation begins.
 
 ## Stage 2: Implement
+
 Implementer agent works through PLAN tasks sequentially, TDD for each task.
 Each completed task gets a git commit. Max 3 retries per task before flagging as blocked.
 
 ## Stage 3: Review
+
 Reviewer agent assesses code changes against SPEC and project conventions.
 Outputs REVIEW.md with verdict. If NEEDS_CHANGES, returns to implement stage.
 
 ## Stage 4: Deliver
+
 Framework summarizes all artifacts, updates Knowledge with new findings,
 notifies human for final review and merge.

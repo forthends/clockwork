@@ -25,9 +25,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </li>
         </ul>
       </nav>
-      <main className="content">
-        {children}
-      </main>
+      <main className="content">{children}</main>
     </div>
   );
 }

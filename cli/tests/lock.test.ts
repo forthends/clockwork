@@ -13,7 +13,9 @@ describe('lock', () => {
   });
 
   afterEach(() => {
-    try { rmSync(dir, { recursive: true, force: true }); } catch {}
+    try {
+      rmSync(dir, { recursive: true, force: true });
+    } catch {}
   });
 
   it('acquires a lock by creating a .lock file', () => {

@@ -32,7 +32,7 @@ describe('incident-response workflow E2E', () => {
   const projects: string[] = [];
 
   afterAll(() => {
-    projects.forEach(d => {
+    projects.forEach((d) => {
       try {
         rmSync(d, { recursive: true, force: true });
       } catch {}
@@ -45,7 +45,7 @@ describe('incident-response workflow E2E', () => {
 
     const out = cw(
       `start incident-response --slug e2e-incident --repo demo-todo --project ${dir} --requirements "API returning 503"`,
-      dir
+      dir,
     );
     const match = out.match(/task-\d{3}-e2e-incident/);
     expect(match).not.toBeNull();
@@ -64,7 +64,7 @@ describe('incident-response workflow E2E', () => {
 
     const out = cw(
       `start incident-response --slug triage-test --repo demo-todo --project ${dir} --requirements "503 error"`,
-      dir
+      dir,
     );
     const match = out.match(/task-\d{3}-triage-test/);
     expect(match).not.toBeNull();
@@ -86,7 +86,7 @@ describe('incident-response workflow E2E', () => {
 
     const out = cw(
       `start incident-response --slug approve-test --repo demo-todo --project ${dir} --requirements "Test approve"`,
-      dir
+      dir,
     );
     const match = out.match(/task-\d{3}-approve-test/);
     expect(match).not.toBeNull();
@@ -110,7 +110,7 @@ describe('incident-response workflow E2E', () => {
 
     const out = cw(
       `start incident-response --slug struct-test --repo demo-todo --project ${dir} --requirements "Structure test"`,
-      dir
+      dir,
     );
     const match = out.match(/task-\d{3}-struct-test/);
     const taskId = match![0];

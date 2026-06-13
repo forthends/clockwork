@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { execSync } from 'child_process';
-import { mkdirSync, rmSync, readFileSync, existsSync } from 'fs';
+import { mkdirSync, rmSync, existsSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
 
@@ -52,7 +52,7 @@ describe('workflow integration: init → start → status → review', () => {
     // 2. start
     const startOut = runCli(
       `start feature-dev --slug test-feature --repo test-repo --project ${dir} --requirements "Add a health check endpoint"`,
-      dir
+      dir,
     );
     expect(startOut).toContain('Task created');
 
@@ -87,16 +87,13 @@ describe('workflow integration: init → start → status → review', () => {
   it('review --reject marks stage as failed', () => {
     const startOut = runCli(
       `start feature-dev --slug rejected-feature --repo test-repo --project ${dir} --requirements "Test rejection"`,
-      dir
+      dir,
     );
     const taskMatch = startOut.match(/task-\d{3}-rejected-feature/);
     expect(taskMatch).not.toBeNull();
     const taskId = taskMatch![0];
 
-    const rejectOut = runCli(
-      `review ${taskId} --reject "Incomplete requirements" --project ${dir}`,
-      dir
-    );
+    const rejectOut = runCli(`review ${taskId} --reject "Incomplete requirements" --project ${dir}`, dir);
     expect(rejectOut).toContain('rejected');
 
     const statusOut = runCli(`status ${taskId} --project ${dir}`, dir);

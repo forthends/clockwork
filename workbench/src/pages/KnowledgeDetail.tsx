@@ -13,10 +13,18 @@ export function KnowledgeDetail() {
     if (!entryPath) return;
     let cancelled = false;
     fetchKnowledgeEntry(entryPath)
-      .then(data => { if (!cancelled) setContent(data); })
-      .catch(e => { if (!cancelled) setError(e.message); })
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
+      .then((data) => {
+        if (!cancelled) setContent(data);
+      })
+      .catch((e) => {
+        if (!cancelled) setError(e.message);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [entryPath]);
 
   if (loading) return <div className="loading">Loading entry...</div>;

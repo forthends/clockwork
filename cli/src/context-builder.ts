@@ -8,7 +8,7 @@ import { AgentFrontmatter, AgentContext } from './types.js';
 export async function buildAgentContext(
   projectRoot: string,
   agentName: string,
-  inputs: Record<string, string>
+  inputs: Record<string, string>,
 ): Promise<AgentContext> {
   const config = loadConfig(projectRoot);
   const agentPath = join(projectRoot, config.agents.dir, `${agentName}.md`);
@@ -42,7 +42,53 @@ export function saveContextPackage(workspaceDir: string, taskId: string, context
 }
 
 function extractKeywords(text: string): string[] {
-  const stopWords = new Set(['the', 'a', 'an', 'in', 'on', 'at', 'to', 'for', 'of', 'and', 'or', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should', 'may', 'might', 'can', 'shall', 'this', 'that', 'these', 'those', 'it', 'its', 'use', 'when', 'how', 'what']);
-  const words = text.toLowerCase().replace(/[^a-z0-9\s-]/g, '').split(/\s+/);
-  return [...new Set(words.filter(w => w.length > 2 && !stopWords.has(w)))];
+  const stopWords = new Set([
+    'the',
+    'a',
+    'an',
+    'in',
+    'on',
+    'at',
+    'to',
+    'for',
+    'of',
+    'and',
+    'or',
+    'is',
+    'are',
+    'was',
+    'were',
+    'be',
+    'been',
+    'being',
+    'have',
+    'has',
+    'had',
+    'do',
+    'does',
+    'did',
+    'will',
+    'would',
+    'could',
+    'should',
+    'may',
+    'might',
+    'can',
+    'shall',
+    'this',
+    'that',
+    'these',
+    'those',
+    'it',
+    'its',
+    'use',
+    'when',
+    'how',
+    'what',
+  ]);
+  const words = text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .split(/\s+/);
+  return [...new Set(words.filter((w) => w.length > 2 && !stopWords.has(w)))];
 }

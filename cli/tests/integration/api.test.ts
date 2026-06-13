@@ -226,9 +226,7 @@ describe('API endpoints', () => {
   // Endpoint 7: POST /api/tasks/:taskId/review — approve
   it('POST /api/tasks/:taskId/review approve', async () => {
     const task = createTask(workspaceDir, 'feature-dev', 'review-test', []);
-    const res = await request(app)
-      .post(`/api/tasks/${task.taskId}/review`)
-      .send({ action: 'approve' });
+    const res = await request(app).post(`/api/tasks/${task.taskId}/review`).send({ action: 'approve' });
     expect(res.status).toBe(200);
     expect(res.body.ok).toBe(true);
     expect(res.body.action).toBe('approve');
@@ -247,9 +245,7 @@ describe('API endpoints', () => {
 
   // Endpoint 7 (error case): 400 for unknown task
   it('POST /api/tasks/:taskId/review returns 400 for unknown task', async () => {
-    const res = await request(app)
-      .post('/api/tasks/nonexistent/review')
-      .send({ action: 'approve' });
+    const res = await request(app).post('/api/tasks/nonexistent/review').send({ action: 'approve' });
     expect(res.status).toBe(400);
   });
 });

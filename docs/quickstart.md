@@ -154,12 +154,12 @@ clockwork resume task-001-user-registration
 
 框架内置的错误恢复机制：
 
-| 保护机制 | 行为 |
-|---------|------|
-| 文件锁 | 防止两个进程同时操作同一任务文件 |
+| 保护机制 | 行为                                           |
+| -------- | ---------------------------------------------- |
+| 文件锁   | 防止两个进程同时操作同一任务文件               |
 | 中断存档 | Ctrl+C 时自动保存 recovery 快照，resume 时恢复 |
-| 重试退避 | 阶段失败后 2^n 分钟退避重试（2→4→8 分钟） |
-| 超时保护 | 单阶段默认 10 分钟超时，超时自动标记 failed |
+| 重试退避 | 阶段失败后 2^n 分钟退避重试（2→4→8 分钟）      |
+| 超时保护 | 单阶段默认 10 分钟超时，超时自动标记 failed    |
 
 ## 10. 使用 Web 工作台
 
@@ -169,13 +169,13 @@ clockwork web
 
 Web 工作台提供五个页面：
 
-| 页面 | 路由 | 功能 |
-|------|------|------|
-| 任务看板 | /tasks | 按状态分列展示所有任务（进行中/待审核/已完成） |
-| 任务详情 | /tasks/:id | 查看任务元数据、阶段进度、产物文档（Markdown 渲染） |
-| 审核操作 | /tasks/:id/review | 非技术用户审核 Agent 产物，一键通过/驳回 |
-| 知识库 | /knowledge | 浏览项目知识条目，按分类和标签筛选 |
-| 知识详情 | /knowledge/:path | 查看完整知识条目内容，支持代码高亮、表格等 GFM 语法 |
+| 页面     | 路由              | 功能                                                |
+| -------- | ----------------- | --------------------------------------------------- |
+| 任务看板 | /tasks            | 按状态分列展示所有任务（进行中/待审核/已完成）      |
+| 任务详情 | /tasks/:id        | 查看任务元数据、阶段进度、产物文档（Markdown 渲染） |
+| 审核操作 | /tasks/:id/review | 非技术用户审核 Agent 产物，一键通过/驳回            |
+| 知识库   | /knowledge        | 浏览项目知识条目，按分类和标签筛选                  |
+| 知识详情 | /knowledge/:path  | 查看完整知识条目内容，支持代码高亮、表格等 GFM 语法 |
 
 ## 11. 管理知识与技能
 
@@ -189,20 +189,20 @@ clockwork skill list
 
 ## 内置工作流一览
 
-| 工作流 | 命令 | 适用场景 |
-|--------|------|---------|
-| feature-dev | `start feature-dev --slug <name>` | 新功能开发（plan → implement → review → deliver） |
-| bug-fix | `start bug-fix --slug <name>` | BUG 修复（diagnose → fix → verify → deliver） |
+| 工作流            | 命令                                    | 适用场景                                                  |
+| ----------------- | --------------------------------------- | --------------------------------------------------------- |
+| feature-dev       | `start feature-dev --slug <name>`       | 新功能开发（plan → implement → review → deliver）         |
+| bug-fix           | `start bug-fix --slug <name>`           | BUG 修复（diagnose → fix → verify → deliver）             |
 | incident-response | `start incident-response --slug <name>` | 线上故障排查（triage → diagnose → mitigate → postmortem） |
 
 ## 内置 Agent 一览
 
-| Agent | 角色 | 关联 Skill |
-|-------|------|-----------|
-| planner | 需求分析 + 技术设计 | brainstorming, writing-plans |
-| implementer | TDD 编码实现 | test-driven-development, systematic-debugging |
-| reviewer | 代码审查 | code-review |
-| debugger | 根因分析与修复 | systematic-debugging |
+| Agent       | 角色                | 关联 Skill                                    |
+| ----------- | ------------------- | --------------------------------------------- |
+| planner     | 需求分析 + 技术设计 | brainstorming, writing-plans                  |
+| implementer | TDD 编码实现        | test-driven-development, systematic-debugging |
+| reviewer    | 代码审查            | code-review                                   |
+| debugger    | 根因分析与修复      | systematic-debugging                          |
 
 ## Demo 项目
 

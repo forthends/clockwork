@@ -52,45 +52,45 @@ clockwork/
 
 ### Four Agent Roles
 
-| Agent | Role | Skills |
-|-------|------|--------|
-| Planner | Technical design & requirements analysis | brainstorming, writing-plans |
-| Implementer | TDD-driven code implementation | test-driven-development, systematic-debugging |
-| Reviewer | Code review & quality assurance | code-review |
-| Debugger | Root cause analysis & bug fixing | systematic-debugging |
+| Agent       | Role                                     | Skills                                        |
+| ----------- | ---------------------------------------- | --------------------------------------------- |
+| Planner     | Technical design & requirements analysis | brainstorming, writing-plans                  |
+| Implementer | TDD-driven code implementation           | test-driven-development, systematic-debugging |
+| Reviewer    | Code review & quality assurance          | code-review                                   |
+| Debugger    | Root cause analysis & bug fixing         | systematic-debugging                          |
 
 ### Three Workflows
 
-| Workflow | Stages | Use Case |
-|----------|--------|----------|
-| feature-dev | plan → implement → review → deliver | New feature development |
-| bug-fix | diagnose → fix → verify → deliver | Bug fixing with root cause analysis |
-| incident-response | triage → diagnose → mitigate → postmortem | Production incident response |
+| Workflow          | Stages                                    | Use Case                            |
+| ----------------- | ----------------------------------------- | ----------------------------------- |
+| feature-dev       | plan → implement → review → deliver       | New feature development             |
+| bug-fix           | diagnose → fix → verify → deliver         | Bug fixing with root cause analysis |
+| incident-response | triage → diagnose → mitigate → postmortem | Production incident response        |
 
 ### CLI Commands
 
-| Command | Description |
-|---------|-------------|
-| `clockwork init [path]` | Initialize a new Clockwork project |
-| `clockwork start <workflow>` | Create a new task and prepare agent context |
-| `clockwork status [task-id]` | List all tasks or show task details |
-| `clockwork resume <task-id>` | Resume a paused, failed, or interrupted task |
-| `clockwork review <task-id>` | Approve or reject task stages |
-| `clockwork repo add <url>` | Add a git submodule repository |
-| `clockwork repo status` | Show repository status |
-| `clockwork knowledge update` | Rebuild knowledge index |
-| `clockwork skill list` | List available skills |
-| `clockwork web` | Start the web dashboard (auto-builds workbench) |
+| Command                      | Description                                     |
+| ---------------------------- | ----------------------------------------------- |
+| `clockwork init [path]`      | Initialize a new Clockwork project              |
+| `clockwork start <workflow>` | Create a new task and prepare agent context     |
+| `clockwork status [task-id]` | List all tasks or show task details             |
+| `clockwork resume <task-id>` | Resume a paused, failed, or interrupted task    |
+| `clockwork review <task-id>` | Approve or reject task stages                   |
+| `clockwork repo add <url>`   | Add a git submodule repository                  |
+| `clockwork repo status`      | Show repository status                          |
+| `clockwork knowledge update` | Rebuild knowledge index                         |
+| `clockwork skill list`       | List available skills                           |
+| `clockwork web`              | Start the web dashboard (auto-builds workbench) |
 
 ### Web Dashboard
 
-| Page | Route | Function |
-|------|-------|----------|
-| Task Board | `/tasks` | Kanban-style task overview by status |
-| Task Detail | `/tasks/:id` | Task metadata, stage progress, artifact viewer |
-| Task Review | `/tasks/:id/review` | Approve/reject agent outputs |
-| Knowledge Browser | `/knowledge` | Browse and filter knowledge entries |
-| Knowledge Detail | `/knowledge/:path` | View full knowledge entry with markdown rendering |
+| Page              | Route               | Function                                          |
+| ----------------- | ------------------- | ------------------------------------------------- |
+| Task Board        | `/tasks`            | Kanban-style task overview by status              |
+| Task Detail       | `/tasks/:id`        | Task metadata, stage progress, artifact viewer    |
+| Task Review       | `/tasks/:id/review` | Approve/reject agent outputs                      |
+| Knowledge Browser | `/knowledge`        | Browse and filter knowledge entries               |
+| Knowledge Detail  | `/knowledge/:path`  | View full knowledge entry with markdown rendering |
 
 ### Error Recovery
 

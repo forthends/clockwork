@@ -8,28 +8,31 @@ describe('loadConfig', () => {
   it('loads a valid config.yaml', async () => {
     const dir = join(tmpdir(), 'clockwork-test-' + Date.now());
     await mkdir(join(dir, '.clockwork'), { recursive: true });
-    await writeFile(join(dir, '.clockwork', 'config.yaml'), [
-      'project:',
-      '  name: test-project',
-      'ide:',
-      '  primary: claude-code',
-      'agents:',
-      '  dir: agents/',
-      '  defaultModel: sonnet',
-      'knowledge:',
-      '  dir: knowledge/',
-      '  index: knowledge/index.yaml',
-      '  maxEntriesPerQuery: 5',
-      'workflows:',
-      '  dir: workflows/',
-      'repos:',
-      '  dir: repos/',
-      'workspace:',
-      '  dir: workspace/',
-      'web:',
-      '  port: 4200',
-      '  host: localhost',
-    ].join('\n'));
+    await writeFile(
+      join(dir, '.clockwork', 'config.yaml'),
+      [
+        'project:',
+        '  name: test-project',
+        'ide:',
+        '  primary: claude-code',
+        'agents:',
+        '  dir: agents/',
+        '  defaultModel: sonnet',
+        'knowledge:',
+        '  dir: knowledge/',
+        '  index: knowledge/index.yaml',
+        '  maxEntriesPerQuery: 5',
+        'workflows:',
+        '  dir: workflows/',
+        'repos:',
+        '  dir: repos/',
+        'workspace:',
+        '  dir: workspace/',
+        'web:',
+        '  port: 4200',
+        '  host: localhost',
+      ].join('\n'),
+    );
 
     const config = loadConfig(dir);
     expect(config.project.name).toBe('test-project');

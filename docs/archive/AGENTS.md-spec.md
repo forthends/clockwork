@@ -12,9 +12,9 @@ AGENTS.md 是一个开放、轻量的 Markdown 文件格式，用于向 AI codin
 
 ### 1.2 定位
 
-| 文件 | 受众 | 内容倾向 |
-|---|---|---|
-| `README.md` | 人类开发者 | 项目简介、快速上手、贡献指南 |
+| 文件        | 受众            | 内容倾向                               |
+| ----------- | --------------- | -------------------------------------- |
+| `README.md` | 人类开发者      | 项目简介、快速上手、贡献指南           |
 | `AGENTS.md` | AI coding agent | 构建命令、测试步骤、代码规范、安全约束 |
 
 两者互补而非替代。AGENTS.md 承载那些对人不必要的细节（如 agent 特有命令、lint/test 的具体执行方式），保持 README 简洁。
@@ -29,11 +29,13 @@ AGENTS.md 是一个开放、轻量的 Markdown 文件格式，用于向 AI codin
 ### 1.4 适用范围
 
 本规范定义：
+
 - AGENTS.md 文件的命名、位置、编码和格式
 - Agent 的发现、加载、解析机制
 - 多文件场景下的优先级与冲突解决
 
 本规范不定义：
+
 - Agent 内部如何处理解析后的指令（由各 agent 实现决定）
 - 具体推荐哪些章节（见第 5 节最佳实践，非规范性内容）
 
@@ -85,11 +87,11 @@ AGENTS.md 可出现在仓库中的任意目录层级：
 
 ### 2.5 大小
 
-| 指标 | 建议值 | 说明 |
-|------|--------|------|
-| 行数 | 20–60 行（理想），≤200 行（上限） | 较短的文件表现更好；每行都在竞争 agent 的上下文预算 |
-| 字节数 | ≤32 KiB（Codex 默认上限） | 其他 agent 可能有不同限制，32 KiB 是安全基线 |
-| 嵌套拆分 | 单文件接近上限时按子目录拆分 | 超大型仓库通过多层嵌套 AGENTS.md 保持每个文件精简 |
+| 指标     | 建议值                            | 说明                                                |
+| -------- | --------------------------------- | --------------------------------------------------- |
+| 行数     | 20–60 行（理想），≤200 行（上限） | 较短的文件表现更好；每行都在竞争 agent 的上下文预算 |
+| 字节数   | ≤32 KiB（Codex 默认上限）         | 其他 agent 可能有不同限制，32 KiB 是安全基线        |
+| 嵌套拆分 | 单文件接近上限时按子目录拆分      | 超大型仓库通过多层嵌套 AGENTS.md 保持每个文件精简   |
 
 普林斯顿大学对照实验表明，人工编写的短文件比 LLM 自动生成的冗长文件效果显著更好（见第 8 节）。
 
@@ -121,6 +123,7 @@ Agent 在处理文件时，按以下顺序查找 AGENTS.md：
 ```
 
 若 agent 编辑 `/packages/web/src/App.tsx`：
+
 - 查找路径：`/packages/web/src/` → `/packages/web/`（命中 B）
 - 生效文件：B（`/packages/web/AGENTS.md`）
 
@@ -147,6 +150,7 @@ Agent **不应**每次读取文件时重新解析 AGENTS.md。实现应对已解
 - 两者同时存在时，优先使用 `AGENTS.md`
 
 Agent 可建议用户通过符号链接保持兼容：
+
 ```bash
 mv AGENT.md AGENTS.md && ln -s AGENTS.md AGENT.md
 ```
@@ -205,6 +209,7 @@ Agent 应将最终合并结果告知用户或写入日志，确保透明度。
 
 ```markdown
 ## 项目概述
+
 - 项目名称：my-service
 - 技术栈：Go + PostgreSQL
 - 单体仓库，无子包
@@ -216,6 +221,7 @@ Agent 应将最终合并结果告知用户或写入日志，确保透明度。
 
 ```markdown
 ## Package Manager
+
 Use **pnpm**: `pnpm install`, `pnpm dev`, `pnpm test`
 ```
 
@@ -225,6 +231,7 @@ Use **pnpm**: `pnpm install`, `pnpm dev`, `pnpm test`
 
 ```markdown
 ## Build & Test
+
 - Build: `pnpm build`
 - Test all: `pnpm test --run --no-color`
 - Single file test: `pnpm vitest run path/to/file.test.ts`
@@ -238,6 +245,7 @@ Use **pnpm**: `pnpm install`, `pnpm dev`, `pnpm test`
 
 ```markdown
 ## 测试
+
 - 运行全部测试：`go test ./...`
 - 运行单个包测试：`go test ./pkg/user`
 - 运行带覆盖率的测试：`go test -cover ./...`
@@ -252,6 +260,7 @@ Agent 应自动执行此处列出的测试命令，并在测试失败时尝试�
 
 ```markdown
 ## Code Style
+
 - Named exports only, no default exports
 - Server Components by default
 - Tailwind for styling — no CSS modules
@@ -265,16 +274,18 @@ Agent 应自动执行此处列出的测试命令，并在测试失败时尝试�
 
 ```markdown
 ## Architecture
-- /src/api/       Route handlers (thin, delegate to services)
-- /src/services/  Business logic
-- /src/models/    Database models
-- /src/lib/       Utilities, DB client
+
+- /src/api/ Route handlers (thin, delegate to services)
+- /src/services/ Business logic
+- /src/models/ Database models
+- /src/lib/ Utilities, DB client
 ```
 
 ### 5.7 测试说明
 
 ```markdown
 ## Testing
+
 - Factory Boy for test data, never fixtures
 - No mocking the database — use test database
 - Add or update tests for code you change
@@ -284,6 +295,7 @@ Agent 应自动执行此处列出的测试命令，并在测试失败时尝试�
 
 ```markdown
 ## Git
+
 - Branch: `feature/<slug>` or `bugfix/<slug>`
 - Commits: Conventional commits (`feat:`, `fix:`, `chore:`)
 - PR title: `[<project_name>] <Title>`
@@ -293,6 +305,7 @@ Agent 应自动执行此处列出的测试命令，并在测试失败时尝试�
 
 ```markdown
 ## Security
+
 - 不得在代码中硬编码密钥
 - 用户输入必须经过校验和清理
 - SQL 查询使用参数化，禁止字符串拼接
@@ -305,10 +318,11 @@ Agent 应自动执行此处列出的测试命令，并在测试失败时尝试�
 
 ```markdown
 ## Do Not Touch
+
 - Never modify files in /generated/
 - Never commit .env files
 - /legacy/ uses sync code intentionally — do not convert
-- src/lib/billing/* (PCI scope)
+- src/lib/billing/\* (PCI scope)
 ```
 
 ### 5.11 逃生口（When Stuck）
@@ -317,6 +331,7 @@ Agent 应自动执行此处列出的测试命令，并在测试失败时尝试�
 
 ```markdown
 ## When Stuck
+
 - Ask a clarifying question, propose a plan, or open a draft PR
 ```
 
@@ -326,6 +341,7 @@ Agent 应自动执行此处列出的测试命令，并在测试失败时尝试�
 
 ```markdown
 ## Monorepo
+
 - `/packages/api` — GraphQL 服务，使用 Apollo
 - `/packages/web` — React SPA，使用 Vite
 - 跨包子包引用通过 workspace 协议
@@ -345,10 +361,13 @@ Agent 解析的是结构化指令，不是叙事性段落。引言、结论、�
 
 ```markdown
 # 差
+
 Welcome to our project! We're excited to have you contribute. Below you'll find...
 
 # 好
+
 ## Build & Test
+
 - Build: `pnpm build`
 - Test: `pnpm test`
 ```
@@ -366,9 +385,11 @@ Welcome to our project! We're excited to have you contribute. Below you'll find.
 
 ```markdown
 # 差
+
 - Lint: `npm run lint`
 
 # 好
+
 - Lint: `pnpm eslint --fix path/to/file.ts`
 - Typecheck: `pnpm tsc --noEmit path/to/file.ts`
 ```
@@ -379,10 +400,12 @@ Welcome to our project! We're excited to have you contribute. Below you'll find.
 
 ```markdown
 # 差
+
 - /src/utils/format.ts — formatting helpers
 - /src/utils/http.ts — HTTP client wrapper
 
 # 好
+
 - /src/utils/ — Shared utilities (formatting, HTTP, date math)
 ```
 
@@ -406,15 +429,15 @@ Welcome to our project! We're excited to have you contribute. Below you'll find.
 
 ### 6.2 不应该做（DON'T）
 
-| 禁止 | 原因 |
-|------|------|
-| 写引言、结论或客套话 | 消耗上下文预算，无信息增量 |
-| "You should..."、"Remember to..." | 冗余措辞，降低指令密度 |
-| 硬编码文件路径 | 文件路径快速过时，维护负担 |
-| 创建"命令墙"（长串 DO NOT） | Agent 倾向于跳过大段否定列表 |
-| 复制 README 已有内容 | 两个文件各自维护，产生漂移 |
-| 复制 linter/formatter 配置中的规则 | Agent 已通过工具配置获取这些规则 |
-| 写 agent 已知的明显指令 | "write clean code"、"use best practices" 无实际约束力 |
+| 禁止                               | 原因                                                  |
+| ---------------------------------- | ----------------------------------------------------- |
+| 写引言、结论或客套话               | 消耗上下文预算，无信息增量                            |
+| "You should..."、"Remember to..."  | 冗余措辞，降低指令密度                                |
+| 硬编码文件路径                     | 文件路径快速过时，维护负担                            |
+| 创建"命令墙"（长串 DO NOT）        | Agent 倾向于跳过大段否定列表                          |
+| 复制 README 已有内容               | 两个文件各自维护，产生漂移                            |
+| 复制 linter/formatter 配置中的规则 | Agent 已通过工具配置获取这些规则                      |
+| 写 agent 已知的明显指令            | "write clean code"、"use best practices" 无实际约束力 |
 
 ### 6.3 何时不添加内容
 
@@ -463,15 +486,15 @@ Agent **应**在会话生命周期内缓存已解析的 AGENTS.md 内容。文�
 
 ### 7.5 兼容性要求
 
-| 特性 | 要求级别 |
-|------|---------|
-| 发现并加载最近 AGENTS.md | **必须** |
-| 用户指令覆盖文件指令 | **必须** |
+| 特性                          | 要求级别 |
+| ----------------------------- | -------- |
+| 发现并加载最近 AGENTS.md      | **必须** |
+| 用户指令覆盖文件指令          | **必须** |
 | 自动执行文件中列出的测试/lint | **建议** |
-| 支持嵌套合并 | **可选** |
-| 兼容 `AGENT.md` 历史命名 | **建议** |
-| 加载全局级 AGENTS.md | **可选** |
-| 变更检测与重新加载 | **可选** |
+| 支持嵌套合并                  | **可选** |
+| 兼容 `AGENT.md` 历史命名      | **建议** |
+| 加载全局级 AGENTS.md          | **可选** |
+| 变更检测与重新加载            | **可选** |
 
 ---
 
@@ -479,13 +502,14 @@ Agent **应**在会话生命周期内缓存已解析的 AGENTS.md 内容。文�
 
 普林斯顿大学对照实验（10 个仓库，124 个 PR）量化了 AGENTS.md 的实际效果：
 
-| 指标 | 改善幅度 |
-|------|----------|
-| 任务运行时间中位数 | **减少 28.6%** |
-| Token 使用中位数 | **减少 16.6%** |
-| 输出 Token 数 | 从 2,925 降至 2,440 |
+| 指标               | 改善幅度            |
+| ------------------ | ------------------- |
+| 任务运行时间中位数 | **减少 28.6%**      |
+| Token 使用中位数   | **减少 16.6%**      |
+| 输出 Token 数      | 从 2,925 降至 2,440 |
 
 **关键发现**：
+
 - **人工编写的** AGENTS.md 效果显著优于 LLM 自动生成的版本
 - LLM 自动生成的 AGENTS.md 反而可能**降低任务成功率并增加 23% 的成本**
 - 建议从小文件开始（20 行以内），通过观察 agent 实际行为逐步迭代
@@ -500,15 +524,16 @@ AGENTS.md 由 [Agentic AI Foundation (AAIF)](https://aaif.io) 管理，AAIF 作�
 
 2025 年 12 月 9 日，Linux 基金会宣布成立 AAIF，同时托管三个创始项目：
 
-| 项目 | 贡献者 | 用途 |
-|------|--------|------|
-| **AGENTS.md** | OpenAI | AI 代理项目指令标准 |
+| 项目                         | 贡献者    | 用途                         |
+| ---------------------------- | --------- | ---------------------------- |
+| **AGENTS.md**                | OpenAI    | AI 代理项目指令标准          |
 | MCP (Model Context Protocol) | Anthropic | AI 模型与工具/数据的连接协议 |
-| Goose | Block | 开源本地优先 AI 代理框架 |
+| Goose                        | Block     | 开源本地优先 AI 代理框架     |
 
 AGENTS.md 与 MCP 形成互补：AGENTS.md 告诉代理"这个项目怎么工作"，MCP 告诉代理"如何与外部系统交互"。
 
 **治理特点**：
+
 - Governing Board 负责战略投资、预算和成员资格
 - 各项目保持完全的技术自主权
 - 确保供应商中立性和长期独立性
@@ -517,13 +542,13 @@ AGENTS.md 与 MCP 形成互补：AGENTS.md 告诉代理"这个项目怎么工作
 
 ### 9.2 与同类格式对比
 
-| 格式 | 路径 | 所有者 | 范围 |
-|------|------|--------|------|
-| **AGENTS.md** | 仓库根目录（支持嵌套） | Linux Foundation / AAIF | 跨工具开放标准 |
-| CLAUDE.md | 仓库根目录 + `~/.claude/` + 嵌套 | Anthropic | Claude Code 专有 |
-| .cursor/rules/\*.mdc | `.cursor/rules/` 目录 | Cursor | Cursor 专有，支持 glob 作用域 |
-| SKILL.md | `~/.claude/skills/<name>/` | Anthropic | 任务级技能格式（渐进式披露） |
-| .github/copilot-instructions.md | `.github/` 目录 | GitHub/Microsoft | Copilot 专有 |
+| 格式                            | 路径                             | 所有者                  | 范围                          |
+| ------------------------------- | -------------------------------- | ----------------------- | ----------------------------- |
+| **AGENTS.md**                   | 仓库根目录（支持嵌套）           | Linux Foundation / AAIF | 跨工具开放标准                |
+| CLAUDE.md                       | 仓库根目录 + `~/.claude/` + 嵌套 | Anthropic               | Claude Code 专有              |
+| .cursor/rules/\*.mdc            | `.cursor/rules/` 目录            | Cursor                  | Cursor 专有，支持 glob 作用域 |
+| SKILL.md                        | `~/.claude/skills/<name>/`       | Anthropic               | 任务级技能格式（渐进式披露）  |
+| .github/copilot-instructions.md | `.github/` 目录                  | GitHub/Microsoft        | Copilot 专有                  |
 
 **注意**：Claude Code 同时读取 CLAUDE.md 和 AGENTS.md。如果只能维护一个文件，选择 AGENTS.md——它的覆盖范围最广。
 
@@ -544,32 +569,32 @@ mv AGENT.md AGENTS.md && ln -s AGENTS.md AGENT.md
 
 ### 9.4 兼容的编码代理工具
 
-| 工具 | 开发者 | 支持方式 |
-|------|--------|----------|
-| Codex | OpenAI | 原生主格式 |
-| Claude Code | Anthropic | 同时读取 CLAUDE.md 和 AGENTS.md |
-| GitHub Copilot | Microsoft | 原生支持 |
-| Cursor | Cursor | 原生支持 |
-| Gemini CLI | Google | 需配置 `.gemini/settings.json` |
-| Jules | Google | 原生支持 |
-| Aider | — | 需配置 `.aider.conf.yml`（`read: AGENTS.md`） |
-| Windsurf | Cognition | 原生支持 |
-| Devin | Cognition | 原生支持 |
-| Zed | — | 原生支持 |
-| Factory | — | 原生支持 |
-| Warp | — | 原生支持 |
-| VS Code | Microsoft | 原生支持 |
-| Amp | — | 原生支持 |
-| Junie | JetBrains | 原生支持 |
-| Goose | Block | 原生支持 |
-| Kilo Code | — | 支持 |
-| RooCode | — | 支持 |
-| Augment Code | — | 支持 |
-| Semgrep | — | 支持 |
-| OpenCode | — | 支持 |
-| Phoenix | — | 支持 |
-| Ona | — | 支持 |
-| UiPath | UiPath | 支持 |
+| 工具           | 开发者    | 支持方式                                      |
+| -------------- | --------- | --------------------------------------------- |
+| Codex          | OpenAI    | 原生主格式                                    |
+| Claude Code    | Anthropic | 同时读取 CLAUDE.md 和 AGENTS.md               |
+| GitHub Copilot | Microsoft | 原生支持                                      |
+| Cursor         | Cursor    | 原生支持                                      |
+| Gemini CLI     | Google    | 需配置 `.gemini/settings.json`                |
+| Jules          | Google    | 原生支持                                      |
+| Aider          | —         | 需配置 `.aider.conf.yml`（`read: AGENTS.md`） |
+| Windsurf       | Cognition | 原生支持                                      |
+| Devin          | Cognition | 原生支持                                      |
+| Zed            | —         | 原生支持                                      |
+| Factory        | —         | 原生支持                                      |
+| Warp           | —         | 原生支持                                      |
+| VS Code        | Microsoft | 原生支持                                      |
+| Amp            | —         | 原生支持                                      |
+| Junie          | JetBrains | 原生支持                                      |
+| Goose          | Block     | 原生支持                                      |
+| Kilo Code      | —         | 支持                                          |
+| RooCode        | —         | 支持                                          |
+| Augment Code   | —         | 支持                                          |
+| Semgrep        | —         | 支持                                          |
+| OpenCode       | —         | 支持                                          |
+| Phoenix        | —         | 支持                                          |
+| Ona            | —         | 支持                                          |
+| UiPath         | UiPath    | 支持                                          |
 
 ### 9.5 快速启动模板
 
@@ -579,9 +604,11 @@ mv AGENT.md AGENTS.md && ln -s AGENTS.md AGENT.md
 [一句话描述项目]
 
 ## Package Manager
+
 Use **pnpm**: `pnpm install`, `pnpm dev`, `pnpm test`
 
 ## Build & Test
+
 - Build: `pnpm build`
 - Test all: `pnpm test`
 - Single file test: `pnpm vitest run path/to/file.test.ts`
@@ -589,22 +616,26 @@ Use **pnpm**: `pnpm install`, `pnpm dev`, `pnpm test`
 - Typecheck: `pnpm tsc --noEmit path/to/file.ts`
 
 ## Architecture
-- /src/app/          App Router pages
-- /src/components/   React components (named exports)
-- /src/lib/          Utilities, DB client
-- /src/actions/      Server actions (all mutations here)
+
+- /src/app/ App Router pages
+- /src/components/ React components (named exports)
+- /src/lib/ Utilities, DB client
+- /src/actions/ Server actions (all mutations here)
 
 ## Code Style
+
 - Server Components by default
 - Named exports only (except page.tsx, layout.tsx)
 - Tailwind for styling — no CSS modules
 
 ## Rules
+
 - Mutations through server actions, not API routes
 - All DB access through ORM in server components
 - Run typecheck before committing
 - Never commit .env files
 
 ## When Stuck
+
 - Ask a clarifying question, propose a plan, or open a draft PR
 ```

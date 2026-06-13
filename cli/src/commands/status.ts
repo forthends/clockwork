@@ -45,9 +45,13 @@ export function statusCommand(): Command {
 
 function colorStatus(status: string): string {
   switch (status) {
-    case 'completed': return chalk.green('✓');
-    case 'in_progress': return chalk.yellow('▶');
-    case 'failed': return chalk.red('✗');
-    default: return chalk.dim('·');
+    case 'completed':
+      return chalk.green('✓');
+    case 'in_progress':
+      return chalk.yellow('▶');
+    case 'failed':
+      return chalk.red('✗');
+    default:
+      return chalk.dim('·');
   }
 }
