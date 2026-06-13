@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import { existsSync, mkdirSync, readdirSync, cpSync } from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
-import * as readline from 'readline/promises';
+import { createInterface, Interface } from 'readline';
 import chalk from 'chalk';
 import { createProject, DEFAULT_PROJECT_CONFIG, ProjectConfig } from './init.js';
 import { loadConfig } from '../config.js';
@@ -30,23 +30,57 @@ function printHeader(stage: number, title: string): void {
   console.log('');
 }
 
-async function question(rl: readline.Interface, prompt: string, defaultValue?: string): Promise<string> {
-  const fullPrompt = defaultValue ? `${prompt} (默认: ${defaultValue}): ` : `${prompt}: `;
-  const answer = await rl.question(chalk.cyan(fullPrompt));
-  return answer.trim() || defaultValue || '';
+/**
+ * Create a question function backed by a persistent line queue.
+ *
+ * readline's promise-based question() loses buffered lines when stdin is a
+ * pipe because the one-shot 'line' listener is torn down between microtask
+ * ticks.  A persistent listener + queue avoids that.
+ */
+function createQuestions(rl: Interface) {
+  const lineQueue: string[] = [];
+  let waiter: ((line: string) => void) | null = null;
+
+  rl.on('line', (line: string) => {
+    if (waiter) {
+      const w = waiter;
+      waiter = null;
+      w(line);
+    } else {
+      lineQueue.push(line);
+    }
+  });
+
+  return async function question(prompt: string, defaultValue?: string): Promise<string> {
+    const fullPrompt = defaultValue ? `${prompt} (默认: ${defaultValue}): ` : `${prompt}: `;
+    process.stdout.write(chalk.cyan(fullPrompt));
+
+    let line: string;
+    if (lineQueue.length > 0) {
+      line = lineQueue.shift()!;
+    } else {
+      line = await new Promise<string>((resolve) => {
+        waiter = resolve;
+      });
+    }
+
+    return line.trim() || defaultValue || '';
+  };
 }
 
-async function stage1Project(rl: readline.Interface, targetPath: string): Promise<void> {
+type QuestionFn = (prompt: string, defaultValue?: string) => Promise<string>;
+
+async function stage1Project(question: QuestionFn, targetPath: string): Promise<void> {
   printHeader(1, '工作空间初始化向导');
 
-  const name = await question(rl, '项目名称', DEFAULT_PROJECT_CONFIG.name);
+  const name = await question('项目名称', DEFAULT_PROJECT_CONFIG.name);
 
   console.log('');
   console.log('IDE 选择:');
   console.log(chalk.dim('  1. claude-code (默认)'));
   console.log(chalk.dim('  2. cursor'));
   console.log(chalk.dim('  3. codex'));
-  const ideInput = await question(rl, '', '1');
+  const ideInput = await question('', '1');
   const ideMap: Record<string, ProjectConfig['ide']> = { '1': 'claude-code', '2': 'cursor', '3': 'codex' };
   const ide = ideMap[ideInput] || 'claude-code';
 
@@ -55,11 +89,11 @@ async function stage1Project(rl: readline.Interface, targetPath: string): Promis
   console.log(chalk.dim('  1. sonnet (默认)'));
   console.log(chalk.dim('  2. opus'));
   console.log(chalk.dim('  3. haiku'));
-  const modelInput = await question(rl, '', '1');
+  const modelInput = await question('', '1');
   const modelMap: Record<string, ProjectConfig['defaultModel']> = { '1': 'sonnet', '2': 'opus', '3': 'haiku' };
   const model = modelMap[modelInput] || 'sonnet';
 
-  const portInput = await question(rl, 'Web 工作台端口', String(DEFAULT_PROJECT_CONFIG.webPort));
+  const portInput = await question('Web 工作台端口', String(DEFAULT_PROJECT_CONFIG.webPort));
   const port = parseInt(portInput, 10) || DEFAULT_PROJECT_CONFIG.webPort;
 
   const config: ProjectConfig = { name, ide, defaultModel: model, webPort: port };
@@ -72,7 +106,7 @@ async function stage1Project(rl: readline.Interface, targetPath: string): Promis
   console.log(chalk.dim(`  Web 端口:  ${config.webPort}`));
   console.log('');
 
-  const confirm = await question(rl, '确认创建? (Y/n)', 'y');
+  const confirm = await question('确认创建? (Y/n)', 'y');
   if (confirm.toLowerCase() !== 'y' && confirm !== '') {
     console.log(chalk.yellow('已取消。'));
     process.exit(0);
@@ -86,7 +120,7 @@ async function stage1Project(rl: readline.Interface, targetPath: string): Promis
   console.log(chalk.dim('  创建了 agents/, skills/, knowledge/, workflows/, repos/, workspace/, .claude/skills/'));
 }
 
-async function stage2Repos(rl: readline.Interface, targetPath: string): Promise<string[]> {
+async function stage2Repos(question: QuestionFn, targetPath: string): Promise<string[]> {
   printHeader(2, '仓库导入');
 
   const repos: string[] = [];
@@ -94,7 +128,7 @@ async function stage2Repos(rl: readline.Interface, targetPath: string): Promise<
   const GIT_URL_RE = /^(https?:\/\/|git@)[^\s]+\.git$/;
 
   while (true) {
-    const url = await question(rl, '仓库 URL (或按 Enter 跳过)', '');
+    const url = await question('仓库 URL (或按 Enter 跳过)', '');
     if (!url) break;
 
     const isValidUrl = GIT_URL_RE.test(url) || existsSync(url);
@@ -105,7 +139,7 @@ async function stage2Repos(rl: readline.Interface, targetPath: string): Promise<
     }
 
     const defaultName = url.split('/').pop()?.replace('.git', '') || 'repo';
-    const name = await question(rl, '子目录名称', defaultName);
+    const name = await question('子目录名称', defaultName);
 
     const repoPath = join(reposDir, name);
     if (existsSync(repoPath)) {
@@ -125,7 +159,7 @@ async function stage2Repos(rl: readline.Interface, targetPath: string): Promise<
       console.log(chalk.red(`  添加失败: ${url}`));
     }
 
-    const more = await question(rl, '\n还要添加更多仓库吗? (y/N)', 'n');
+    const more = await question('\n还要添加更多仓库吗? (y/N)', 'n');
     if (more.toLowerCase() !== 'y') break;
   }
 
@@ -142,7 +176,7 @@ async function stage2Repos(rl: readline.Interface, targetPath: string): Promise<
   return repos;
 }
 
-async function stage3Knowledge(rl: readline.Interface, targetPath: string, repos: string[]): Promise<void> {
+async function stage3Knowledge(question: QuestionFn, targetPath: string, repos: string[]): Promise<void> {
   printHeader(3, '知识库生成');
 
   if (repos.length === 0) {
@@ -164,7 +198,7 @@ async function stage3Knowledge(rl: readline.Interface, targetPath: string, repos
     console.log(chalk.dim(`  ${repos.length + 2}. 跳过`));
     console.log('');
 
-    const choice = await question(rl, '要为哪个仓库生成知识库?', String(repos.length + 2));
+    const choice = await question('要为哪个仓库生成知识库?', String(repos.length + 2));
     const idx = parseInt(choice, 10);
 
     if (isNaN(idx) || idx === repos.length + 2) {
@@ -383,20 +417,21 @@ export function onboardCommand(): Command {
     .description('Interactive workspace initialization wizard')
     .argument('[path]', 'Project path', process.cwd())
     .action(async (targetPath: string) => {
-      const rl = readline.createInterface({
+      const rl = createInterface({
         input: process.stdin,
         output: process.stdout,
       });
+      const question = createQuestions(rl);
 
       try {
         // Stage 1: Project skeleton
-        await stage1Project(rl, targetPath);
+        await stage1Project(question, targetPath);
 
         // Stage 2: Repository import
-        const repos = await stage2Repos(rl, targetPath);
+        const repos = await stage2Repos(question, targetPath);
 
         // Stage 3: Knowledge generation
-        await stage3Knowledge(rl, targetPath, repos);
+        await stage3Knowledge(question, targetPath, repos);
 
         // Stage 4: Validation
         await stage4Validation(targetPath);
