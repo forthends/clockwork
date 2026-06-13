@@ -90,11 +90,20 @@ Next: Start Claude Code and run:
 
 ## 6. 在 Claude Code 中执行 Agent
 
-启动 Claude Code，激活 workflow-runner 技能并执行任务：
+在项目目录下启动 Claude Code：
+
+```bash
+cd my-project
+claude
+```
+
+启动后，使用 `Skill` 工具激活 workflow-runner 并传入任务 ID：
 
 ```
-/clockwork:workflow-runner task-001-user-registration
+使用 workflow-runner 技能，执行任务 task-001-user-registration
 ```
+
+或者直接粘贴 `clockwork start` 输出的提示指令。CC 会自动从 `.claude/skills/` 目录发现 workflow-runner 技能（`clockwork init` 已自动配置）。
 
 Workflow Runner 将按照 feature-dev 工作流的阶段顺序依次执行：
 

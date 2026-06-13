@@ -13,10 +13,14 @@ This skill is the execution engine for Clockwork workflows within Claude Code.
 
 ## Activation
 
-This skill is activated when the user runs:
+This skill is discovered by Claude Code from `.claude/skills/` (set up automatically by `clockwork init`).
+
+To activate, start Claude Code in the project directory and use:
 ```
-/clockwork:workflow-runner <task-id>
+Use the workflow-runner skill to execute task: <task-id>
 ```
+
+Or invoke via the Skill tool with the skill name `workflow-runner`.
 
 ## Execution Flow
 

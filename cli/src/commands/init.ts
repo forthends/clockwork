@@ -69,13 +69,23 @@ export function initCommand(): Command {
         copyDir('agents');
         copyDir('skills');
         copyDir('knowledge');
+
+        // Set up Claude Code skills discovery
+        const ccSkillsDir = join(targetPath, '.claude', 'skills');
+        const projectSkillsDir = join(targetPath, 'skills');
+        if (existsSync(projectSkillsDir)) {
+          mkdirSync(ccSkillsDir, { recursive: true });
+          cpSync(projectSkillsDir, ccSkillsDir, { recursive: true });
+        }
+
         console.log(chalk.dim('  Copied built-in workflows, agents, skills, and knowledge'));
+        console.log(chalk.dim('  Set up .claude/skills/ for Claude Code discovery'));
       } else {
         console.log(chalk.yellow('  Warning: Built-in templates not found. Add workflows/agents/skills manually.'));
       }
 
       console.log(chalk.green('✓ Clockwork project initialized at'), targetPath);
       console.log(chalk.dim('  Created .clockwork/config.yaml'));
-      console.log(chalk.dim('  Created agents/, skills/, knowledge/, workflows/, repos/, workspace/'));
+      console.log(chalk.dim('  Created agents/, skills/, knowledge/, workflows/, repos/, workspace/, .claude/skills/'));
     });
 }

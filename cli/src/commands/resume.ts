@@ -50,7 +50,7 @@ export function resumeCommand(): Command {
       }
 
       console.log('');
-      console.log(chalk.bold('Next: Start Claude Code and run:'));
-      console.log(chalk.cyan(`  /clockwork:workflow-runner ${taskId}`));
+      console.log(chalk.bold('Next: Start Claude Code in this directory and run:'));
+      console.log(chalk.cyan(`  Use the workflow-runner skill to execute task: ${taskId}`));
     });
 }
