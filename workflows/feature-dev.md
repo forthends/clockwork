@@ -32,11 +32,14 @@ stages:
       - REVIEW.md
     human_review: optional
   - id: deliver
-    agent: none
-    description: Summarize artifacts, update knowledge, notify for final approval
+    agent: knowledge-keeper
+    description: Summarize artifacts, generate incremental knowledge, notify for final approval
+    input:
+      required: [SPEC.md, PLAN.md, code_changes]
     actions:
       - summarize_artifacts
-      - update_knowledge
+      - generate_incremental_knowledge
+      - update_knowledge_index
 ---
 
 # Feature Development Workflow
@@ -58,5 +61,6 @@ Outputs REVIEW.md with verdict. If NEEDS_CHANGES, returns to implement stage.
 
 ## Stage 4: Deliver
 
-Framework summarizes all artifacts, updates Knowledge with new findings,
-notifies human for final review and merge.
+Knowledge Keeper agent summarizes all artifacts, generates incremental
+knowledge entries for new patterns or entities discovered during implementation.
+Updates knowledge index. Notifies human for final review and merge.

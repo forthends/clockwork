@@ -32,11 +32,14 @@ stages:
       - REVIEW.md
     human_review: required
   - id: deliver
-    agent: none
-    description: Summarize fix, update knowledge if root cause reveals new learning
+    agent: knowledge-keeper
+    description: Summarize fix, generate incremental knowledge if root cause reveals new learning
+    input:
+      required: [DIAGNOSIS.md, code_changes]
     actions:
       - summarize_artifacts
-      - update_knowledge
+      - generate_incremental_knowledge
+      - update_knowledge_index
 ---
 
 # Bug Fix Workflow
@@ -58,4 +61,6 @@ Human must approve before delivery.
 
 ## Stage 4: Deliver
 
-Framework summarizes and updates Knowledge if root cause reveals new insight.
+Knowledge Keeper agent summarizes fix, generates incremental knowledge
+if root cause analysis reveals new architectural insights or patterns.
+Updates knowledge index. Notifies human for final review and merge.
