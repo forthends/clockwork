@@ -1,0 +1,3 @@
+[submodule "my-project/repos/nexushub"]
+	path = my-project/repos/nexushub
+	url = https://github.com/forthends/nexushub.git
