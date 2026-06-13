@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import { loadConfig } from '../config.js';
-import { loadTask, setHumanReviewPending } from '../workspace.js';
+import { loadTask, setHumanReviewPending, markStageFailed } from '../workspace.js';
 import { join } from 'path';
 import chalk from 'chalk';
 
@@ -22,6 +22,7 @@ export function reviewCommand(): Command {
         console.log(chalk.dim('  Run clockwork resume to continue'));
       } else if (options.reject) {
         setHumanReviewPending(wsDir, taskId, true);
+        markStageFailed(wsDir, taskId, task.currentStage);
         console.log(chalk.red(`✗ Stage '${task.currentStage}' rejected: ${options.reject}`));
         console.log(chalk.dim('  Fix the issues and re-submit for review'));
       } else {
