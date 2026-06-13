@@ -3,6 +3,7 @@ import { join } from 'path';
 import { existsSync, readdirSync, readFileSync } from 'fs';
 import { loadConfig } from '../config.js';
 import { buildIndex, saveIndex, loadIndex } from '../knowledge-indexer.js';
+import { KnowledgeIndex } from '../types.js';
 import chalk from 'chalk';
 
 const VALID_CATEGORIES = ['architecture', 'business', 'design-system', 'decisions'] as const;
@@ -90,7 +91,12 @@ export function knowledgeCommand(): Command {
 
       // Load existing knowledge index
       const knowledgeDir = join(options.project, config.knowledge.dir);
-      const existingIndex = loadIndex(knowledgeDir);
+      let existingIndex: KnowledgeIndex;
+      try {
+        existingIndex = loadIndex(knowledgeDir);
+      } catch {
+        existingIndex = { entries: [] };
+      }
 
       const categories = options.category ? [options.category] : [...VALID_CATEGORIES];
 

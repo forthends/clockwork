@@ -13,13 +13,7 @@ describe('clockwork knowledge generate', () => {
   beforeAll(() => {
     // Initialize project and set up minimal repo
     execSync(`${CLI} init ${testDir}`, { cwd: CLI_DIR, encoding: 'utf8', stdio: 'pipe' });
-    // Copy workflows, agents, knowledge templates
-    execSync(`cp -r ${join(__dirname, '..', '..', '..', 'workflows')} ${testDir}/`, {
-      stdio: 'pipe',
-    });
-    execSync(`cp -r ${join(__dirname, '..', '..', '..', 'agents')} ${testDir}/`, {
-      stdio: 'pipe',
-    });
+    // Copy knowledge templates
     execSync(`cp -r ${join(__dirname, '..', '..', '..', 'knowledge')} ${testDir}/`, {
       stdio: 'pipe',
     });
