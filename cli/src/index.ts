@@ -9,6 +9,7 @@ import { repoCommand } from './commands/repo.js';
 import { knowledgeCommand } from './commands/knowledge.js';
 import { skillCommand } from './commands/skill.js';
 import { webCommand } from './commands/web.js';
+import { cleanupCommand } from './commands/cleanup.js';
 
 const program = new Command();
 
@@ -23,6 +24,7 @@ program.addCommand(repoCommand());
 program.addCommand(knowledgeCommand());
 program.addCommand(skillCommand());
 program.addCommand(webCommand());
+program.addCommand(cleanupCommand());
 
 process.on('SIGINT', () => {
   console.log('\nInterrupted. Use `clockwork resume <task-id>` to recover.');
