@@ -6,7 +6,7 @@ AI collaboration governance framework for agile development teams.
 
 Clockwork adds a governance layer on top of your IDE's native AI agent capabilities. Define Agent roles, Skills, Knowledge, and Workflows to transform "just write code" into structured, auditable, collaborative development.
 
-**Current version: 0.2.0** — MVP with global CLI, end-to-end workflow pipeline, error recovery, and web dashboard.
+**Current version: 0.2.0** — MVP with global CLI, programmatic workflow engine, error recovery, and web dashboard.
 
 ## Quick Start
 
@@ -45,6 +45,8 @@ clockwork/
 │   └── demo-todo/  Demo Express+TypeScript Todo API for testing
 ├── workspace/      Task artifacts and agent outputs
 ├── cli/            CLI tool (Node.js/TypeScript, commander.js)
+│   └── src/
+│       └── workflow-engine.ts  Deterministic workflow state machine
 └── workbench/      Web dashboard (React/Vite)
 ```
 
@@ -69,18 +71,18 @@ clockwork/
 
 ### CLI Commands
 
-| Command                      | Description                                     |
-| ---------------------------- | ----------------------------------------------- |
-| `clockwork init [path]`      | Initialize a new Clockwork project              |
-| `clockwork start <workflow>` | Create a new task and prepare agent context     |
-| `clockwork status [task-id]` | List all tasks or show task details             |
-| `clockwork resume <task-id>` | Resume a paused, failed, or interrupted task    |
-| `clockwork review <task-id>` | Approve or reject task stages                   |
-| `clockwork repo add <url>`   | Add a git submodule repository                  |
-| `clockwork repo status`      | Show repository status                          |
-| `clockwork knowledge update` | Rebuild knowledge index                         |
-| `clockwork skill list`       | List available skills                           |
-| `clockwork web`              | Start the web dashboard (auto-builds workbench) |
+| Command                      | Description                                                                       |
+| ---------------------------- | --------------------------------------------------------------------------------- |
+| `clockwork init [path]`      | Initialize a new Clockwork project                                                |
+| `clockwork start <workflow>` | Create a new task, build agent context, and validate engine (with `--auto-start`) |
+| `clockwork status [task-id]` | List all tasks or show task details                                               |
+| `clockwork resume <task-id>` | Resume a paused, failed, or interrupted task                                      |
+| `clockwork review <task-id>` | Approve or reject task stages                                                     |
+| `clockwork repo add <url>`   | Add a git submodule repository                                                    |
+| `clockwork repo status`      | Show repository status                                                            |
+| `clockwork knowledge update` | Rebuild knowledge index                                                           |
+| `clockwork skill list`       | List available skills                                                             |
+| `clockwork web`              | Start the web dashboard (auto-builds workbench)                                   |
 
 ### Web Dashboard
 
@@ -92,11 +94,16 @@ clockwork/
 | Knowledge Browser | `/knowledge`        | Browse and filter knowledge entries               |
 | Knowledge Detail  | `/knowledge/:path`  | View full knowledge entry with markdown rendering |
 
+### Workflow Engine
+
+The workflow engine (`cli/src/workflow-engine.ts`) is a deterministic TypeScript state machine that drives workflow execution. It manages stage transitions, retry logic with exponential backoff, timeout detection, human review gates, and recovery from interrupted state. The workflow-runner skill acts as a thin Claude Code adapter — it calls the engine to decide what to do next, dispatches sub-agents when instructed, and reports results back.
+
 ### Error Recovery
 
+- **Programmatic engine** — Workflow state machine manages retries, timeouts, and stage transitions deterministically
 - **File locking** — Prevents concurrent task state corruption
 - **Interrupted state** — SIGINT triggers recovery snapshot, `resume` restores from checkpoint
-- **Retry with backoff** — Failed stages retry with 2^n minute exponential backoff
+- **Retry with backoff** — Failed stages retry with 2^n minute exponential backoff (1m → 2m → 4m → … → 60m cap)
 - **Timeout protection** — Stages auto-terminate after configurable timeout (default 10 min)
 
 ## Development
@@ -106,7 +113,7 @@ clockwork/
 npm install --workspaces
 npm run build
 
-# Run all tests (79 tests)
+# Run all tests
 npm test
 
 # Run CLI tests only

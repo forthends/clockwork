@@ -1,158 +1,58 @@
 ---
 name: workflow-runner
 description: >
-  Executes Clockwork workflow stages within Claude Code by dispatching
-  sub-agents. Use when a Clockwork task has been created and needs
-  agent execution through workflow stages.
+  Executes Clockwork workflow stages within Claude Code by calling
+  the deterministic workflow engine. Use when a Clockwork task has
+  been created and needs agent execution through workflow stages.
 compatibility: requires Claude Code with agent tools
 ---
 
 # Workflow Runner
 
-This skill is the execution engine for Clockwork workflows within Claude Code.
-
-## Activation
-
-This skill is discovered by Claude Code from `.claude/skills/` (set up automatically by `clockwork init`).
-
-To activate, start Claude Code in the project directory and use:
-
-```
-Use the workflow-runner skill to execute task: <task-id>
-```
-
-Or invoke via the Skill tool with the skill name `workflow-runner`.
+This skill delegates workflow orchestration to the Clockwork workflow engine (`cli/src/workflow-engine.ts`), a deterministic TypeScript state machine. This skill is the Claude Code adapter that calls the engine to decide what to do next, dispatches sub-agents when instructed, and reports results back to the engine.
 
 ## Execution Flow
 
-### Step 1: Load task state
+### Step 1: Initialize the engine
 
-Read `workspace/<task-id>/status.yaml` to understand:
+Read the workflow engine module at `cli/src/workflow-engine.ts` and call `initEngine(projectRoot, workspaceDir, taskId)` to load the task state, workflow definition, and compute the current stage.
 
-- Which workflow is active
-- Which stage we're on
-- What stages are complete
-- Whether human review is pending
+### Step 2: Loop on getNextAction
 
-### Step 2: Check preconditions
+Call `getNextAction(state)` and act on the returned action type:
 
-If `humanReviewPending` is true, STOP and tell the user:
-"This task requires human review before continuing. Use `clockwork review <task-id>`."
+- **dispatch_agent**: Use the Agent tool to dispatch the agent specified in the action. Construct the prompt from the agent definition (read from `agents/<agentName>.md`) and the task context (read from `workspace/<taskId>/agent-context/<agentName>.json`). If `agentName` is `"none"`, execute the stage's framework actions (summarize, update knowledge) directly instead of dispatching. After completion, verify output artifacts exist, then call `applyStageResult(state, { success, artifacts })` to advance the state machine.
 
-### Step 2.5: Check for interrupted state
+- **wait_review**: Tell the user: "Stage '{reviewStageId}' requires human review. Run `clockwork review <taskId> --approve` or `--reject '<reason>'`." Halt until told to resume.
 
-If the task status is `interrupted`:
+- **complete**: Report that all stages are complete and summarize the completed stages list.
 
-1. Read `workspace/<task-id>/recovery/snapshot.yaml` for the recovery point
-2. Restore to the stage indicated in `snapshot.lastStage`
-3. Rebuild agent context for that stage if needed
-4. Continue execution from the recovery point
+- **error**: Report the error message and suggest remediation. If retries are exhausted, advise re-evaluating the task approach.
 
-### Step 2.6: Error handling during execution
+- **recover**: Read the recovery snapshot from `workspace/<taskId>/recovery/snapshot.yaml`, restore the stage indicated in `snapshot.lastStage`, rebuild agent context if needed, then continue from that recovery point.
 
-**Timeout handling:**
+### Step 3: Before any dispatch, save recovery point
 
-- Each stage has a timeout defined in `stageMeta.<stage>.timeoutMs` (default: 600000ms = 10 min)
-- If a sub-agent takes longer than timeout, mark the stage as failed
-- Write a timeout notice to `workspace/<task-id>/logs/<stage>-timeout.log`
+Call `saveRecoveryPoint(state)` to persist a recovery snapshot. This ensures interrupted tasks can resume cleanly via `clockwork resume <taskId>`.
 
-**Retry with backoff:**
+## Handling no-agent stages
 
-- When a stage fails, check `stageMeta.<stage>.retryCount` against `maxRetries`
-- If retries remain: wait 2^n minutes (where n = retryCount), then re-dispatch
-- If retries exhausted: mark task failed, advise user to re-evaluate
+When `agentName` is `"none"`, the stage requires framework actions (e.g., `summarize_artifacts`, `update_knowledge`). Execute these directly:
 
-**Interrupt handling (SIGINT / user cancel):**
+- **summarize_artifacts**: Read all `.md` files in `workspace/<taskId>/`, produce a summary paragraph.
+- **update_knowledge**: If the task produced new learnings, create or update knowledge entries in `knowledge/` and rebuild the index.
+- **generate_postmortem**: Write `workspace/<taskId>/POSTMORTEM.md` with incident timeline, root cause, impact, and action items.
 
-- Before any stage transition, save recovery snapshot to `workspace/<task-id>/recovery/snapshot.yaml`
-- Snapshot format: `{ lastStage: "<stage-id>", completedStages: [...], currentArtifacts: [...] }`
-- If interrupted mid-stage, mark stage and task as `interrupted`
+After completing these actions, call `applyStageResult` with success to advance.
 
-**Output writing safety:**
+## Retry backoff
 
-- Write artifacts to a temp file first (`.tmp/<filename>`), then atomically rename to final path
-- This prevents partial reads if interrupted during write
-
-### Step 3: Load agent context
-
-Read `workspace/<task-id>/agent-context/<agent-name>.json` for the current stage's agent.
-This file contains: role, capabilities, boundaries, instructions, skills, inputs, knowledge entries.
-
-### Step 4: Dispatch sub-agent
-
-Use the Agent tool to dispatch a sub-agent with:
-
-- **Agent type:** general-purpose
-- **Model:** Use the model specified in the agent definition (or default to sonnet)
-- **Prompt:** Construct from the context package:
-
-  You are acting as the {role} agent in a Clockwork workflow.
-
-  ## Role
-
-  {role}
-
-  ## Capabilities
-
-  {capabilities}
-
-  ## Boundaries (NEVER violate these)
-
-  {boundaries}
-
-  ## Instructions
-
-  {instructions}
-
-  ## Inputs
-
-  {inputs}
-
-  ## Knowledge Context
-
-  {knowledge entries}
-
-  ## Output Requirements
-
-  After completing your work, write your output to workspace/<task-id>/<output-file>
-  as specified in the workflow definition.
-
-  ## Skills Available
-
-  You have access to these skills: {skills}
-  Use the Skill tool to activate them as needed.
-
-### Step 5: Collect output
-
-After the sub-agent completes:
-
-1. Verify the output files exist in workspace/<task-id>/
-2. Update workspace/<task-id>/status.yaml:
-   - Mark current stage as completed
-   - If more stages remain, set up the next stage
-   - If human_review is required for the NEXT stage, set humanReviewPending
-3. If no more stages, mark task as completed
-
-### Step 6: Handle stage results
-
-- **Stage completed:** "Stage '{stage}' completed. Output: {files}"
-- **Stage failed:** "Stage '{stage}' failed. Check workspace/<task-id>/logs/ for details."
-- **All stages complete:** "Task <task-id> complete! Run `clockwork review <task-id>` to finalize."
-- **Human review needed:** "Stage '{stage}' requires human review. Ask the user to run `clockwork review <task-id>`."
-
-## Multi-Agent Coordination
-
-When a workflow has multiple agents:
-
-- Execute stages sequentially
-- Each stage's output becomes the next stage's input
-- The context for each agent is pre-built by the CLI and stored in agent-context/
-- If a stage has `human_review: required`, pause and wait for human approval
+When `backoffMs` is present on a `dispatch_agent` action, wait that duration before re-dispatching. The engine calculates backoff as `min(2^retryCount * 60000, 3600000)` — doubling from 1 minute to a cap of 1 hour.
 
 ## Constraints
 
-- NEVER skip human_review gates — they exist for a reason
+- NEVER skip human_review gates — they are enforced by the engine
 - NEVER modify workflow definitions during execution
 - NEVER execute stages out of order
-- ALWAYS verify output files exist before marking a stage complete
-- IF a sub-agent fails and retries exceed max_retries, mark stage as failed and notify
+- ALWAYS verify output files exist before calling applyStageResult with success
+- ALWAYS call saveRecoveryPoint before dispatching an agent

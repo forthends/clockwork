@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import request from 'supertest';
 import { mkdirSync, rmSync, writeFileSync, readdirSync, statSync, existsSync } from 'fs';
-import { join } from 'path';
+import { join, resolve, sep } from 'path';
 import { tmpdir } from 'os';
 import express from 'express';
 import { createTask, listTasks, loadTask, setHumanReviewPending } from '../../src/workspace.js';
@@ -86,12 +86,17 @@ function createTestApp(dataDir: string, workspaceDir: string, knowledgeDir: stri
 
   // GET /api/knowledge/:entryPath(*) — get knowledge entry content
   app.get('/api/knowledge/:entryPath(*)', (req, res) => {
-    const filePath = join(knowledgeDir, req.params.entryPath);
-    if (!existsSync(filePath)) {
+    const resolvedDir = resolve(knowledgeDir);
+    const resolvedPath = resolve(join(knowledgeDir, req.params.entryPath));
+    if (!resolvedPath.startsWith(resolvedDir + sep) && resolvedPath !== resolvedDir) {
+      res.status(403).json({ error: 'Forbidden' });
+      return;
+    }
+    if (!existsSync(resolvedPath)) {
       res.status(404).json({ error: 'Entry not found' });
       return;
     }
-    res.sendFile(filePath);
+    res.sendFile(resolvedPath);
   });
 
   // POST /api/tasks/:taskId/review — approve or reject
@@ -221,6 +226,18 @@ describe('API endpoints', () => {
   it('GET /api/knowledge/:entryPath returns 404 for missing entry', async () => {
     const res = await request(app).get('/api/knowledge/missing.md');
     expect(res.status).toBe(404);
+  });
+
+  // Endpoint 6 (security): 403 for path traversal via encoded dots
+  it('GET /api/knowledge/:entryPath returns 403 for encoded path traversal', async () => {
+    const res = await request(app).get('/api/knowledge/%2e%2e%2f%2e%2e%2fetc%2fpasswd');
+    expect(res.status).toBe(403);
+  });
+
+  // Endpoint 6 (security): 403 for traversal that escapes knowledge directory
+  it('GET /api/knowledge/:entryPath returns 403 for single-level escape', async () => {
+    const res = await request(app).get('/api/knowledge/%2e%2e%2foutside.md');
+    expect(res.status).toBe(403);
   });
 
   // Endpoint 7: POST /api/tasks/:taskId/review — approve

@@ -15,7 +15,9 @@ export async function buildAgentContext(
   const { frontmatter: agent, body } = parseFrontmatter<AgentFrontmatter>(agentPath);
 
   const index = loadIndex(join(projectRoot, config.knowledge.dir));
-  const keywords = extractKeywords(agent.description + ' ' + agent.capabilities.join(' '));
+  const primaryText = Object.values(inputs).join(' ');
+  const secondaryText = agent.description + ' ' + agent.capabilities.join(' ');
+  const keywords = extractKeywords(primaryText + ' ' + primaryText + ' ' + secondaryText);
   const knowledgeEntries = queryIndex(index, {
     tags: keywords,
     maxResults: config.knowledge.maxEntriesPerQuery,

@@ -1,5 +1,5 @@
 import express from 'express';
-import { join } from 'path';
+import { join, resolve, sep } from 'path';
 import { existsSync, readdirSync, statSync } from 'fs';
 import { loadConfig } from './config.js';
 import { listTasks, loadTask, setHumanReviewPending } from './workspace.js';
@@ -64,13 +64,17 @@ export function startServer(projectRoot: string, workbenchDist?: string): void {
 
   // API: knowledge entry content
   app.get('/api/knowledge/:entryPath(*)', (req, res) => {
-    const knowledgeDir = join(projectRoot, config.knowledge.dir);
-    const filePath = join(knowledgeDir, req.params.entryPath);
-    if (!existsSync(filePath)) {
+    const knowledgeDir = resolve(join(projectRoot, config.knowledge.dir));
+    const resolvedPath = resolve(join(knowledgeDir, req.params.entryPath));
+    if (!resolvedPath.startsWith(knowledgeDir + sep) && resolvedPath !== knowledgeDir) {
+      res.status(403).json({ error: 'Forbidden' });
+      return;
+    }
+    if (!existsSync(resolvedPath)) {
       res.status(404).json({ error: 'Entry not found' });
       return;
     }
-    res.sendFile(filePath);
+    res.sendFile(resolvedPath);
   });
 
   // API: approve/reject

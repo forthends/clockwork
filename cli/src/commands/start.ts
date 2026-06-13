@@ -5,6 +5,7 @@ import { loadConfig } from '../config.js';
 import { createTask, updateTaskStatus } from '../workspace.js';
 import { buildAgentContext, saveContextPackage } from '../context-builder.js';
 import { parseFrontmatter } from '../frontmatter.js';
+import { initEngine, getNextAction } from '../workflow-engine.js';
 import { WorkflowFrontmatter } from '../types.js';
 import chalk from 'chalk';
 
@@ -16,8 +17,12 @@ export function startCommand(): Command {
     .option('--repo <repos...>', 'Associated repositories', [])
     .option('--requirements <text>', 'Task requirements (or read from stdin)')
     .option('-p, --project <path>', 'Project path', process.cwd())
+    .option('--auto-start', 'Validate workflow engine after task creation')
     .action(
-      async (workflow: string, options: { slug: string; repo: string[]; requirements?: string; project: string }) => {
+      async (
+        workflow: string,
+        options: { slug: string; repo: string[]; requirements?: string; project: string; autoStart?: boolean },
+      ) => {
         const SLUG_RE = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/;
         if (!SLUG_RE.test(options.slug)) {
           console.error(chalk.red(`Error: Invalid slug "${options.slug}".`));
@@ -66,6 +71,27 @@ export function startCommand(): Command {
 
         if (firstStage.humanReview === 'required') {
           console.log(chalk.yellow(`  ⚠ Human review required after '${firstStage.id}' stage`));
+        }
+
+        if (options.autoStart) {
+          try {
+            const engineState = await initEngine(options.project, wsDir, task.taskId);
+            const nextAction = getNextAction(engineState);
+            console.log('');
+            console.log(chalk.bold('Workflow Engine:'));
+            console.log(chalk.dim(`  Status:   ${engineState.status.status}`));
+            console.log(chalk.dim(`  Stage:    ${engineState.status.currentStage}`));
+            console.log(chalk.dim(`  Action:   ${nextAction.type}`));
+            if (nextAction.type === 'dispatch_agent') {
+              console.log(chalk.dim(`  Agent:    ${nextAction.agentName || 'none'}`));
+              if (nextAction.backoffMs) {
+                console.log(chalk.yellow(`  Backoff:  ${nextAction.backoffMs}ms`));
+              }
+            }
+            console.log(chalk.green('  Engine validated successfully'));
+          } catch (e) {
+            console.log(chalk.yellow(`  Warning: Engine validation failed — ${String(e)}`));
+          }
         }
 
         console.log('');

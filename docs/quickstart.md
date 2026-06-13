@@ -80,12 +80,31 @@ CLI 将创建任务工作空间，生成 Planner Agent 的上下文包，并提�
 ```
 ✓ Task created: task-001-user-registration
   Workflow: feature-dev
-  Stage: plan (planner)
+  Stages:   plan → implement → review → deliver
+  Next:     plan (planner) — Analyze requirements and generate implementation plan
   Workspace: workspace/task-001-user-registration
   ⚠ Human review required after 'plan' stage
 
-Next: Start Claude Code and run:
-  /clockwork:workflow-runner task-001-user-registration
+Next: Start Claude Code in this directory and run:
+  Use the workflow-runner skill to execute task: task-001-user-registration
+```
+
+添加 `--auto-start` 标志可在任务创建后立即验证工作流引擎：
+
+```bash
+clockwork start feature-dev --slug user-registration --repo your-repo \
+  --requirements "实现用户注册功能" --auto-start
+```
+
+输出中会额外显示引擎状态：
+
+```
+Workflow Engine:
+  Status:   pending
+  Stage:    plan
+  Action:   dispatch_agent
+  Agent:    planner
+  Engine validated successfully
 ```
 
 ## 6. 在 Claude Code 中执行 Agent
@@ -105,14 +124,27 @@ claude
 
 或者直接粘贴 `clockwork start` 输出的提示指令。CC 会自动从 `.claude/skills/` 目录发现 workflow-runner 技能（`clockwork init` 已自动配置）。
 
-Workflow Runner 将按照 feature-dev 工作流的阶段顺序依次执行：
+### 工作流引擎驱动执行
+
+Workflow Runner 技能现在是工作流引擎（`cli/src/workflow-engine.ts`）的薄适配器。执行流程：
+
+1. **初始化引擎** — 加载任务状态和工作流定义，计算当前阶段
+2. **循环决策** — 引擎通过 `getNextAction()` 返回下一步操作：
+   - `dispatch_agent` → 调度对应 Agent，完成后汇报结果
+   - `wait_review` → 暂停等待人工审核
+   - `complete` → 所有阶段完成
+   - `error` → 报告错误（如重试耗尽）
+   - `recover` → 从中断快照恢复
+3. **状态持久化** — 每次阶段转换前保存恢复快照，确保中断可恢复
+
+工作流阶段按顺序执行：
 
 1. **Plan 阶段**：Planner Agent 分析需求，生成 SPEC.md 和 PLAN.md，向人类提问澄清模糊点
 2. **Implement 阶段**（人类审核通过后）：Implementer Agent 按 PLAN 逐任务 TDD 编码
 3. **Review 阶段**：Reviewer Agent 审查代码变更，输出审查报告
-4. **Deliver 阶段**：框架汇总产物，更新知识库
+4. **Deliver 阶段**：引擎自动执行框架操作（汇总产物、更新知识库）
 
-每个阶段的人类审核行为由 Workflow 定义中的 `human_review` 字段控制。
+每个阶段的人类审核行为由 Workflow 定义中的 `human_review` 字段控制，引擎强制执行审核门控。
 
 ## 7. 查看任务状态
 
@@ -152,14 +184,15 @@ clockwork resume task-001-user-registration
 # - paused: 任务暂停后继续
 ```
 
-框架内置的错误恢复机制：
+框架内置的错误恢复机制，由工作流引擎统一管理：
 
-| 保护机制 | 行为                                           |
-| -------- | ---------------------------------------------- |
-| 文件锁   | 防止两个进程同时操作同一任务文件               |
-| 中断存档 | Ctrl+C 时自动保存 recovery 快照，resume 时恢复 |
-| 重试退避 | 阶段失败后 2^n 分钟退避重试（2→4→8 分钟）      |
-| 超时保护 | 单阶段默认 10 分钟超时，超时自动标记 failed    |
+| 保护机制   | 行为                                                       |
+| ---------- | ---------------------------------------------------------- |
+| 工作流引擎 | 确定性的状态机管理阶段转换、重试和超时，替代人工手动操作   |
+| 文件锁     | 防止两个进程同时操作同一任务文件                           |
+| 中断存档   | 每次阶段转换前自动保存 recovery 快照，resume 时恢复        |
+| 重试退避   | 阶段失败后引擎自动 2^n 分钟退避重试（2→4→8→…→60 分钟封顶） |
+| 超时保护   | 单阶段默认 10 分钟超时，引擎检测超时后自动走重试/失败流程  |
 
 ## 10. 使用 Web 工作台
 

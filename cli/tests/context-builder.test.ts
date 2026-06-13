@@ -75,6 +75,13 @@ describe('context builder', () => {
         '    status: active',
         '    updated: "2026-06-01"',
         '    scope: global',
+        '  - path: architecture/login.md',
+        '    title: Login Flow',
+        '    category: architecture',
+        '    tags: [login, authentication]',
+        '    status: active',
+        '    updated: "2026-06-01"',
+        '    scope: global',
       ].join('\n'),
     );
   });
@@ -92,5 +99,17 @@ describe('context builder', () => {
     expect(ctx.skills).toContain('brainstorming');
     expect(ctx.inputs.requirements).toBe('Build login feature');
     expect(ctx.instructions).toContain('# Planner');
+  });
+
+  it('retrieves knowledge based on task inputs, not just agent description', async () => {
+    // "Build login feature" → keywords "build", "login", "feature" → matches "login" tag
+    const ctx1 = await buildAgentContext(testDir, 'planner', { requirements: 'Build login feature' });
+    const hasLoginEntry = ctx1.knowledgeEntries.some((e) => e.path === 'architecture/login.md');
+    expect(hasLoginEntry).toBe(true);
+
+    // Different input with no matching knowledge tags
+    const ctx2 = await buildAgentContext(testDir, 'planner', { requirements: 'Refactor database layer' });
+    // "Refactor database layer" → keywords "refactor", "database", "layer" → no tag matches
+    expect(ctx2.knowledgeEntries.length).toBe(0);
   });
 });
