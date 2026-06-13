@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { loadConfig } from './config.js';
+import { loadConfig, loadUserConfig } from './config.js';
 import { parseFrontmatter } from './frontmatter.js';
 import {
   loadTask,
@@ -14,7 +14,7 @@ import {
 import type { TaskStatus, WorkflowFrontmatter, WorkflowStage, AgentContext, StageMeta } from './types.js';
 
 export interface WorkflowAction {
-  type: 'dispatch_agent' | 'wait_review' | 'complete' | 'error' | 'recover';
+  type: 'dispatch_agent' | 'wait_review' | 'complete' | 'error' | 'recover' | 'wrong_role';
   agentName?: string;
   stageId?: string;
   agentContext?: AgentContext;
@@ -25,6 +25,8 @@ export interface WorkflowAction {
   backoffMs?: number;
   lastStage?: string;
   completedStagesRecovery?: string[];
+  requiredRole?: string;
+  currentUserRole?: string;
 }
 
 export interface StageResult {
@@ -77,25 +79,25 @@ export function getNextAction(state: EngineState): WorkflowAction {
   // Find the current stage
   const currentStage = findStageById(workflow, status.currentStage);
   if (!currentStage) {
-    return handleNoCurrentStage(workflow);
+    return handleNoCurrentStage(workflow, state.projectRoot);
   }
 
   // Check for timeout on in-progress stage
   if (status.stages[status.currentStage] === 'in_progress') {
     const meta = status.stageMeta?.[status.currentStage];
     if (meta && isTimedOut(meta)) {
-      return handleTimeout(currentStage, meta);
+      return handleTimeout(currentStage, meta, state.projectRoot);
     }
   }
 
   // Pending or failed task — dispatch current stage
   if (status.status === 'pending' || status.status === 'failed') {
-    return buildDispatchAction(currentStage);
+    return buildDispatchAction(currentStage, state.projectRoot);
   }
 
   // In progress — meaning we're resuming after a previous dispatch
   if (status.status === 'in_progress') {
-    return buildDispatchAction(currentStage);
+    return buildDispatchAction(currentStage, state.projectRoot);
   }
 
   return { type: 'error', error: `Unhandled state: status=${status.status}, stage=${status.currentStage}` };
@@ -228,7 +230,7 @@ function isTimedOut(meta: StageMeta): boolean {
   return Date.now() - startedAt > meta.timeoutMs;
 }
 
-function handleTimeout(stage: WorkflowStage, meta: StageMeta): WorkflowAction {
+function handleTimeout(stage: WorkflowStage, meta: StageMeta, projectRoot: string): WorkflowAction {
   const maxRetries = stage.maxRetries ?? 3;
   const retryCount = meta.retryCount || 0;
 
@@ -240,6 +242,10 @@ function handleTimeout(stage: WorkflowStage, meta: StageMeta): WorkflowAction {
     };
   }
 
+  // Check role before retry dispatch
+  const roleCheck = checkRole(stage, projectRoot);
+  if (roleCheck) return roleCheck;
+
   const backoffMs = calculateBackoff(retryCount);
   return {
     type: 'dispatch_agent',
@@ -250,17 +256,44 @@ function handleTimeout(stage: WorkflowStage, meta: StageMeta): WorkflowAction {
   };
 }
 
-function handleNoCurrentStage(workflow: WorkflowFrontmatter): WorkflowAction {
+function handleNoCurrentStage(workflow: WorkflowFrontmatter, projectRoot: string): WorkflowAction {
   const firstStage = workflow.stages[0];
   if (firstStage) {
-    return buildDispatchAction(firstStage);
+    return buildDispatchAction(firstStage, projectRoot);
   }
   return { type: 'error', error: 'No stages defined in workflow' };
 }
 
-function buildDispatchAction(stage: WorkflowStage): WorkflowAction {
+function checkRole(stage: WorkflowStage, projectRoot: string): WorkflowAction | null {
+  if (!stage.role) return null;
+
+  const userConfig = loadUserConfig(projectRoot);
+  if (!userConfig) {
+    return {
+      type: 'wrong_role',
+      stageId: stage.id,
+      requiredRole: stage.role,
+      error: `Stage '${stage.id}' requires role '${stage.role}', but no user config found. Run \`clockwork onboard\` to set up your identity.`,
+    };
+  }
+  if (userConfig.role !== stage.role) {
+    return {
+      type: 'wrong_role',
+      stageId: stage.id,
+      requiredRole: stage.role,
+      currentUserRole: userConfig.role,
+      error: `Stage '${stage.id}' requires role '${stage.role}', but you are '${userConfig.role}'.`,
+    };
+  }
+  return null;
+}
+
+function buildDispatchAction(stage: WorkflowStage, projectRoot: string): WorkflowAction {
+  // Check role match before dispatching
+  const roleCheck = checkRole(stage, projectRoot);
+  if (roleCheck) return roleCheck;
+
   // Stages with agent "none" require framework actions (summarize, update knowledge, etc.)
-  // The CC adapter executes these and calls applyStageResult when done
   if (stage.agent === 'none') {
     return {
       type: 'dispatch_agent',
