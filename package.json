@@ -1,0 +1,15 @@
+{
+  "name": "clockwork",
+  "version": "0.2.0",
+  "private": true,
+  "workspaces": ["cli", "workbench"],
+  "scripts": {
+    "install:all": "npm install --workspaces",
+    "build": "npm run build --workspaces",
+    "build:cli": "npm run build -w cli",
+    "build:workbench": "npm run build -w workbench",
+    "test": "npm run test --workspaces",
+    "dev:cli": "npm run dev -w cli",
+    "dev:workbench": "npm run dev -w workbench"
+  }
+}
