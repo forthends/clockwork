@@ -57,12 +57,20 @@ export interface KnowledgeIndex {
   entries: KnowledgeEntry[];
 }
 
+export interface StageMeta {
+  retryCount: number;
+  maxRetries: number;
+  startedAt: string;
+  timeoutMs: number;
+}
+
 export interface TaskStatus {
   taskId: string;
   workflow: string;
-  status: 'pending' | 'in_progress' | 'completed' | 'failed';
+  status: 'pending' | 'in_progress' | 'completed' | 'failed' | 'interrupted';
   currentStage: string;
-  stages: Record<string, 'pending' | 'in_progress' | 'completed' | 'failed'>;
+  stages: Record<string, 'pending' | 'in_progress' | 'completed' | 'failed' | 'interrupted'>;
+  stageMeta: Record<string, StageMeta>;
   created: string;
   updated: string;
   repos: string[];
