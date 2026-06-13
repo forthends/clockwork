@@ -4,38 +4,46 @@
 
 - Node.js >= 20
 - Git
-- Claude Code（一期支持的 IDE）
+- Claude Code（当前支持的 IDE）
 
-## 2. 安装与初始化
+## 2. 安装
 
 ```bash
 # 进入 Clockwork 项目目录
 cd clockwork
 
-# 安装 CLI 依赖
-cd cli && npm install && cd ..
+# 一键安装所有依赖
+npm install --workspaces
 
-# 验证 CLI 可用
-npx tsx cli/src/index.ts --help
+# 构建 CLI 和 Workbench
+npm run build
+
+# 全局注册 clockwork 命令
+npm link
+
+# 验证安装
+clockwork --help
 ```
+
+`clockwork` 命令现在可在任意目录使用。
 
 ## 3. 创建第一个项目
 
 ```bash
-# 在工作目录下初始化一个 Clockwork 项目
-npx tsx cli/src/index.ts init my-project
+# 在工作目录下初始化 Clockwork 项目
+clockwork init my-project
 cd my-project
 ```
 
-这将在 `my-project/` 下创建完整的项目骨架：
+这将创建完整的项目骨架：
 
 ```
 my-project/
 ├── .clockwork/config.yaml   # 项目配置
-├── agents/                  # 空目录，等待添加 Agent 定义
-├── skills/                  # 空目录，等待添加 Skill
-├── knowledge/               # 知识库（含 AGENTS.md）
-├── workflows/               # 空目录，等待添加 Workflow
+├── agents/                  # Agent 角色定义
+├── skills/                  # Skill 能力定义
+├── knowledge/               # 知识库
+├── workflows/               # 工作流定义
 ├── repos/                   # 代码仓库挂载点
 └── workspace/               # 任务工作空间
 ```
@@ -43,7 +51,7 @@ my-project/
 ## 4. 添加代码仓库
 
 ```bash
-# 以 git submodule 方式挂载你的项目代码
+# 以 git submodule 方式挂载项目代码
 git submodule add https://github.com/your-org/your-repo.git repos/your-repo
 ```
 
@@ -56,12 +64,12 @@ git submodule add https://github.com/your-org/your-repo.git repos/your-repo
 ```bash
 # 方式一：通过管道传入需求
 echo "实现用户注册功能：邮箱+密码注册，发送验证邮件" | \
-  npx tsx cli/src/index.ts start feature-dev \
+  clockwork start feature-dev \
     --slug user-registration \
     --repo your-repo
 
 # 方式二：直接在命令行指定需求
-npx tsx cli/src/index.ts start feature-dev \
+clockwork start feature-dev \
   --slug user-registration \
   --repo your-repo \
   --requirements "实现用户注册功能：邮箱+密码注册，发送验证邮件"
@@ -101,46 +109,73 @@ Workflow Runner 将按照 feature-dev 工作流的阶段顺序依次执行：
 
 ```bash
 # 查看所有任务
-npx tsx cli/src/index.ts status --project my-project
+clockwork status
 
 # 查看特定任务详情
-npx tsx cli/src/index.ts status task-001-user-registration --project my-project
+clockwork status task-001-user-registration
 ```
 
 ## 8. 审核 Agent 产物
 
 ```bash
-# 通过 CLI 审核
-npx tsx cli/src/index.ts review task-001-user-registration --project my-project --approve
+# 批准当前阶段，继续执行
+clockwork review task-001-user-registration --approve
 
-# 或者通过 Web 工作台审核
-npx tsx cli/src/index.ts web --project my-project
-# 打开浏览器访问 http://localhost:4200
+# 驳回并说明原因
+clockwork review task-001-user-registration --reject "需求分析不够详细，需要补充边界情况"
+
+# 通过 Web 工作台审核
+clockwork web
+# 打开浏览器访问 http://localhost:4200，在 /tasks/:id/review 页面操作
 ```
 
-## 9. 使用 Web 工作台
+`clockwork web` 首次启动时如果 Workbench 未构建，会自动执行构建。
+
+## 9. 任务错误恢复
 
 ```bash
-npx tsx cli/src/index.ts web --project my-project
+# 任务中断后恢复执行
+clockwork resume task-001-user-registration
+
+# 支持恢复的状态：
+# - interrupted: Ctrl+C 中断后，从 recovery 快照恢复
+# - failed: 阶段失败后，检查重试次数并恢复
+# - paused: 任务暂停后继续
 ```
 
-Web 工作台提供四个页面：
+框架内置的错误恢复机制：
+
+| 保护机制 | 行为 |
+|---------|------|
+| 文件锁 | 防止两个进程同时操作同一任务文件 |
+| 中断存档 | Ctrl+C 时自动保存 recovery 快照，resume 时恢复 |
+| 重试退避 | 阶段失败后 2^n 分钟退避重试（2→4→8 分钟） |
+| 超时保护 | 单阶段默认 10 分钟超时，超时自动标记 failed |
+
+## 10. 使用 Web 工作台
+
+```bash
+clockwork web
+```
+
+Web 工作台提供五个页面：
 
 | 页面 | 路由 | 功能 |
 |------|------|------|
 | 任务看板 | /tasks | 按状态分列展示所有任务（进行中/待审核/已完成） |
-| 任务详情 | /tasks/:id | 查看产物文档，Markdown 渲染 |
+| 任务详情 | /tasks/:id | 查看任务元数据、阶段进度、产物文档（Markdown 渲染） |
 | 审核操作 | /tasks/:id/review | 非技术用户审核 Agent 产物，一键通过/驳回 |
 | 知识库 | /knowledge | 浏览项目知识条目，按分类和标签筛选 |
+| 知识详情 | /knowledge/:path | 查看完整知识条目内容，支持代码高亮、表格等 GFM 语法 |
 
-## 10. 管理知识与技能
+## 11. 管理知识与技能
 
 ```bash
 # 更新知识索引（扫描 knowledge/ 目录中的 .md 文件）
-npx tsx cli/src/index.ts knowledge update --project my-project
+clockwork knowledge update
 
 # 列出可用技能
-npx tsx cli/src/index.ts skill list --project my-project
+clockwork skill list
 ```
 
 ## 内置工作流一览
@@ -160,9 +195,20 @@ npx tsx cli/src/index.ts skill list --project my-project
 | reviewer | 代码审查 | code-review |
 | debugger | 根因分析与修复 | systematic-debugging |
 
+## Demo 项目
+
+`repos/demo-todo/` 是一个最小化的 Express + TypeScript Todo API，用于测试 Clockwork 工作流：
+
+```bash
+cd repos/demo-todo && npm install && npm test   # 22 个测试
+```
+
+端点：`GET/POST /api/v1/todos`、`GET/PATCH/DELETE /api/v1/todos/:id`
+
 ## 下一步
 
 - 在 `agents/` 目录下自定义 Agent 角色
 - 在 `skills/` 目录下添加自定义 Skill
-- 在 `knowledge/` 目录下沉淀项目知识（业务规则、架构文档、设计系统）
+- 在 `knowledge/` 目录下沉淀项目知识（业务规则、架构文档、工程规范）
 - 在 `workflows/` 目录下定义自定义工作流
+- 使用 `repos/demo-todo` 作为测试目标熟悉工作流
