@@ -32,10 +32,8 @@ stages:
       - REVIEW.md
     human_review: optional
   - id: deliver
-    agent: knowledge-keeper
+    agent: none
     description: Summarize artifacts, generate incremental knowledge, notify for final approval
-    input:
-      required: [SPEC.md, PLAN.md, code_changes]
     actions:
       - summarize_artifacts
       - generate_incremental_knowledge

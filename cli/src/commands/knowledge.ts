@@ -41,6 +41,13 @@ export function knowledgeCommand(): Command {
         process.exit(1);
       }
 
+      // Validate repo name — must be a simple directory name, no path traversal
+      if (options.repo.includes('..') || options.repo.includes('/') || options.repo.includes('\\')) {
+        console.error(chalk.red(`Error: Invalid repo name "${options.repo}".`));
+        console.error(chalk.dim('  Repo must be a simple directory name under repos/. No path separators allowed.'));
+        process.exit(1);
+      }
+
       const config = loadConfig(options.project);
       const repoPath = join(options.project, config.repos.dir, options.repo);
 
