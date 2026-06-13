@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { mkdirSync, writeFileSync, existsSync, cpSync, readdirSync } from 'fs';
+import { mkdirSync, writeFileSync, existsSync, cpSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';

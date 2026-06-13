@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TaskCard } from '../components/TaskCard';
 import { fetchTasks, TaskStatusData } from '../api';
 

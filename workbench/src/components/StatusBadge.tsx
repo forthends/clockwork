@@ -1,4 +1,3 @@
-import React from 'react';
 
 const statusClass: Record<string, string> = {
   in_progress: 'badge-active',

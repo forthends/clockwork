@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ReviewActions } from '../components/ReviewActions';
 import { MarkdownViewer } from '../components/MarkdownViewer';

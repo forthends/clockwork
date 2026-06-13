@@ -1,7 +1,7 @@
 import { writeFileSync, readFileSync, existsSync, mkdirSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
-import { TaskStatus, StageMeta } from './types.js';
+import { TaskStatus } from './types.js';
 
 export function createTask(workspaceDir: string, workflow: string, slug: string, repos: string[]): TaskStatus {
   const existing = listTasks(workspaceDir);

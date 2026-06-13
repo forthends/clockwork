@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { StatusBadge } from './StatusBadge';
 import type { TaskStatusData } from '../api';

@@ -2,14 +2,14 @@
   "name": "clockwork-monorepo",
   "version": "0.2.0",
   "private": true,
-  "workspaces": ["cli", "workbench"],
+  "packageManager": "pnpm@9.15.0",
   "scripts": {
-    "install:all": "npm install --workspaces",
-    "build": "npm run build --workspaces",
-    "build:cli": "npm run build -w cli",
-    "build:workbench": "npm run build -w workbench",
-    "test": "npm run test --workspaces",
-    "dev:cli": "npm run dev -w cli",
-    "dev:workbench": "npm run dev -w workbench"
+    "install:all": "pnpm install",
+    "build": "pnpm -r build",
+    "build:cli": "pnpm --filter @clockwork/cli build",
+    "build:workbench": "pnpm --filter @clockwork/workbench build",
+    "test": "pnpm -r test",
+    "dev:cli": "pnpm --filter @clockwork/cli dev",
+    "dev:workbench": "pnpm --filter @clockwork/workbench dev"
   }
 }
