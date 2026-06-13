@@ -1,5 +1,6 @@
 import { Command } from 'commander';
 import { execSync } from 'child_process';
+import { existsSync } from 'fs';
 import { join } from 'path';
 import { loadConfig } from '../config.js';
 import chalk from 'chalk';
@@ -14,6 +15,17 @@ export function repoCommand(): Command {
     .option('-n, --name <name>', 'Directory name for the submodule')
     .option('-p, --project <path>', 'Project path', process.cwd())
     .action((url: string, options: { name?: string; project: string }) => {
+      const GIT_URL_RE = /^(https?:\/\/|git@)[^\s]+\.git$/;
+      const isValidUrl = GIT_URL_RE.test(url) || existsSync(url);
+      if (!isValidUrl) {
+        console.error(chalk.red(`Error: Invalid repository URL "${url}".`));
+        console.error(chalk.dim('  Must be a git remote URL or a local directory path.'));
+        console.error(
+          chalk.dim('  Examples: "https://github.com/org/repo.git", "git@github.com:org/repo.git", "/path/to/repo"'),
+        );
+        process.exit(1);
+      }
+
       const config = loadConfig(options.project);
       const name = options.name || url.split('/').pop()?.replace('.git', '') || 'repo';
       const reposDir = join(options.project, config.repos.dir);

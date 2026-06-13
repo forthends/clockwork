@@ -18,6 +18,14 @@ export function startCommand(): Command {
     .option('-p, --project <path>', 'Project path', process.cwd())
     .action(
       async (workflow: string, options: { slug: string; repo: string[]; requirements?: string; project: string }) => {
+        const SLUG_RE = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/;
+        if (!SLUG_RE.test(options.slug)) {
+          console.error(chalk.red(`Error: Invalid slug "${options.slug}".`));
+          console.error(chalk.dim('  Slugs must be lowercase alphanumeric with optional hyphens.'));
+          console.error(chalk.dim('  Examples: "user-login", "fix-auth-bug-42", "v2"'));
+          process.exit(1);
+        }
+
         const config = loadConfig(options.project);
         const workflowPath = join(options.project, config.workflows.dir, `${workflow}.md`);
 

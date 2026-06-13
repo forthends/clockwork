@@ -12,6 +12,19 @@ export function reviewCommand(): Command {
     .option('--approve', 'Approve the current stage')
     .option('--reject <reason>', 'Reject with reason')
     .action((taskId: string, options: { project: string; approve?: boolean; reject?: string }) => {
+      const TASK_ID_RE = /^task-\d{3}-[a-z0-9-]+$/;
+      if (!TASK_ID_RE.test(taskId)) {
+        console.error(chalk.red(`Error: Invalid task ID "${taskId}".`));
+        console.error(chalk.dim('  Task IDs must match the pattern: task-NNN-slug'));
+        console.error(chalk.dim('  Example: "task-001-user-login"'));
+        process.exit(1);
+      }
+
+      if (options.approve && options.reject) {
+        console.error(chalk.red('Error: --approve and --reject are mutually exclusive'));
+        process.exit(1);
+      }
+
       const config = loadConfig(options.project);
       const wsDir = join(options.project, config.workspace.dir);
       const task = loadTask(wsDir, taskId);

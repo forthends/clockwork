@@ -22,6 +22,14 @@ export function resumeCommand(): Command {
     .option('--skip', 'Skip a timed-out stage')
     .option('--terminate', 'Terminate a timed-out task')
     .action((taskId: string, options: { project: string; retry?: boolean; skip?: boolean; terminate?: boolean }) => {
+      const TASK_ID_RE = /^task-\d{3}-[a-z0-9-]+$/;
+      if (!TASK_ID_RE.test(taskId)) {
+        console.error(chalk.red(`Error: Invalid task ID "${taskId}".`));
+        console.error(chalk.dim('  Task IDs must match the pattern: task-NNN-slug'));
+        console.error(chalk.dim('  Example: "task-001-user-login"'));
+        process.exit(1);
+      }
+
       const config = loadConfig(options.project);
       const wsDir = join(options.project, config.workspace.dir);
       const task = loadTask(wsDir, taskId);
