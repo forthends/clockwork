@@ -5,9 +5,10 @@ import { execSync } from 'child_process';
 import { createInterface, Interface } from 'readline';
 import chalk from 'chalk';
 import { createProject, DEFAULT_PROJECT_CONFIG, ProjectConfig } from './init.js';
-import { loadConfig } from '../config.js';
+import { loadConfig, loadUserConfig, saveUserConfig } from '../config.js';
 import { buildIndex, saveIndex, loadIndex } from '../knowledge-indexer.js';
 import { parseFrontmatter } from '../frontmatter.js';
+import { UserConfig } from '../types.js';
 
 function printHeader(stage: number, title: string): void {
   console.log('');
@@ -412,6 +413,53 @@ async function stage4Validation(targetPath: string): Promise<void> {
   console.log(chalk.bold('━━━━ '.repeat(9)));
 }
 
+function printPersonalHeader(): void {
+  console.log('');
+  console.log(chalk.bold('━━━━ '.repeat(9)));
+  console.log(chalk.bold('  个人信息'));
+  console.log(chalk.bold('━━━━ '.repeat(9)));
+  console.log('');
+}
+
+async function collectPersonalInfo(question: QuestionFn): Promise<UserConfig> {
+  printPersonalHeader();
+
+  let name = await question('你的姓名', '');
+  while (!name) {
+    console.log(chalk.yellow('  姓名不能为空'));
+    const retry = await question('你的姓名', '');
+    if (retry) name = retry;
+  }
+
+  console.log('');
+  console.log('你的角色:');
+  console.log(chalk.dim('  1. pm (产品经理)'));
+  console.log(chalk.dim('  2. developer (开发者)'));
+  console.log(chalk.dim('  3. tester (测试)'));
+  const roleInput = await question('', '2');
+  const roleMap: Record<string, UserConfig['role']> = { '1': 'pm', '2': 'developer', '3': 'tester' };
+  const role = roleMap[roleInput] || 'developer';
+
+  const email = await question('你的邮箱', '');
+
+  const user: UserConfig = { name, role, email };
+
+  console.log('');
+  console.log(chalk.bold('确认信息:'));
+  console.log(chalk.dim(`  姓名: ${user.name}`));
+  console.log(chalk.dim(`  角色: ${user.role}`));
+  console.log(chalk.dim(`  邮箱: ${user.email || '(未填写)'}`));
+  console.log('');
+
+  const confirm = await question('确认? (Y/n)', 'y');
+  if (confirm.toLowerCase() !== 'y' && confirm !== '') {
+    console.log(chalk.yellow('已取消个人信息设置。可稍后重新运行 `clockwork onboard`。'));
+    process.exit(0);
+  }
+
+  return user;
+}
+
 export function onboardCommand(): Command {
   return new Command('onboard')
     .description('Interactive workspace initialization wizard')
@@ -424,17 +472,44 @@ export function onboardCommand(): Command {
       const question = createQuestions(rl);
 
       try {
-        // Stage 1: Project skeleton
-        await stage1Project(question, targetPath);
+        const configExists = existsSync(join(targetPath, '.clockwork', 'config.yaml'));
+        const userExists = loadUserConfig(targetPath) !== null;
 
-        // Stage 2: Repository import
-        const repos = await stage2Repos(question, targetPath);
-
-        // Stage 3: Knowledge generation
-        await stage3Knowledge(question, targetPath, repos);
-
-        // Stage 4: Validation
-        await stage4Validation(targetPath);
+        if (configExists && userExists) {
+          // Scenario C: Both exist — show current and ask to modify
+          const currentUser = loadUserConfig(targetPath)!;
+          console.log('');
+          console.log(chalk.bold('已检测到 Clockwork 项目及用户配置:'));
+          console.log(chalk.dim(`  项目: ${targetPath}`));
+          console.log(chalk.dim(`  姓名: ${currentUser.name}`));
+          console.log(chalk.dim(`  角色: ${currentUser.role}`));
+          console.log(chalk.dim(`  邮箱: ${currentUser.email || '(未填写)'}`));
+          console.log('');
+          const modify = await question('修改个人信息? (y/N)', 'n');
+          if (modify.toLowerCase() === 'y') {
+            const user = await collectPersonalInfo(question);
+            saveUserConfig(targetPath, user);
+            console.log(chalk.green('✓ 个人信息已更新'));
+          }
+        } else if (configExists && !userExists) {
+          // Scenario B: Project exists, no user — new member joining
+          console.log('');
+          console.log(chalk.green(`✓ 已检测到 Clockwork 项目: ${targetPath}`));
+          console.log(chalk.dim('  项目已就绪，跳过项目初始化阶段。'));
+          const user = await collectPersonalInfo(question);
+          saveUserConfig(targetPath, user);
+          console.log(chalk.green('✓ 个人信息已保存'));
+          await stage4Validation(targetPath);
+        } else {
+          // Scenario A: New project — full onboard flow
+          await stage1Project(question, targetPath);
+          const repos = await stage2Repos(question, targetPath);
+          await stage3Knowledge(question, targetPath, repos);
+          await stage4Validation(targetPath);
+          const user = await collectPersonalInfo(question);
+          saveUserConfig(targetPath, user);
+          console.log(chalk.green('✓ 个人信息已保存'));
+        }
       } finally {
         rl.close();
       }

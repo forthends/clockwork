@@ -14,8 +14,8 @@ describe('clockwork onboard', () => {
   });
 
   it('creates a project with default answers', () => {
-    // Pipe Enter for all prompts (accept defaults, confirm creation)
-    const input = '\n\n\n\ny\n\n\n';
+    // Pipe Enter for all prompts (accept defaults, confirm creation), then personal info
+    const input = '\n\n\n\ny\n\nTest\n\n\ny\n';
     const output = execSync(`cd ${__dirname}/../.. && printf '${input}' | ${CLI} onboard ${testDir}`, {
       encoding: 'utf8',
       timeout: 15000,
@@ -40,8 +40,8 @@ describe('clockwork onboard', () => {
   it('creates a project with custom config', () => {
     const customDir = join(tmpdir(), 'clockwork-onboard-custom-' + Date.now());
     try {
-      // Project name: custom-proj, IDE: 2 (cursor), model: 2 (opus), port: 4300
-      const input = 'custom-proj\n2\n2\n4300\ny\n\n\n';
+      // Project name: custom-proj, IDE: 2 (cursor), model: 2 (opus), port: 4300, then personal info
+      const input = 'custom-proj\n2\n2\n4300\ny\n\nTest\n\n\ny\n';
       execSync(`cd ${__dirname}/../.. && printf '${input}' | ${CLI} onboard ${customDir}`, {
         encoding: 'utf8',
         timeout: 15000,
@@ -60,8 +60,8 @@ describe('clockwork onboard', () => {
   it('skips repo import when Enter is pressed', () => {
     const skipDir = join(tmpdir(), 'clockwork-onboard-skip-' + Date.now());
     try {
-      // Accept defaults, skip repo, skip knowledge
-      const input = '\n\n\n\ny\n\n\nn\n';
+      // Accept defaults, skip repo, skip knowledge, then personal info
+      const input = '\n\n\n\ny\n\nTest\n\n\ny\n';
       const output = execSync(`cd ${__dirname}/../.. && printf '${input}' | ${CLI} onboard ${skipDir}`, {
         encoding: 'utf8',
         timeout: 15000,
