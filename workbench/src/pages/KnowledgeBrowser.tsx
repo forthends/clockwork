@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { fetchKnowledge, KnowledgeIndexData } from '../api';
 
 export default function KnowledgeBrowser() {
@@ -52,28 +53,34 @@ export default function KnowledgeBrowser() {
 
       <div style={{ display: 'grid', gap: 12 }}>
         {filtered.map(entry => (
-          <div key={entry.path} className="card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>{entry.title}</h3>
-                <div style={{ fontSize: 12, color: '#64748b' }}>
-                  {entry.path} · {entry.category} · Updated {entry.updated}
+          <Link
+            key={entry.path}
+            to={`/knowledge/${entry.path}`}
+            style={{ textDecoration: 'none', color: 'inherit' }}
+          >
+            <div className="card" style={{ cursor: 'pointer' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>{entry.title}</h3>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>
+                    {entry.path} · {entry.category} · Updated {entry.updated}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 4 }}>
+                  {entry.tags.map(tag => (
+                    <span key={tag} style={{ background: '#0f172a', padding: '2px 8px', borderRadius: 4, fontSize: 11, color: '#94a3b8' }}>
+                      {tag}
+                    </span>
+                  ))}
+                  {entry.status !== 'active' && (
+                    <span className={`badge ${entry.status === 'archived' ? 'badge-failed' : 'badge-pending'}`}>
+                      {entry.status}
+                    </span>
+                  )}
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: 4 }}>
-                {entry.tags.map(tag => (
-                  <span key={tag} style={{ background: '#0f172a', padding: '2px 8px', borderRadius: 4, fontSize: 11, color: '#94a3b8' }}>
-                    {tag}
-                  </span>
-                ))}
-                {entry.status !== 'active' && (
-                  <span className={`badge ${entry.status === 'archived' ? 'badge-failed' : 'badge-pending'}`}>
-                    {entry.status}
-                  </span>
-                )}
-              </div>
             </div>
-          </div>
+          </Link>
         ))}
         {filtered.length === 0 && (
           <div className="card" style={{ textAlign: 'center', padding: 32, color: '#64748b' }}>

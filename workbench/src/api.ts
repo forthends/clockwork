@@ -60,6 +60,12 @@ export async function fetchKnowledge(): Promise<KnowledgeIndexData> {
   return res.json();
 }
 
+export async function fetchKnowledgeEntry(path: string): Promise<string> {
+  const res = await fetch(`${BASE}/knowledge/${path}`);
+  if (!res.ok) throw new Error('Entry not found');
+  return res.text();
+}
+
 export async function submitReview(taskId: string, action: 'approve' | 'reject', reason?: string): Promise<void> {
   await fetch(`${BASE}/tasks/${taskId}/review`, {
     method: 'POST',

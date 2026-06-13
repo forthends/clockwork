@@ -5,6 +5,7 @@ import TaskBoard from './pages/TaskBoard';
 import TaskDetail from './pages/TaskDetail';
 import TaskReview from './pages/TaskReview';
 import KnowledgeBrowser from './pages/KnowledgeBrowser';
+import KnowledgeDetail from './pages/KnowledgeDetail';
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
         <Route path="/tasks" element={<TaskBoard />} />
         <Route path="/tasks/:taskId" element={<TaskDetail />} />
         <Route path="/tasks/:taskId/review" element={<TaskReview />} />
+        <Route path="/knowledge/*" element={<KnowledgeDetail />} />
         <Route path="/knowledge" element={<KnowledgeBrowser />} />
       </Routes>
     </Layout>
