@@ -14,7 +14,7 @@ Generate knowledge base entries from code repositories.
 ## Input
 
 - `repo_path` (required): Path to the repository to analyze, e.g. `repos/my-service`
-- `category` (optional): Specific category to generate. One of: `architecture`, `business`, `design-system`, `decisions`. If omitted, proceeds through all four in order.
+- `category` (optional): Specific category to generate. One of: `architecture`, `business`, `design-system`, `decisions`. If omitted, proceeds through all four in order. Note: `decisions` category uses findings from earlier phases — when requesting only `decisions`, run `architecture` + `business` + `design-system` first.
 
 ## Process
 
@@ -82,6 +82,29 @@ After all categories are done, tell the user:
 Knowledge generation complete. Run `clockwork knowledge update` to rebuild the index.
 Review generated entries in knowledge/ and change `status: draft` to `active` after approval.
 ```
+
+## Output
+
+Knowledge entries are written to `knowledge/{category}/{topic}.md` with this format:
+
+```yaml
+---
+tags: [tag1, tag2, tag3]
+category: architecture
+status: draft
+updated: 'YYYY-MM-DD'
+scope: global
+---
+# Topic Title
+
+## Section
+
+Content...
+```
+
+- `{topic}` is derived from the primary subject found (e.g., `api-conventions`, `domain-model`, `components`)
+- Each entry starts with `status: draft` — human review required to change to `active`
+- Tags are derived from technology names, patterns, and concepts identified in the code
 
 ## Constraints
 
