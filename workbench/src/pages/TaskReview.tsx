@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import ReviewActions from '../components/ReviewActions';
-import MarkdownViewer from '../components/MarkdownViewer';
+import { ReviewActions } from '../components/ReviewActions';
+import { MarkdownViewer } from '../components/MarkdownViewer';
 import { fetchTask, fetchArtifacts, fetchArtifact, Artifact } from '../api';
 
-export default function TaskReview() {
+export function TaskReview() {
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
   const [artifacts, setArtifacts] = useState<Artifact[]>([]);

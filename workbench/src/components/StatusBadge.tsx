@@ -14,7 +14,7 @@ const statusLabel: Record<string, string> = {
   pending: 'Pending',
 };
 
-export default function StatusBadge({ status }: { status: string }) {
+export function StatusBadge({ status }: { status: string }) {
   return (
     <span className={`badge ${statusClass[status] || 'badge-pending'}`}>
       {statusLabel[status] || status}

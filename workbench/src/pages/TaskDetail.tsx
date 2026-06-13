@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import StatusBadge from '../components/StatusBadge';
-import MarkdownViewer from '../components/MarkdownViewer';
+import { StatusBadge } from '../components/StatusBadge';
+import { MarkdownViewer } from '../components/MarkdownViewer';
 import { fetchTask, fetchArtifacts, fetchArtifact, TaskStatusData, Artifact } from '../api';
 
-export default function TaskDetail() {
+export function TaskDetail() {
   const { taskId } = useParams<{ taskId: string }>();
   const [task, setTask] = useState<TaskStatusData | null>(null);
   const [artifacts, setArtifacts] = useState<Artifact[]>([]);

@@ -1,13 +1,13 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import Layout from './components/Layout';
-import TaskBoard from './pages/TaskBoard';
-import TaskDetail from './pages/TaskDetail';
-import TaskReview from './pages/TaskReview';
-import KnowledgeBrowser from './pages/KnowledgeBrowser';
-import KnowledgeDetail from './pages/KnowledgeDetail';
+import { Layout } from './components/Layout';
+import { TaskBoard } from './pages/TaskBoard';
+import { TaskDetail } from './pages/TaskDetail';
+import { TaskReview } from './pages/TaskReview';
+import { KnowledgeBrowser } from './pages/KnowledgeBrowser';
+import { KnowledgeDetail } from './pages/KnowledgeDetail';
 
-export default function App() {
+export function App() {
   return (
     <Layout>
       <Routes>

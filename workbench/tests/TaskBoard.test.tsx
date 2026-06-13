@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import TaskBoard from '../src/pages/TaskBoard';
+import { TaskBoard } from '../src/pages/TaskBoard';
 import * as api from '../src/api';
 
 vi.mock('../src/api');

@@ -21,7 +21,7 @@ renderer.code = function ({ text, lang }: { text: string; lang?: string }) {
 
 marked.setOptions({ renderer });
 
-export default function MarkdownViewer({ content }: { content: string }) {
+export function MarkdownViewer({ content }: { content: string }) {
   const html = useMemo(() => {
     const parsed = marked.parse(content);
     return typeof parsed === 'string' ? parsed : '';

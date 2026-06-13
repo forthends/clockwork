@@ -6,7 +6,7 @@ interface Props {
   onComplete: () => void;
 }
 
-export default function ReviewActions({ taskId, onComplete }: Props) {
+export function ReviewActions({ taskId, onComplete }: Props) {
   const [reason, setReason] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState('');

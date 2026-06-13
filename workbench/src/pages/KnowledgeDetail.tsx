@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { fetchKnowledgeEntry } from '../api';
-import MarkdownViewer from '../components/MarkdownViewer';
+import { MarkdownViewer } from '../components/MarkdownViewer';
 
-export default function KnowledgeDetail() {
+export function KnowledgeDetail() {
   const { entryPath } = useParams<{ entryPath: string }>();
   const [content, setContent] = useState<string>('');
   const [loading, setLoading] = useState(true);

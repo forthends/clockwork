@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import MarkdownViewer from '../src/components/MarkdownViewer';
+import { MarkdownViewer } from '../src/components/MarkdownViewer';
 
 describe('MarkdownViewer', () => {
   it('renders headings', () => {

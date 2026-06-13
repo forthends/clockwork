@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import TaskCard from '../components/TaskCard';
+import { TaskCard } from '../components/TaskCard';
 import { fetchTasks, TaskStatusData } from '../api';
 
-export default function TaskBoard() {
+export function TaskBoard() {
   const [tasks, setTasks] = useState<TaskStatusData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

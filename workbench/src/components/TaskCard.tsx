@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import StatusBadge from './StatusBadge';
+import { StatusBadge } from './StatusBadge';
 import type { TaskStatusData } from '../api';
 
-export default function TaskCard({ task }: { task: TaskStatusData }) {
+export function TaskCard({ task }: { task: TaskStatusData }) {
   return (
     <Link to={`/tasks/${task.taskId}`} style={{ textDecoration: 'none' }}>
       <div className="card" style={{ marginBottom: 12, cursor: 'pointer' }}>

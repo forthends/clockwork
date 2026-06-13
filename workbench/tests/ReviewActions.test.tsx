@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import ReviewActions from '../src/components/ReviewActions';
+import { ReviewActions } from '../src/components/ReviewActions';
 import * as api from '../src/api';
 
 vi.mock('../src/api');
