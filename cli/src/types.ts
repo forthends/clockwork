@@ -53,6 +53,7 @@ export interface KnowledgeEntry {
   status: 'active' | 'draft' | 'archived';
   updated: string;
   scope?: string;
+  author?: string;
 }
 
 export interface KnowledgeIndex {

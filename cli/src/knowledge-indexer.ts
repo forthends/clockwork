@@ -20,9 +20,11 @@ export function buildIndex(knowledgeDir: string): KnowledgeIndex {
         const parentDir = relative(knowledgeDir, dirname(fullPath)) || 'root';
         const category = mapCategory(parentDir);
         let tags: string[] = [];
+        let author: string | undefined;
         try {
-          const { frontmatter: fm } = parseFrontmatter<{ tags?: string[] }>(fullPath);
+          const { frontmatter: fm } = parseFrontmatter<{ tags?: string[]; author?: string }>(fullPath);
           tags = fm.tags || [];
+          author = fm.author;
         } catch {
           // file has no frontmatter or invalid — use empty tags
         }
@@ -34,6 +36,7 @@ export function buildIndex(knowledgeDir: string): KnowledgeIndex {
           status: 'active',
           updated: now,
           scope: 'global',
+          author,
         });
       }
     }
