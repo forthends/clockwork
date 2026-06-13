@@ -1,5 +1,5 @@
 {
-  "name": "clockwork",
+  "name": "clockwork-monorepo",
   "version": "0.2.0",
   "private": true,
   "workspaces": ["cli", "workbench"],
