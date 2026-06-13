@@ -29,6 +29,9 @@ build/
 .clockwork/
 .superpowers/
 
+# npm link output
+cli/bin/
+
 # Python
 __pycache__/
 *.pyc
