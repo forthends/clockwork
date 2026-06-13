@@ -6,7 +6,7 @@ import { listTasks, loadTask, setHumanReviewPending } from './workspace.js';
 import { loadIndex } from './knowledge-indexer.js';
 import chalk from 'chalk';
 
-export function startServer(projectRoot: string): void {
+export function startServer(projectRoot: string, workbenchDist?: string): void {
   const config = loadConfig(projectRoot);
   const app = express();
 
@@ -86,11 +86,11 @@ export function startServer(projectRoot: string): void {
   });
 
   // Serve static workbench files (production build)
-  const workbenchDist = join(projectRoot, 'workbench', 'dist');
-  if (existsSync(workbenchDist)) {
-    app.use(express.static(workbenchDist));
+  const distPath = workbenchDist || join(projectRoot, 'workbench', 'dist');
+  if (existsSync(distPath)) {
+    app.use(express.static(distPath));
     app.get('*', (_req, res) => {
-      res.sendFile(join(workbenchDist, 'index.html'));
+      res.sendFile(join(distPath, 'index.html'));
     });
   } else {
     app.get('/', (_req, res) => {
