@@ -10,12 +10,14 @@ import { knowledgeCommand } from './commands/knowledge.js';
 import { skillCommand } from './commands/skill.js';
 import { webCommand } from './commands/web.js';
 import { cleanupCommand } from './commands/cleanup.js';
+import { onboardCommand } from './commands/onboard.js';
 
 const program = new Command();
 
 program.name('clockwork').description('AI collaboration governance framework for agile teams').version('0.1.0');
 
 program.addCommand(initCommand());
+program.addCommand(onboardCommand());
 program.addCommand(startCommand());
 program.addCommand(statusCommand());
 program.addCommand(resumeCommand());
