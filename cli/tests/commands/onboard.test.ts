@@ -1,6 +1,6 @@
 import { describe, it, expect, afterAll } from 'vitest';
 import { execSync } from 'child_process';
-import { existsSync, readFileSync, rmSync } from 'fs';
+import { existsSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
 
@@ -72,4 +72,57 @@ describe('clockwork onboard', () => {
       rmSync(skipDir, { recursive: true, force: true });
     }
   }, 20000);
+
+  it('detects existing project and collects personal info (Scenario B)', () => {
+    const joinDir = join(tmpdir(), 'clockwork-onboard-join-' + Date.now());
+    try {
+      // First, create a project with init
+      execSync(`cd ${__dirname}/../.. && ${CLI} init ${joinDir}`, { encoding: 'utf8', timeout: 10000 });
+      // Also init git so stage4 validation doesn't fail on submodule check
+      execSync(`cd ${joinDir} && git init && git add -A && git commit -m "init"`, { encoding: 'utf8', timeout: 10000 });
+
+      // Now run onboard — should detect project and ask for personal info only
+      const input = '李四\n1\nlisi@example.com\ny\n';
+      const output = execSync(`cd ${__dirname}/../.. && printf '${input}' | ${CLI} onboard ${joinDir}`, {
+        encoding: 'utf8',
+        timeout: 15000,
+      });
+      expect(output).toContain('已检测到 Clockwork 项目');
+      expect(output).toContain('个人信息已保存');
+
+      // Verify user.yaml exists
+      expect(existsSync(join(joinDir, '.clockwork', 'user.yaml'))).toBe(true);
+
+      // Verify it does NOT contain project creation output
+      expect(output).not.toContain('项目已创建');
+    } finally {
+      rmSync(joinDir, { recursive: true, force: true });
+    }
+  }, 30000);
+
+  it('shows current user info and allows modification (Scenario C)', () => {
+    const modDir = join(tmpdir(), 'clockwork-onboard-mod-' + Date.now());
+    try {
+      // Create project with init and write a user.yaml manually
+      execSync(`cd ${__dirname}/../.. && ${CLI} init ${modDir}`, { encoding: 'utf8', timeout: 10000 });
+      execSync(`cd ${modDir} && git init && git add -A && git commit -m "init"`, { encoding: 'utf8', timeout: 10000 });
+      const userYaml = join(modDir, '.clockwork', 'user.yaml');
+      writeFileSync(userYaml, 'user:\n  name: 王五\n  role: developer\n  email: wangwu@test.com\n');
+
+      // Run onboard — should show current info and allow modification
+      const input = 'y\n赵六\n3\nzhaoliu@test.com\ny\n';
+      const output = execSync(`cd ${__dirname}/../.. && printf '${input}' | ${CLI} onboard ${modDir}`, {
+        encoding: 'utf8',
+        timeout: 15000,
+      });
+      expect(output).toContain('王五');
+      expect(output).toContain('个人信息已更新');
+
+      const config = readFileSync(join(modDir, '.clockwork', 'user.yaml'), 'utf8');
+      expect(config).toContain('赵六');
+      expect(config).toContain('tester');
+    } finally {
+      rmSync(modDir, { recursive: true, force: true });
+    }
+  }, 30000);
 });
