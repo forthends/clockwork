@@ -13,8 +13,11 @@ Generate knowledge base entries from code repositories.
 
 ## Input
 
-- `repo_path` (required): Path to the repository to analyze, e.g. `repos/my-service`
+- `repo_path` (required for full analysis): Path to the repository to analyze, e.g. `repos/my-service`
 - `category` (optional): Specific category to generate. One of: `architecture`, `business`, `design-system`, `decisions`. If omitted, proceeds through all four in order. Note: `decisions` category uses findings from earlier phases — when requesting only `decisions`, run `architecture` + `business` + `design-system` first.
+- `mode` (optional): `full` (default) or `incremental`. Incremental mode is used by workflow deliver stages.
+- `code_changes` (required for incremental mode): Git diff or list of changed files.
+- `spec_plan_docs` (required for incremental mode): SPEC.md, PLAN.md, or DIAGNOSIS.md content.
 
 ## Process
 
@@ -82,6 +85,25 @@ After all categories are done, tell the user:
 Knowledge generation complete. Run `clockwork knowledge update` to rebuild the index.
 Review generated entries in knowledge/ and change `status: draft` to `active` after approval.
 ```
+
+### Incremental Mode
+
+When invoked from a workflow deliver stage (`mode: incremental`):
+
+1. Read `spec_plan_docs` (SPEC.md, PLAN.md, or DIAGNOSIS.md) to understand what was built or fixed
+2. Examine `code_changes` (git diff of changed files) to identify:
+   - New entities, types, or interfaces
+   - New API endpoints or route handlers
+   - New middleware, configuration, or architectural patterns
+   - Changes to existing patterns or conventions
+3. For each discovery, check if a corresponding knowledge entry already exists:
+   - If yes, evaluate whether the entry needs updating and update it
+   - If no, generate a new entry in the appropriate category
+4. If no new patterns or entities are discovered, skip — do not generate empty entries
+5. After generating or updating entries, run `clockwork knowledge update` to rebuild the index
+6. Report a summary: "Generated N new entries, updated M existing entries, skipped K categories"
+
+Incremental mode does NOT walk the full repository. It only analyzes what changed.
 
 ## Output
 

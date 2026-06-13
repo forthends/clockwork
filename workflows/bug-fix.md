@@ -32,8 +32,10 @@ stages:
       - REVIEW.md
     human_review: required
   - id: deliver
-    agent: none
+    agent: knowledge-keeper
     description: Summarize fix, generate incremental knowledge if root cause reveals new learning
+    input:
+      required: [DIAGNOSIS.md, code_changes]
     actions:
       - summarize_artifacts
       - generate_incremental_knowledge
