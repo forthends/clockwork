@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { mkdirSync, writeFileSync, existsSync, cpSync } from 'fs';
+import { mkdirSync, writeFileSync, existsSync, cpSync, readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
@@ -62,6 +62,18 @@ export function createProject(targetPath: string, projectConfig: ProjectConfig):
 
   const configPath = join(targetPath, '.clockwork', 'config.yaml');
   writeFileSync(configPath, stringifyYaml(config));
+
+  // Write .gitignore with user.yaml exclusion
+  const gitignorePath = join(targetPath, '.gitignore');
+  const gitignoreLine = '.clockwork/user.yaml\n';
+  if (!existsSync(gitignorePath)) {
+    writeFileSync(gitignorePath, gitignoreLine);
+  } else {
+    const existing = readFileSync(gitignorePath, 'utf8');
+    if (!existing.includes('.clockwork/user.yaml')) {
+      writeFileSync(gitignorePath, existing + gitignoreLine);
+    }
+  }
 
   const templatesDir = findTemplatesDir();
   if (templatesDir) {
