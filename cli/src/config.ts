@@ -12,6 +12,7 @@ const DEFAULT_CONFIG: ClockworkConfig = {
   repos: { dir: 'repos/' },
   workspace: { dir: 'workspace/' },
   web: { port: 4200, host: 'localhost' },
+  cli: { lockTTLMinutes: 30 },
 };
 
 export function loadConfig(projectRoot: string): ClockworkConfig {

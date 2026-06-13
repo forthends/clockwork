@@ -10,6 +10,7 @@ export interface ClockworkConfig {
   repos: { dir: string };
   workspace: { dir: string };
   web: { port: number; host: string };
+  cli: { lockTTLMinutes: number };
 }
 
 export interface AgentFrontmatter {
