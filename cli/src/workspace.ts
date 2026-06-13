@@ -56,6 +56,11 @@ export function updateTaskStatus(
   task.status = status;
   task.currentStage = currentStage;
   task.stages[currentStage] = 'in_progress';
+  if (!task.stageMeta) task.stageMeta = {};
+  if (!task.stageMeta[currentStage]) {
+    task.stageMeta[currentStage] = { retryCount: 0, maxRetries: 3, startedAt: '', timeoutMs: 600000 };
+  }
+  task.stageMeta[currentStage].startedAt = new Date().toISOString();
   task.updated = new Date().toISOString();
   writeFileSync(join(workspaceDir, taskId, 'status.yaml'), stringifyYaml(task));
   return task;

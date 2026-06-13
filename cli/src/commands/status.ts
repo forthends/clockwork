@@ -29,16 +29,36 @@ export function statusCommand(): Command {
         if (task.humanReviewPending) {
           console.log(chalk.yellow('  ⚠ Human review pending'));
         }
+        const currentMeta = task.stageMeta?.[task.currentStage];
+        if (currentMeta && task.stages[task.currentStage] === 'in_progress') {
+          const startedAt = new Date(currentMeta.startedAt).getTime();
+          const timeoutMs = currentMeta.timeoutMs || 600000;
+          if (startedAt && Date.now() - startedAt > timeoutMs) {
+            const ago = formatDuration(Date.now() - startedAt);
+            const limit = formatDuration(timeoutMs);
+            console.log(
+              chalk.yellow(`  ⚠ Stage '${task.currentStage}' timed out (started ${ago} ago, timeout ${limit})`),
+            );
+          }
+        }
       } else {
         const tasks = listTasks(wsDir);
         if (tasks.length === 0) {
           console.log(chalk.dim('No tasks found'));
           return;
         }
+        console.log(chalk.bold('Tasks:'));
         for (const task of tasks) {
-          const line = `${colorStatus(task.status)} ${task.taskId}  ${chalk.dim(task.workflow)}  ${task.status}`;
-          console.log(line);
+          const icon = colorStatus(task.status);
+          console.log(`  ${icon} ${task.taskId.padEnd(28)} ${chalk.dim(task.workflow.padEnd(16))} ${task.status}`);
         }
+        const inProgress = tasks.filter((t) => t.status === 'in_progress').length;
+        const pending = tasks.filter((t) => t.status === 'pending').length;
+        const completed = tasks.filter((t) => t.status === 'completed').length;
+        console.log('');
+        console.log(
+          chalk.dim(`${tasks.length} tasks (${inProgress} in progress, ${pending} pending, ${completed} completed)`),
+        );
       }
     });
 }
@@ -54,4 +74,11 @@ function colorStatus(status: string): string {
     default:
       return chalk.dim('·');
   }
+}
+
+function formatDuration(ms: number): string {
+  const minutes = Math.floor(ms / 60000);
+  const hours = Math.floor(minutes / 60);
+  if (hours > 0) return `${hours}h ${minutes % 60}m`;
+  return `${minutes}m`;
 }
