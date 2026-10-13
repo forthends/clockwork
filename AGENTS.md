@@ -144,3 +144,11 @@ clockwork/
 - 上下游信息传递通过产物文件实现，不依赖口头约定
 - 每个产物都是自包含的，包含足够的上下文让下游理解
 - 关键决策和变更必须记录在产物中，确保可追溯
+
+---
+
+## Cursor Cloud specific instructions
+
+- 本仓库是 Python CLI，没有需要常驻的开发服务器。依赖只有 PyYAML：`python3 -m pip install --user 'pyyaml==6.0.1'`。
+- 从仓库根目录运行 `python3 cli/clockwork.py`。不要把 `cli/clockwork.py` 符号链接到 `/usr/local/bin`：`WORKSPACE_ROOT` 使用未解析符号链接的 `__file__`，链接后工作空间会变成 `/usr/local`。环境安装写入包装脚本 `/usr/local/bin/clockwork`，用真实路径调用 CLI。
+- 端到端检查使用 `clockwork init`、`clockwork list`、`clockwork create`，写入 PRD 后再执行 `clockwork validate` 与 `clockwork advance`。`validate` 会改写对应需求的 `manifest.yaml`，验收时使用临时需求并在结束后删除。
